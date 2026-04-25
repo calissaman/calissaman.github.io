@@ -466,10 +466,15 @@ h3 {
   border: 0;
   border-radius: 5px 5px 2px 2px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 246, 0.22) 0 0.42rem, transparent 0.42rem calc(100% - 0.42rem), rgba(0, 31, 51, 0.18) calc(100% - 0.42rem)),
-    repeating-linear-gradient(180deg, transparent 0 1.4rem, rgba(255, 255, 255, 0.16) 1.4rem 1.48rem, transparent 1.48rem 2.2rem),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 24%, rgba(0, 31, 51, 0.16) 76%, rgba(0, 31, 51, 0.3)),
+    var(--spine-motif),
+    var(--spine-grid),
+    linear-gradient(180deg, rgba(255, 255, 246, 0.32) 0 0.48rem, transparent 0.48rem calc(100% - 0.48rem), rgba(255, 255, 246, 0.22) calc(100% - 0.48rem)),
+    repeating-linear-gradient(180deg, transparent 0 1.7rem, rgba(255, 255, 246, 0.16) 1.7rem 1.82rem, transparent 1.82rem 2.6rem),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.32), transparent 22%, rgba(0, 31, 51, 0.12) 76%, rgba(0, 31, 51, 0.3)),
     var(--book-color);
+  background-blend-mode: screen, soft-light, normal, normal, normal, normal;
+  --spine-motif: radial-gradient(circle at 50% 22%, rgba(255, 255, 246, 0.58) 0 0.22rem, transparent 0.25rem);
+  --spine-grid: repeating-linear-gradient(135deg, transparent 0 0.78rem, rgba(255, 255, 246, 0.26) 0.82rem 0.9rem, transparent 0.94rem 1.55rem);
   color: #f8feff;
   cursor: pointer;
   transform-origin: bottom center;
@@ -481,19 +486,27 @@ h3 {
 
 .book-spine::after {
   position: absolute;
-  inset: 0.75rem 0.38rem;
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  inset: 0.76rem 0.36rem;
+  border: 1px solid rgba(255, 255, 246, 0.48);
   border-radius: 3px;
+  background: var(--spine-frame);
+  --spine-frame:
+    linear-gradient(135deg, transparent 48%, rgba(255, 255, 246, 0.2) 49% 51%, transparent 52%),
+    linear-gradient(45deg, transparent 48%, rgba(198, 249, 247, 0.16) 49% 51%, transparent 52%);
+  background-size: 1.8rem 1.8rem;
   content: "";
   pointer-events: none;
 }
 
 .book-spine::before {
   position: absolute;
-  inset: 0.42rem 0.46rem auto;
-  height: 0.4rem;
-  border-block: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 246, 0.22);
+  inset: 0.44rem 0.42rem auto;
+  height: 0.52rem;
+  border-block: 1px solid rgba(255, 255, 246, 0.52);
+  background:
+    radial-gradient(circle at 25% 50%, rgba(255, 255, 246, 0.72) 0 0.09rem, transparent 0.11rem),
+    radial-gradient(circle at 75% 50%, rgba(255, 255, 246, 0.72) 0 0.09rem, transparent 0.11rem),
+    rgba(255, 255, 246, 0.2);
   content: "";
   pointer-events: none;
 }
@@ -502,14 +515,70 @@ h3 {
   display: block;
   max-width: calc(var(--book-h) - 2rem);
   overflow: hidden;
-  color: inherit;
+  padding: 0.22rem 0.58rem;
+  border: 1px solid rgba(255, 255, 246, 0.64);
+  border-radius: 999px;
+  background: rgba(255, 255, 246, 0.82);
+  color: #073145;
   font-family: var(--serif);
-  font-size: 0.88rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   line-height: 1;
   text-overflow: ellipsis;
-  text-shadow: 0 1px 0 rgba(0, 31, 51, 0.22);
+  text-shadow: none;
   transform: rotate(-90deg);
   white-space: nowrap;
+}
+
+.book-spine[data-book="0"] {
+  --spine-motif:
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 246, 0.62) 0 0.24rem, transparent 0.28rem),
+    radial-gradient(circle at 50% 78%, rgba(198, 249, 247, 0.42) 0 0.22rem, transparent 0.26rem);
+  --spine-grid:
+    repeating-linear-gradient(135deg, transparent 0 0.86rem, rgba(255, 255, 246, 0.28) 0.9rem 1rem, transparent 1.04rem 1.7rem),
+    repeating-linear-gradient(45deg, transparent 0 0.86rem, rgba(99, 230, 230, 0.22) 0.9rem 1rem, transparent 1.04rem 1.7rem);
+}
+
+.book-spine[data-book="1"] {
+  --spine-motif:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 255, 246, 0.56) 0 0.32rem, transparent 0.36rem),
+    radial-gradient(ellipse at 50% 68%, rgba(198, 249, 247, 0.38) 0 0.28rem, transparent 0.32rem);
+  --spine-grid:
+    repeating-linear-gradient(90deg, rgba(255, 255, 246, 0.2) 0 0.08rem, transparent 0.08rem 0.68rem),
+    repeating-linear-gradient(180deg, transparent 0 1rem, rgba(99, 230, 230, 0.26) 1rem 1.12rem, transparent 1.12rem 1.9rem);
+}
+
+.book-spine[data-book="2"] {
+  --spine-motif:
+    conic-gradient(from 45deg at 50% 24%, transparent 0 12%, rgba(255, 255, 246, 0.42) 13% 20%, transparent 21% 37%, rgba(198, 249, 247, 0.28) 38% 45%, transparent 46%);
+  --spine-grid:
+    repeating-linear-gradient(135deg, transparent 0 1.1rem, rgba(255, 255, 246, 0.24) 1.15rem 1.24rem, transparent 1.3rem 2.05rem);
+}
+
+.book-spine[data-book="3"] {
+  --spine-motif:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 246, 0.46) 0 0.2rem, transparent 0.23rem),
+    radial-gradient(circle at 50% 50%, rgba(99, 230, 230, 0.28) 0 0.3rem, transparent 0.34rem),
+    radial-gradient(circle at 50% 82%, rgba(255, 255, 246, 0.4) 0 0.18rem, transparent 0.22rem);
+  --spine-grid:
+    repeating-linear-gradient(45deg, transparent 0 0.9rem, rgba(198, 249, 247, 0.2) 0.94rem 1.04rem, transparent 1.08rem 1.72rem);
+}
+
+.book-spine[data-book="4"] {
+  --spine-motif:
+    radial-gradient(ellipse at 50% 20%, rgba(7, 49, 69, 0.32) 0 0.26rem, transparent 0.3rem),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 255, 246, 0.5) 0 0.24rem, transparent 0.28rem);
+  --spine-grid:
+    repeating-linear-gradient(135deg, transparent 0 0.62rem, rgba(7, 49, 69, 0.18) 0.66rem 0.76rem, transparent 0.8rem 1.3rem),
+    repeating-linear-gradient(45deg, transparent 0 0.62rem, rgba(255, 255, 246, 0.28) 0.66rem 0.76rem, transparent 0.8rem 1.3rem);
+}
+
+.book-spine[data-book="5"] {
+  --spine-motif:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 246, 0.58) 0 0.2rem, transparent 0.24rem),
+    linear-gradient(90deg, transparent 38%, rgba(198, 249, 247, 0.2) 39% 61%, transparent 62%);
+  --spine-grid:
+    repeating-linear-gradient(180deg, transparent 0 0.8rem, rgba(255, 255, 246, 0.22) 0.84rem 0.94rem, transparent 0.98rem 1.55rem);
 }
 
 .book-spine:hover,
@@ -559,12 +628,93 @@ h3 {
 .book-cover {
   z-index: 2;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.26), transparent 28%, rgba(0, 31, 51, 0.18)),
+    var(--cover-motif),
+    var(--cover-grid),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 28%, rgba(0, 31, 51, 0.18)),
     var(--active-book-color, #008d9a);
+  background-blend-mode: screen, soft-light, normal, normal;
+  --cover-motif:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 246, 0.72) 0 8%, rgba(198, 249, 247, 0.36) 8.5% 16%, transparent 16.5%),
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 246, 0.44) 0 0.35rem, transparent 0.38rem),
+    radial-gradient(circle at 82% 18%, rgba(255, 255, 246, 0.44) 0 0.35rem, transparent 0.38rem),
+    radial-gradient(circle at 18% 82%, rgba(255, 255, 246, 0.36) 0 0.32rem, transparent 0.35rem),
+    radial-gradient(circle at 82% 82%, rgba(255, 255, 246, 0.36) 0 0.32rem, transparent 0.35rem);
+  --cover-grid:
+    repeating-linear-gradient(135deg, transparent 0 1.1rem, rgba(255, 255, 246, 0.22) 1.16rem 1.28rem, transparent 1.34rem 2.2rem),
+    repeating-linear-gradient(45deg, transparent 0 1.1rem, rgba(99, 230, 230, 0.2) 1.16rem 1.28rem, transparent 1.34rem 2.2rem);
   box-shadow: 0 1.5rem 2.8rem var(--shadow);
   transform: rotateY(-28deg) translateX(-16%);
   transform-origin: left center;
   transition: background 260ms ease, transform 460ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-cover::before,
+.book-cover::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.book-review[data-book="1"] .book-cover {
+  --cover-motif:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 246, 0.7) 0 12%, rgba(198, 249, 247, 0.32) 12.5% 22%, transparent 22.5%),
+    radial-gradient(circle at 24% 28%, rgba(255, 255, 246, 0.38) 0 0.42rem, transparent 0.46rem),
+    radial-gradient(circle at 76% 72%, rgba(255, 255, 246, 0.32) 0 0.36rem, transparent 0.4rem);
+  --cover-grid:
+    repeating-linear-gradient(90deg, rgba(255, 255, 246, 0.18) 0 0.08rem, transparent 0.08rem 1rem),
+    repeating-linear-gradient(180deg, transparent 0 1.15rem, rgba(99, 230, 230, 0.22) 1.15rem 1.28rem, transparent 1.28rem 2.2rem);
+}
+
+.book-review[data-book="2"] .book-cover {
+  --cover-motif:
+    conic-gradient(from 45deg at 50% 50%, transparent 0 10%, rgba(255, 255, 246, 0.48) 11% 19%, transparent 20% 35%, rgba(198, 249, 247, 0.26) 36% 44%, transparent 45% 60%, rgba(255, 255, 246, 0.42) 61% 69%, transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 246, 0.42) 0 0.28rem, transparent 0.32rem);
+  --cover-grid:
+    repeating-linear-gradient(135deg, transparent 0 1.25rem, rgba(255, 255, 246, 0.2) 1.32rem 1.45rem, transparent 1.5rem 2.4rem);
+}
+
+.book-review[data-book="3"] .book-cover {
+  --cover-motif:
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 246, 0.44) 0 0.42rem, transparent 0.46rem),
+    radial-gradient(circle at 50% 50%, rgba(99, 230, 230, 0.34) 0 0.58rem, transparent 0.64rem),
+    radial-gradient(circle at 50% 76%, rgba(255, 255, 246, 0.34) 0 0.4rem, transparent 0.44rem);
+  --cover-grid:
+    repeating-linear-gradient(45deg, transparent 0 1rem, rgba(198, 249, 247, 0.2) 1.05rem 1.18rem, transparent 1.24rem 2rem);
+}
+
+.book-review[data-book="4"] .book-cover {
+  --cover-motif:
+    radial-gradient(ellipse at 50% 36%, rgba(7, 49, 69, 0.28) 0 0.72rem, transparent 0.78rem),
+    radial-gradient(ellipse at 50% 66%, rgba(255, 255, 246, 0.48) 0 0.5rem, transparent 0.56rem);
+  --cover-grid:
+    repeating-linear-gradient(135deg, transparent 0 0.85rem, rgba(7, 49, 69, 0.16) 0.9rem 1.04rem, transparent 1.1rem 1.7rem),
+    repeating-linear-gradient(45deg, transparent 0 0.85rem, rgba(255, 255, 246, 0.24) 0.9rem 1.04rem, transparent 1.1rem 1.7rem);
+}
+
+.book-review[data-book="5"] .book-cover {
+  --cover-motif:
+    radial-gradient(circle at 50% 32%, rgba(255, 255, 246, 0.58) 0 0.44rem, transparent 0.5rem),
+    linear-gradient(90deg, transparent 38%, rgba(198, 249, 247, 0.2) 39% 61%, transparent 62%);
+  --cover-grid:
+    repeating-linear-gradient(180deg, transparent 0 0.95rem, rgba(255, 255, 246, 0.2) 1rem 1.12rem, transparent 1.18rem 1.85rem);
+}
+
+.book-cover::before {
+  inset: 0.9rem;
+  border: 1px solid rgba(255, 255, 246, 0.48);
+  border-radius: 4px;
+  background:
+    linear-gradient(45deg, transparent 47%, rgba(255, 255, 246, 0.34) 48% 52%, transparent 53%),
+    linear-gradient(135deg, transparent 47%, rgba(198, 249, 247, 0.22) 48% 52%, transparent 53%);
+}
+
+.book-cover::after {
+  inset: 32% 27%;
+  border: 1px solid rgba(255, 255, 246, 0.54);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 255, 246, 0.62) 0 0.18rem, transparent 0.2rem),
+    conic-gradient(from 45deg, transparent 0 12%, rgba(255, 255, 246, 0.28) 13% 20%, transparent 21% 37%, rgba(198, 249, 247, 0.22) 38% 45%, transparent 46% 62%, rgba(255, 255, 246, 0.28) 63% 70%, transparent 71%);
 }
 
 .book-pages {

@@ -10,6 +10,8 @@ let width = 0;
 let height = 0;
 let pixelRatio = 1;
 let frame = 0;
+const bottomFlowerTargets = [];
+const petalBursts = [];
 
 const scrollState = {
   target: 0,
@@ -28,6 +30,13 @@ const petalPalette = [
   [0, 184, 196],
   [0, 150, 168],
   [0, 112, 130],
+];
+
+const burstPalette = [
+  [255, 255, 255],
+  [198, 249, 247],
+  [99, 230, 230],
+  [0, 184, 196],
 ];
 
 const centerPalette = [
@@ -63,24 +72,32 @@ const leafPalette = [
   [99, 230, 230],
 ];
 
+const allowedFlowerTypes = ["camellia", "whiteCamellia", "peony", "tileCamellia", "rose", "nemophilia", "clover"];
+
 const petalCount = 86;
 const petals = Array.from({ length: petalCount }, (_, index) => {
   const ring = Math.sqrt(index / petalCount);
   const flowerTypes = [
     "camellia",
+    "rose",
     "whiteCamellia",
     "peony",
+    "nemophilia",
     "tileCamellia",
     "camellia",
+    "clover",
     "tileCamellia",
     "peony",
     "whiteCamellia",
+    "rose",
     "camellia",
     "tileCamellia",
     "peony",
     "tileCamellia",
+    "nemophilia",
     "camellia",
     "peony",
+    "clover",
     "whiteCamellia",
     "tileCamellia",
   ];
@@ -93,8 +110,8 @@ const petals = Array.from({ length: petalCount }, (_, index) => {
     ring,
     size: 11 + ((index * 19) % 22),
     turn: index % 2 === 0 ? 1 : -1,
-    color: type === "whiteCamellia" ? [248, 252, 246] : type === "blueFive" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[index % petalPalette.length],
-    center: type === "blueFive" ? [236, 254, 249] : type === "whiteCamellia" ? [255, 255, 255] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
+    color: type === "whiteCamellia" ? [248, 252, 246] : type === "nemophilia" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[index % petalPalette.length],
+    center: type === "nemophilia" ? [236, 254, 249] : type === "whiteCamellia" ? [255, 255, 255] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
     bloom: 5 + (index % 4),
     type,
     tileMotif: index % 4,
@@ -112,18 +129,24 @@ const petals = Array.from({ length: petalCount }, (_, index) => {
 const foregroundBlooms = Array.from({ length: 14 }, (_, index) => {
   const flowerTypes = [
     "peony",
+    "rose",
     "whiteCamellia",
     "camellia",
+    "nemophilia",
     "tileCamellia",
     "peony",
+    "clover",
     "camellia",
     "tileCamellia",
     "whiteCamellia",
     "peony",
+    "rose",
     "tileCamellia",
     "camellia",
+    "nemophilia",
     "whiteCamellia",
     "tileCamellia",
+    "clover",
     "peony",
   ];
   const row = Math.floor(index / 4);
@@ -136,8 +159,8 @@ const foregroundBlooms = Array.from({ length: 14 }, (_, index) => {
     ring: 1,
     size: 52 + row * 20 + ((index * 29) % 42),
     turn: index % 2 === 0 ? 1 : -1,
-    color: type === "whiteCamellia" ? [248, 252, 246] : type === "blueFive" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[(index + row + 1) % petalPalette.length],
-    center: type === "blueFive" ? [236, 254, 249] : type === "whiteCamellia" ? [255, 255, 255] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
+    color: type === "whiteCamellia" ? [248, 252, 246] : type === "nemophilia" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[(index + row + 1) % petalPalette.length],
+    center: type === "nemophilia" ? [236, 254, 249] : type === "whiteCamellia" ? [255, 255, 255] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
     bloom: 6 + (index % 4),
     type,
     tileMotif: index % 4,
@@ -153,6 +176,36 @@ const foregroundBlooms = Array.from({ length: 14 }, (_, index) => {
     y: 0.74 + row * 0.082 + ((index * 47) % 6) / 100,
     rotation: -0.52 + ((index * 37) % 104) / 100,
     row,
+  };
+});
+
+const floatingBottomBlooms = Array.from({ length: 16 }, (_, index) => {
+  const flowerTypes = ["clover", "rose", "nemophilia", "peony", "clover", "nemophilia", "rose", "peony"];
+  const type = flowerTypes[index % flowerTypes.length];
+  return {
+    angle: index * goldenAngle,
+    delay: (index % 8) / 8,
+    depth: 0.92 + ((index * 11) % 7) * 0.06,
+    ring: 1,
+    size: 18 + ((index * 17) % 22),
+    turn: index % 2 === 0 ? 1 : -1,
+    color: type === "nemophilia" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[(index + 2) % petalPalette.length],
+    center: type === "nemophilia" ? [236, 254, 249] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
+    bloom: 5 + (index % 4),
+    type,
+    tileMotif: index % 4,
+    tileAccent: tilePalette[2 + (index % 3)],
+    tileLine: tilePalette[4 + (index % 2)],
+    tileCream: tileCreamPalette[index % tileCreamPalette.length],
+    rose: rosePalette[index % rosePalette.length],
+    roseShadow: rosePalette[(index + 1) % rosePalette.length],
+    leaf: leafPalette[index % leafPalette.length],
+    stemBend: 0,
+    leafTurn: index % 2 === 0 ? -1 : 1,
+    x: ((index * 181) % 1000) / 1000,
+    y: 0.66 + ((index * 47) % 28) / 100,
+    drift: 18 + ((index * 13) % 24),
+    row: Math.floor(index / 4),
   };
 });
 
@@ -179,6 +232,78 @@ const inverseMix = (from, to, value) => clamp((value - from) / (to - from), 0, 1
 const pulsePop = (value) => {
   const eased = smoothstep(0, 1, value);
   return eased + Math.sin(eased * Math.PI) * 0.32;
+};
+
+const registerBottomFlowerTarget = (x, y, size, alpha) => {
+  if (alpha < 0.08 || y < height * 0.52) return;
+  bottomFlowerTargets.push({
+    x,
+    y,
+    radius: Math.max(22, size * 0.68),
+  });
+};
+
+const createPetalBurst = (x, y, radius = 34) => {
+  const count = 24;
+  for (let i = 0; i < count; i += 1) {
+    const angle = (Math.PI * 2 * i) / count + Math.sin(i * 1.7) * 0.28;
+    const speed = 1.4 + ((i * 17) % 18) / 10;
+    const color = burstPalette[i % burstPalette.length];
+    petalBursts.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.55,
+      rotation: angle,
+      spin: -0.08 + ((i * 13) % 16) / 100,
+      size: radius * (0.12 + ((i * 7) % 8) / 100),
+      life: 0,
+      ttl: 58 + ((i * 11) % 22),
+      color,
+    });
+  }
+};
+
+const drawPetalBursts = () => {
+  for (let i = petalBursts.length - 1; i >= 0; i -= 1) {
+    const petal = petalBursts[i];
+    petal.life += 1;
+    if (petal.life >= petal.ttl) {
+      petalBursts.splice(i, 1);
+      continue;
+    }
+
+    const progress = petal.life / petal.ttl;
+    const alpha = (1 - progress) * 0.82;
+    petal.x += petal.vx;
+    petal.y += petal.vy;
+    petal.vx *= 0.982;
+    petal.vy = petal.vy * 0.982 + 0.035;
+    petal.rotation += petal.spin;
+
+    context.save();
+    context.translate(petal.x, petal.y);
+    context.rotate(petal.rotation);
+    drawBlobPetal(0, petal.size * 0.42, petal.size * 0.72, petal.color, alpha, Math.sin(petal.life * 0.08) * 0.08);
+    context.restore();
+  }
+};
+
+const handleCanvasBurstClick = (event) => {
+  if (event.target?.closest?.("a, button, input, textarea, select, summary, [role='button']")) return;
+  if (!bottomFlowerTargets.length) return;
+
+  const x = event.clientX;
+  const y = event.clientY;
+  const target = bottomFlowerTargets.find((flower) => {
+    const dx = x - flower.x;
+    const dy = y - flower.y;
+    return Math.hypot(dx, dy) <= flower.radius;
+  });
+
+  if (target) {
+    createPetalBurst(target.x, target.y, target.radius);
+  }
 };
 
 const updateScrollState = () => {
@@ -272,18 +397,18 @@ const petalPosition = (petal, index, scrollProgress) => {
     Math.sin(time + index) * 18;
 
   const spiralProgress = index / (petalCount - 1);
-  const spiralRadius = Math.min(width, height) * (0.12 + 0.42 * (1 - spiralProgress) + petal.depth * 0.06);
+  const spiralRadius = Math.min(width, height) * (0.09 + 0.32 * (1 - spiralProgress) + petal.depth * 0.045);
   const spiralSpin = smoothstep(0.36, 0.74, scrollProgress) * Math.PI * 3.65;
   const spiralAngle = -spiralProgress * Math.PI * 7.8 + spiralSpin;
   const spiralCenterX = width * (0.53 + Math.sin(scrollProgress * Math.PI * 1.6) * 0.025);
-  const spiralCenterY = height * (1.1 - spiralProgress * 1.48);
+  const spiralCenterY = height * (1.06 - spiralProgress * 1.34);
   const spiralX =
     spiralCenterX +
     Math.cos(spiralAngle) * spiralRadius * 1.12 +
     Math.sin(time * 0.9 + index * 0.2) * 7;
   const spiralY =
     spiralCenterY +
-    Math.sin(spiralAngle) * spiralRadius * 0.68 +
+    Math.sin(spiralAngle) * spiralRadius * 0.62 +
     Math.cos(time * 0.7 + index * 0.3) * 7;
 
   const row = index % 5;
@@ -807,8 +932,8 @@ const drawBlueFiveBloom = (petal, size, alpha, dark) => {
 };
 
 const drawBlossom = (petal, x, y, rotation, size, alpha) => {
-  if (["bud", "star", "tile", "tulip", "pom", "flat", "merlion", "plum", "orchid", "blueFive", "clover"].includes(petal.type)) {
-    petal = { ...petal, type: "tileCamellia" };
+  if (!allowedFlowerTypes.includes(petal.type)) {
+    petal = { ...petal, type: "camellia" };
   }
 
   const [r, g, b] = petal.color;
@@ -863,7 +988,9 @@ const drawBlossom = (petal, x, y, rotation, size, alpha) => {
     drawRoseBloom(petal, size, alpha, dark, true);
   } else if (petal.type === "peony") {
     drawRoseBloom(petal, size * 1.04, alpha, dark);
-  } else if (petal.type === "blueFive") {
+  } else if (petal.type === "rose") {
+    drawRoseBloom(petal, size * 0.96, alpha, dark);
+  } else if (petal.type === "nemophilia") {
     drawBlueFiveBloom(petal, size * 1.02, alpha, dark);
   } else if (petal.type === "clover") {
     drawCloverIcon(petal, size * 0.88, alpha, dark);
@@ -962,7 +1089,7 @@ const drawBlossom = (petal, x, y, rotation, size, alpha) => {
     }
   }
 
-  if (!["plum", "camellia", "whiteCamellia", "tileCamellia", "peony", "blueFive", "orchid", "clover"].includes(petal.type)) {
+  if (!["camellia", "whiteCamellia", "tileCamellia", "peony", "rose", "nemophilia", "clover"].includes(petal.type)) {
     drawRoseCore(petal, size, alpha, dark, petal.type === "tile");
   }
   context.restore();
@@ -1133,6 +1260,25 @@ const drawForegroundBloomField = (scrollProgress) => {
     const rotation = flower.rotation + Math.sin(frame * 0.004 + index * 0.7) * 0.035;
 
     drawBlossom(flower, x, y, rotation, size, alpha);
+    registerBottomFlowerTarget(x, y, size, alpha);
+  });
+
+  floatingBottomBlooms.forEach((flower, index) => {
+    const floatStart = 0.78 + (index % 5) * 0.025;
+    const bloom = pulsePop(smoothstep(floatStart, floatStart + 0.16, scrollProgress));
+    const alpha = field * bloom * 0.42;
+    if (alpha <= 0.03) return;
+
+    const responsiveScale = width < 700 ? 0.72 : 1;
+    const drift = Math.sin(frame * 0.004 + index * 1.3) * flower.drift;
+    const lift = Math.cos(frame * 0.005 + index * 0.8) * 14;
+    const x = flower.x * (width + 220) - 110 + drift;
+    const y = height * flower.y - bloom * (38 + flower.row * 6) + lift;
+    const rotation = flower.angle * 0.16 + Math.sin(frame * 0.003 + index) * 0.18;
+    const size = flower.size * responsiveScale * (0.7 + bloom * 0.42);
+
+    drawBlossom(flower, x, y, rotation, size, alpha);
+    registerBottomFlowerTarget(x, y, size, alpha);
   });
 };
 
@@ -1160,14 +1306,14 @@ const drawPetal = (petal, index, scrollProgress) => {
     drawBlossom(petal, x, y, rotation * 0.12, size * bouquetScale, bouquetAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha);
   }
 
-  if (spiralAlpha > 0.03 && index % 3 !== 1) {
+  if (spiralAlpha > 0.03 && index % 5 !== 1) {
     drawBlossom(
       petal,
       x,
       y,
       rotation,
-      size * (0.2 + spiralPop * 0.56 + spiralHold * 0.08 + kineticBloom * 0.38),
-      spiralAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha
+      size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38),
+      spiralAlpha * (index % 4 === 0 ? 0.86 : 1) * textSafeAlpha
     );
   }
 
@@ -1213,6 +1359,7 @@ const drawAmbient = () => {
   const scrollProgress = scrollState.progress;
 
   context.clearRect(0, 0, width, height);
+  bottomFlowerTargets.length = 0;
   context.fillStyle = root.dataset.theme === "dark" ? "rgba(6, 24, 34, 0.16)" : "rgba(247, 252, 255, 0.18)";
   context.fillRect(0, 0, width, height);
   drawBouquetStems(scrollProgress);
@@ -1220,6 +1367,7 @@ const drawAmbient = () => {
   drawFieldGround(scrollProgress);
   petals.forEach((petal, index) => drawPetal(petal, index, scrollProgress));
   drawForegroundBloomField(scrollProgress);
+  drawPetalBursts();
 
   frame += 1;
   window.requestAnimationFrame(drawAmbient);
@@ -1229,6 +1377,7 @@ if (canvas && context && !reduceMotion) {
   resizeCanvas();
   drawAmbient();
   window.addEventListener("resize", resizeCanvas, { passive: true });
+  window.addEventListener("pointerdown", handleCanvasBurstClick, { passive: true });
 } else {
   flowItems.forEach((item) => {
     item.style.setProperty("--flow-opacity", "1");
@@ -1246,11 +1395,11 @@ const books = [
       "A book that maps onto my SOCMINT hobby: following traces, finding unlikely sources of knowledge, and learning new hacks or networks. It's the same curiosity I bring to evals: keep asking where the evidence lives, who can see or measure it, and searching for unknown unknowns.",
   },
   {
-    title: "Minor Feelings",
-    meta: "Cathy Park Hong",
+    title: "The Book of Tea",
+    meta: "OKAKURA KAKUZŌ",
     color: "#2f6fba",
     review:
-      "Sharp, restless, and exacting. It gives language to mixed emotional states without tidying them up for easy consumption.",
+      "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about evals too: notice the small signal, because it often carries the larger truth.",
   },
   {
     title: "Ways of Seeing",
@@ -1301,6 +1450,7 @@ const selectBook = (index) => {
 
   window.setTimeout(() => {
     review.style.setProperty("--active-book-color", book.color);
+    review.dataset.book = String(index);
     reviewTitle.textContent = book.title;
     reviewMeta.textContent = book.meta;
     reviewText.textContent = book.review;
