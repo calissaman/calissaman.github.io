@@ -10,7 +10,7 @@ let width = 0;
 let height = 0;
 let pixelRatio = 1;
 let frame = 0;
-const bottomFlowerTargets = [];
+const flowerBurstTargets = [];
 const petalBursts = [];
 
 const scrollState = {
@@ -74,35 +74,44 @@ const leafPalette = [
 
 const allowedFlowerTypes = ["camellia", "whiteCamellia", "peony", "tileCamellia", "rose", "nemophilia", "clover"];
 
-const petalCount = 86;
+const petalCount = 104;
 const petals = Array.from({ length: petalCount }, (_, index) => {
   const ring = Math.sqrt(index / petalCount);
   const flowerTypes = [
-    "camellia",
     "rose",
+    "camellia",
+    "nemophilia",
+    "clover",
     "whiteCamellia",
+    "rose",
     "peony",
     "nemophilia",
     "tileCamellia",
-    "camellia",
     "clover",
-    "tileCamellia",
-    "peony",
-    "whiteCamellia",
     "rose",
     "camellia",
-    "tileCamellia",
     "peony",
-    "tileCamellia",
     "nemophilia",
+    "tileCamellia",
+    "rose",
+    "clover",
+    "whiteCamellia",
+    "nemophilia",
+    "rose",
     "camellia",
     "peony",
     "clover",
-    "whiteCamellia",
     "tileCamellia",
+    "nemophilia",
+    "rose",
+    "clover",
+    "whiteCamellia",
+    "rose",
+    "nemophilia",
   ];
   const depth = 0.72 + ((index * 23) % 9) / 9;
   const type = flowerTypes[index % flowerTypes.length];
+  const spiralOrder = ((index * 37 + Math.floor(index / 3) * 11) % petalCount) / (petalCount - 1);
   return {
     angle: index * goldenAngle,
     delay: (index % 17) / 17,
@@ -123,30 +132,31 @@ const petals = Array.from({ length: petalCount }, (_, index) => {
     leaf: leafPalette[index % leafPalette.length],
     stemBend: Math.sin(index * 1.7) * 44,
     leafTurn: index % 2 === 0 ? -1 : 1,
+    spiralOrder,
   };
 });
 
-const foregroundBlooms = Array.from({ length: 14 }, (_, index) => {
+const foregroundBlooms = Array.from({ length: 18 }, (_, index) => {
   const flowerTypes = [
     "peony",
     "rose",
-    "whiteCamellia",
-    "camellia",
     "nemophilia",
-    "tileCamellia",
-    "peony",
     "clover",
-    "camellia",
-    "tileCamellia",
     "whiteCamellia",
-    "peony",
+    "camellia",
     "rose",
-    "tileCamellia",
-    "camellia",
     "nemophilia",
-    "whiteCamellia",
     "tileCamellia",
+    "peony",
     "clover",
+    "rose",
+    "camellia",
+    "tileCamellia",
+    "nemophilia",
+    "rose",
+    "clover",
+    "camellia",
+    "whiteCamellia",
     "peony",
   ];
   const row = Math.floor(index / 4);
@@ -179,8 +189,8 @@ const foregroundBlooms = Array.from({ length: 14 }, (_, index) => {
   };
 });
 
-const floatingBottomBlooms = Array.from({ length: 16 }, (_, index) => {
-  const flowerTypes = ["clover", "rose", "nemophilia", "peony", "clover", "nemophilia", "rose", "peony"];
+const floatingBottomBlooms = Array.from({ length: 22 }, (_, index) => {
+  const flowerTypes = ["clover", "rose", "nemophilia", "rose", "clover", "nemophilia", "peony", "rose", "clover", "nemophilia"];
   const type = flowerTypes[index % flowerTypes.length];
   return {
     angle: index * goldenAngle,
@@ -234,12 +244,13 @@ const pulsePop = (value) => {
   return eased + Math.sin(eased * Math.PI) * 0.32;
 };
 
-const registerBottomFlowerTarget = (x, y, size, alpha) => {
-  if (alpha < 0.08 || y < height * 0.52) return;
-  bottomFlowerTargets.push({
+const registerFlowerBurstTarget = (x, y, size, alpha) => {
+  if (alpha < 0.06 || x < -48 || x > width + 48 || y < -48 || y > height + 48) return;
+  flowerBurstTargets.push({
     x,
     y,
-    radius: Math.max(22, size * 0.68),
+    radius: clamp(size * 0.58, 18, 54),
+    weight: alpha,
   });
 };
 
@@ -291,14 +302,23 @@ const drawPetalBursts = () => {
 
 const handleCanvasBurstClick = (event) => {
   if (event.target?.closest?.("a, button, input, textarea, select, summary, [role='button']")) return;
-  if (!bottomFlowerTargets.length) return;
+  if (!flowerBurstTargets.length) return;
 
   const x = event.clientX;
   const y = event.clientY;
-  const target = bottomFlowerTargets.find((flower) => {
+  let target = null;
+  let bestScore = Infinity;
+
+  flowerBurstTargets.forEach((flower) => {
     const dx = x - flower.x;
     const dy = y - flower.y;
-    return Math.hypot(dx, dy) <= flower.radius;
+    const distance = Math.hypot(dx, dy);
+    if (distance > flower.radius) return;
+    const score = distance / flower.radius - flower.weight * 0.12;
+    if (score < bestScore) {
+      bestScore = score;
+      target = flower;
+    }
   });
 
   if (target) {
@@ -396,10 +416,10 @@ const petalPosition = (petal, index, scrollProgress) => {
     pageDrift +
     Math.sin(time + index) * 18;
 
-  const spiralProgress = index / (petalCount - 1);
+  const spiralProgress = petal.spiralOrder ?? index / (petalCount - 1);
   const spiralRadius = Math.min(width, height) * (0.09 + 0.32 * (1 - spiralProgress) + petal.depth * 0.045);
   const spiralSpin = smoothstep(0.36, 0.74, scrollProgress) * Math.PI * 3.65;
-  const spiralAngle = -spiralProgress * Math.PI * 7.8 + spiralSpin;
+  const spiralAngle = -spiralProgress * Math.PI * 8.35 + spiralSpin + Math.sin(index * 1.27) * 0.2;
   const spiralCenterX = width * (0.53 + Math.sin(scrollProgress * Math.PI * 1.6) * 0.025);
   const spiralCenterY = height * (1.06 - spiralProgress * 1.34);
   const spiralX =
@@ -434,7 +454,7 @@ const petalPosition = (petal, index, scrollProgress) => {
     bouquet: 1 - heroToSwirl,
     spiral: Math.max(swirlToSpiral * (1 - spiralToField), spiralHold),
     spiralHold,
-    order: index / (petalCount - 1),
+    order: spiralProgress,
   };
 };
 
@@ -1260,7 +1280,7 @@ const drawForegroundBloomField = (scrollProgress) => {
     const rotation = flower.rotation + Math.sin(frame * 0.004 + index * 0.7) * 0.035;
 
     drawBlossom(flower, x, y, rotation, size, alpha);
-    registerBottomFlowerTarget(x, y, size, alpha);
+    registerFlowerBurstTarget(x, y, size, alpha);
   });
 
   floatingBottomBlooms.forEach((flower, index) => {
@@ -1278,7 +1298,7 @@ const drawForegroundBloomField = (scrollProgress) => {
     const size = flower.size * responsiveScale * (0.7 + bloom * 0.42);
 
     drawBlossom(flower, x, y, rotation, size, alpha);
-    registerBottomFlowerTarget(x, y, size, alpha);
+    registerFlowerBurstTarget(x, y, size, alpha);
   });
 };
 
@@ -1303,41 +1323,53 @@ const drawPetal = (petal, index, scrollProgress) => {
   const textSafeAlpha = 1 - clearance * 0.92;
 
   if (bouquetAlpha > 0.03 && index % 11 !== 0) {
-    drawBlossom(petal, x, y, rotation * 0.12, size * bouquetScale, bouquetAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha);
+    const drawAlpha = bouquetAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha;
+    const drawSize = size * bouquetScale;
+    drawBlossom(petal, x, y, rotation * 0.12, drawSize, drawAlpha);
+    registerFlowerBurstTarget(x, y, drawSize, drawAlpha);
   }
 
   if (spiralAlpha > 0.03 && index % 5 !== 1) {
+    const drawSize = size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38);
+    const drawAlpha = spiralAlpha * (index % 4 === 0 ? 0.86 : 1) * textSafeAlpha;
     drawBlossom(
       petal,
       x,
       y,
       rotation,
-      size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38),
-      spiralAlpha * (index % 4 === 0 ? 0.86 : 1) * textSafeAlpha
+      drawSize,
+      drawAlpha
     );
+    registerFlowerBurstTarget(x, y, drawSize, drawAlpha);
   }
 
   if (fieldAlpha > 0.03) {
+    const drawSize = size * (0.48 + fieldBloom * 0.3);
+    const drawAlpha = fieldAlpha * (index % 2 === 0 ? 1 : 0.72);
     drawBlossom(
       petal,
       x,
       y,
       rotation * 0.5,
-      size * (0.48 + fieldBloom * 0.3),
-      fieldAlpha * (index % 2 === 0 ? 1 : 0.72)
+      drawSize,
+      drawAlpha
     );
+    registerFlowerBurstTarget(x, y, drawSize, drawAlpha);
   }
 
   if (looseAlpha * textSafeAlpha <= 0.02) return;
 
+  const looseSize = size * (0.4 + spiral * 0.12);
+  const looseDrawAlpha = looseAlpha * textSafeAlpha;
   drawBlossom(
     petal,
     x,
     y,
     rotation * 0.5,
-    size * (0.4 + spiral * 0.12),
-    looseAlpha * textSafeAlpha
+    looseSize,
+    looseDrawAlpha
   );
+  registerFlowerBurstTarget(x, y, looseSize, looseDrawAlpha);
 
   if (field > 0.56 && index % 3 === 0) {
     context.save();
@@ -1359,7 +1391,7 @@ const drawAmbient = () => {
   const scrollProgress = scrollState.progress;
 
   context.clearRect(0, 0, width, height);
-  bottomFlowerTargets.length = 0;
+  flowerBurstTargets.length = 0;
   context.fillStyle = root.dataset.theme === "dark" ? "rgba(6, 24, 34, 0.16)" : "rgba(247, 252, 255, 0.18)";
   context.fillRect(0, 0, width, height);
   drawBouquetStems(scrollProgress);
@@ -1399,35 +1431,27 @@ const books = [
     meta: "OKAKURA KAKUZŌ",
     color: "#2f6fba",
     review:
-      "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about evals too: notice the small signal, because it often carries the larger truth.",
+      "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about human relationships too.",
   },
   {
-    title: "The Art of Big Hero 6",
-    meta: "Jessica Julius",
+    title: "The Idea Factory: Bell Labs and the Great Age of American Innovation",
+    meta: "Jon Gertner",
     color: "#19b8c7",
     review:
-      "I love how San Fransokyo imagines technology, innovation, and cultural diversity as one living city: part San Francisco, part Tokyo, and somehow emotionally close to home in Singapore. It captures the kind of future-facing hybridity I am drawn to.",
+      "A timely reminder about innovation - it's not just lone genius, but through teams, tools, taste, and institutions that make ambitious research possible. The future is won by those who can connect science, engineering, product judgment, and the patience to make bold bets.",
   },
   {
-    title: "Braiding Sweetgrass",
-    meta: "Robin Wall Kimmerer",
+    title: "Build",
+    meta: "Tony Fadell",
     color: "#0f4c81",
     review:
-      "Patient, generous, and quietly radical. It makes attention feel like an ethical practice rather than a private mood.",
+      "I like Build as a field manual for turning taste into shipped things (when to trust data, when to use judgment, how to make abstract ideas tangible, and why storytelling matters when you need people to build with you).",
   },
   {
-    title: "Atlas of AI",
-    meta: "Kate Crawford",
+    title: "",
+    meta: "",
     color: "#5ecbd3",
-    review:
-      "A useful counterweight to abstract conversations about intelligence. It keeps the material, labor, and political costs of AI in view.",
-  },
-  {
-    title: "The Alignment Problem",
-    meta: "Brian Christian",
-    color: "#1b78a6",
-    review:
-      "A clear narrative map of why evaluation, incentives, and values are hard to separate. It is especially good at making technical stakes legible.",
+    review: "Always open to new books to read!",
   },
 ];
 
