@@ -1402,11 +1402,11 @@ const books = [
       "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about evals too: notice the small signal, because it often carries the larger truth.",
   },
   {
-    title: "Ways of Seeing",
-    meta: "John Berger",
+    title: "The Art of Big Hero 6",
+    meta: "Jessica Julius",
     color: "#19b8c7",
     review:
-      "A compact reminder that looking is never neutral. I like how it keeps moving between image, power, desire, and habit.",
+      "I love how San Fransokyo imagines technology, innovation, and cultural diversity as one living city: part San Francisco, part Tokyo, and somehow emotionally close to home in Singapore. It captures the kind of future-facing hybridity I am drawn to.",
   },
   {
     title: "Braiding Sweetgrass",
