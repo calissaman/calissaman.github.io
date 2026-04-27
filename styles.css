@@ -1,6 +1,29 @@
 :root {
+  color-scheme: light;
+  --bg: #efffff;
+  --bg-mid: #c8fbf5;
+  --bg-end: #f8fff9;
+  --surface: rgba(248, 255, 253, 0.72);
+  --surface-solid: #f7fffd;
+  --surface-strong: #dbfbf7;
+  --text: #073145;
+  --muted: #2e6f75;
+  --line: rgba(0, 132, 150, 0.18);
+  --accent: #00b8c4;
+  --accent-deep: #006f82;
+  --accent-soft: #baf4ee;
+  --shadow: rgba(0, 100, 120, 0.16);
+  --header-bg: rgba(239, 255, 255, 0.72);
+  --radius: 8px;
+  --sans: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: "Newsreader", Georgia, serif;
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #071126;
+  --bg-mid: #0b1d3f;
+  --bg-end: #050c1e;
   --surface: rgba(10, 28, 61, 0.74);
   --surface-solid: #0a1c3d;
   --surface-strong: #102a56;
@@ -12,13 +35,6 @@
   --accent-soft: #123765;
   --shadow: rgba(0, 0, 0, 0.36);
   --header-bg: rgba(7, 17, 38, 0.72);
-  --radius: 8px;
-  --sans: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --serif: "Newsreader", Georgia, serif;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
 }
 
 * {
@@ -33,11 +49,18 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(180deg, var(--bg) 0%, #0b1d3f 48%, #050c1e 100%);
+    radial-gradient(ellipse at 12% 18%, rgba(255, 255, 255, 0.74) 0 0.2rem, transparent 18rem),
+    linear-gradient(112deg, transparent 0 16%, rgba(0, 184, 196, 0.12) 16.4% 29%, transparent 29.4%),
+    linear-gradient(182deg, var(--bg) 0%, var(--bg-mid) 48%, var(--bg-end) 100%);
   color: var(--text);
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.7;
+}
+
+:root[data-theme="dark"] body {
+  background:
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-mid) 48%, var(--bg-end) 100%);
 }
 
 button,
@@ -50,13 +73,21 @@ a {
   text-decoration: none;
 }
 
-.ambient-canvas {
+.ambient-canvas,
+.burst-canvas {
   position: fixed;
   inset: 0;
-  z-index: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.ambient-canvas {
+  z-index: 0;
+}
+
+.burst-canvas {
+  z-index: 3;
 }
 
 .page-shell {
@@ -71,7 +102,7 @@ a {
   top: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 1rem;
   width: min(100% - 2rem, 1180px);
@@ -124,6 +155,59 @@ a {
   outline: none;
 }
 
+.theme-toggle {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 2.55rem;
+  height: 2.55rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  color: var(--accent-deep);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition:
+    background 220ms ease,
+    color 220ms ease,
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  background: color-mix(in srgb, var(--accent-soft) 58%, var(--surface));
+  color: var(--text);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.theme-toggle:active {
+  transform: translateY(1px);
+}
+
+.theme-toggle i {
+  grid-area: 1 / 1;
+  font-size: 1rem;
+  transition: opacity 180ms ease, transform 220ms ease;
+}
+
+.theme-icon-light {
+  opacity: 0;
+  transform: scale(0.7) rotate(-24deg);
+}
+
+:root[data-theme="dark"] .theme-icon-dark {
+  opacity: 0;
+  transform: scale(0.7) rotate(24deg);
+}
+
+:root[data-theme="dark"] .theme-icon-light {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
 .contact-link:active,
 .text-link:active {
   transform: translateY(1px);
@@ -131,7 +215,8 @@ a {
 
 .book-spine:focus-visible,
 .contact-link:focus-visible,
-.text-link:focus-visible {
+.text-link:focus-visible,
+.theme-toggle:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
 }
@@ -339,11 +424,28 @@ h3 {
   color: var(--muted);
 }
 
+.evals-section .section-heading {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+}
+
+.evals-section .section-heading > div {
+  display: grid;
+  justify-items: center;
+}
+
+.evals-section .section-heading p:not(.kicker) {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
 .eval-ledger {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   gap: clamp(1.5rem, 5vw, 4rem);
-  align-items: start;
+  align-items: stretch;
   margin-bottom: clamp(1.8rem, 4vw, 3rem);
 }
 
@@ -361,13 +463,22 @@ h3 {
 }
 
 .eval-summary {
-  min-height: 15rem;
-  padding: clamp(1.1rem, 3vw, 1.65rem);
+  display: flex;
+  min-height: 18.5rem;
+  height: 100%;
+  flex-direction: column;
+  padding: clamp(1.35rem, 3vw, 1.8rem);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 68%, transparent);
   box-shadow: 0 1rem 2.6rem color-mix(in srgb, var(--shadow) 52%, transparent);
   backdrop-filter: blur(16px);
+}
+
+.eval-summary h3 {
+  min-height: 2.7em;
+  margin-bottom: 1rem;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
 }
 
 .eval-summary-primary h3 {
@@ -378,10 +489,11 @@ h3 {
 
 .note-index {
   display: block;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   color: var(--accent);
   font-size: 0.72rem;
   font-weight: 600;
+  line-height: 1;
   letter-spacing: 0.12em;
 }
 
@@ -390,13 +502,22 @@ h3 {
   color: var(--muted);
 }
 
+.eval-summary p {
+  margin-bottom: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
 .text-link {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   min-height: 2.5rem;
-  margin-top: 0.4rem;
+  margin-top: auto;
+  padding-top: 1.2rem;
   border-bottom: 1px solid currentColor;
   color: var(--accent-deep);
+  font-size: 1rem;
   font-weight: 600;
 }
 
@@ -439,6 +560,7 @@ h3 {
   margin-top: -1rem;
   margin-bottom: clamp(1rem, 2vw, 1.6rem);
   padding: clamp(1.1rem, 3vw, 2rem);
+  overflow: visible;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 66%, transparent);
@@ -447,12 +569,14 @@ h3 {
 }
 
 .shelf {
+  --spine-scale: 1;
   display: flex;
   align-items: end;
   justify-content: center;
   min-height: 33vh;
   gap: 0.68rem;
   padding: 2rem clamp(1rem, 3vw, 2rem) 0;
+  overflow: visible;
   border-inline: 1px solid var(--line);
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface) 44%, transparent), transparent);
 }
@@ -460,8 +584,9 @@ h3 {
 .book-spine {
   position: relative;
   display: grid;
-  width: var(--book-w);
-  height: var(--book-h);
+  flex: 0 0 auto;
+  width: calc(var(--book-w) * var(--spine-scale));
+  height: calc(var(--book-h) * var(--spine-scale));
   place-items: center;
   border: 0;
   border-radius: 5px 5px 2px 2px;
@@ -515,7 +640,7 @@ h3 {
   position: relative;
   z-index: 2;
   display: block;
-  max-width: calc(var(--book-h) - 2rem);
+  max-width: calc((var(--book-h) * var(--spine-scale)) - 2rem);
   overflow: hidden;
   padding: 0.22rem 0.58rem;
   border: 1px solid rgba(255, 255, 246, 0.64);
@@ -564,14 +689,22 @@ h3 {
 }
 
 .spine-symbol-factory {
-  width: 1.92rem;
-  height: 1.92rem;
-  border-radius: 0.28rem;
+  top: 1.24rem;
+  left: 50%;
+  width: 1.82rem;
+  height: 1.82rem;
+  border-radius: 999px;
   background:
-    radial-gradient(circle at 34% 36%, transparent 0 0.18rem, rgba(255, 255, 246, 0.62) 0.2rem 0.28rem, transparent 0.3rem),
-    radial-gradient(circle at 68% 66%, transparent 0 0.24rem, rgba(198, 249, 247, 0.46) 0.27rem 0.36rem, transparent 0.39rem),
-    linear-gradient(90deg, transparent 0 32%, rgba(255, 255, 246, 0.24) 33% 35%, transparent 36% 64%, rgba(255, 255, 246, 0.2) 65% 67%, transparent 68%),
+    radial-gradient(circle, rgba(7, 17, 38, 0.24) 0 0.28rem, transparent 0.31rem),
+    radial-gradient(circle, transparent 0 0.66rem, rgba(255, 255, 246, 0.34) 0.69rem 0.78rem, transparent 0.81rem),
     rgba(255, 255, 246, 0.1);
+  transform: translateX(-50%);
+}
+
+.spine-symbol-factory i {
+  display: block;
+  line-height: 1;
+  transform: translateY(0.01rem);
 }
 
 .spine-symbol-ipod {
@@ -610,10 +743,8 @@ h3 {
     var(--book-color);
   background-blend-mode: screen, soft-light, normal, normal;
   --spine-motif:
-    radial-gradient(ellipse at 50% 72%, rgba(255, 255, 246, 0.34) 0 0.28rem, transparent 0.32rem),
-    radial-gradient(ellipse at 50% 42%, rgba(198, 249, 247, 0.16) 0 0.2rem, transparent 0.24rem);
+    linear-gradient(180deg, transparent 0 17%, rgba(255, 255, 246, 0.16) 18% 20%, transparent 21% 80%, rgba(198, 249, 247, 0.14) 81% 83%, transparent 84%);
   --spine-grid:
-    radial-gradient(circle at 50% 50%, transparent 0 0.34rem, rgba(255, 255, 246, 0.22) 0.36rem 0.42rem, transparent 0.44rem),
     repeating-linear-gradient(135deg, transparent 0 0.62rem, rgba(99, 230, 230, 0.24) 0.68rem 0.78rem, transparent 0.84rem 1.28rem),
     repeating-linear-gradient(45deg, transparent 0 0.62rem, rgba(255, 255, 246, 0.18) 0.68rem 0.78rem, transparent 0.84rem 1.28rem);
 }
@@ -667,12 +798,12 @@ h3 {
 .book-spine:hover,
 .book-spine.is-active {
   filter: saturate(1.08) brightness(1.04);
-  margin-inline: 0.18rem;
-  transform: translateY(-0.9rem) rotate(-1.5deg);
+  margin-inline: calc(0.18rem * var(--spine-scale));
+  transform: translateY(calc(-0.9rem * var(--spine-scale))) rotate(-1.5deg);
 }
 
 .book-spine:active {
-  transform: translateY(-0.58rem) rotate(-1.5deg) scale(0.98);
+  transform: translateY(calc(-0.58rem * var(--spine-scale))) rotate(-1.5deg) scale(0.98);
 }
 
 .shelf-board {
@@ -1132,13 +1263,10 @@ h3 {
   }
 
   .shelf {
+    --spine-scale: 0.88;
     min-height: 19rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-  }
-
-  .book-spine {
-    flex: 0 0 auto;
+    gap: 0.58rem;
+    padding-inline: 0.8rem;
   }
 
   .contact-link {
@@ -1177,6 +1305,50 @@ h3 {
 
   .book-review {
     min-height: auto;
+  }
+
+  .shelf-wrap {
+    padding: 1rem;
+  }
+
+  .shelf {
+    --spine-scale: 0.76;
+    min-height: 16.75rem;
+    gap: 0.46rem;
+    padding: 1.7rem 0.55rem 0;
+  }
+
+  .book-spine .spine-title {
+    font-size: 0.66rem;
+    padding-inline: 0.46rem;
+  }
+
+  .spine-symbol {
+    top: 1.1rem;
+    font-size: 0.72rem;
+  }
+
+  .spine-symbol-factory {
+    top: 0.98rem;
+    width: 1.48rem;
+    height: 1.48rem;
+    font-size: 0.78rem;
+  }
+
+  .spine-symbol-ipod {
+    top: 1rem;
+    width: 1.32rem;
+    height: 1.32rem;
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .shelf {
+    --spine-scale: 0.68;
+    min-height: 15.5rem;
+    gap: 0.38rem;
+    padding-inline: 0.42rem;
   }
 }
 

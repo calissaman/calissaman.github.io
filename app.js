@@ -1,10 +1,40 @@
 const root = document.documentElement;
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const themeToggle = document.querySelector(".theme-toggle");
 
-root.dataset.theme = "dark";
+const getStoredTheme = () => {
+  try {
+    return window.localStorage.getItem("calissa-theme");
+  } catch {
+    return null;
+  }
+};
+
+const storeTheme = (theme) => {
+  try {
+    window.localStorage.setItem("calissa-theme", theme);
+  } catch {
+    // localStorage may be unavailable in stricter file:// contexts.
+  }
+};
+
+const setTheme = (theme, persist = true) => {
+  const nextTheme = theme === "dark" ? "dark" : "light";
+  root.dataset.theme = nextTheme;
+  if (themeToggle) {
+    const dark = nextTheme === "dark";
+    themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+    themeToggle.setAttribute("aria-pressed", String(dark));
+  }
+  if (persist) storeTheme(nextTheme);
+};
+
+setTheme(getStoredTheme() || root.dataset.theme || "light", false);
 
 const canvas = document.querySelector(".ambient-canvas");
 const context = canvas?.getContext("2d");
+const burstCanvas = document.querySelector(".burst-canvas");
+const burstContext = burstCanvas?.getContext("2d");
 const flowItems = Array.from(document.querySelectorAll("[data-reveal]"));
 let width = 0;
 let height = 0;
@@ -37,6 +67,14 @@ const burstPalette = [
   [198, 249, 247],
   [99, 230, 230],
   [0, 184, 196],
+];
+
+const hydrangeaPalette = [
+  [255, 255, 255],
+  [235, 248, 255],
+  [214, 236, 255],
+  [221, 254, 250],
+  [248, 214, 230],
 ];
 
 const centerPalette = [
@@ -229,6 +267,14 @@ const resizeCanvas = () => {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+  if (burstCanvas && burstContext) {
+    burstCanvas.width = Math.floor(width * pixelRatio);
+    burstCanvas.height = Math.floor(height * pixelRatio);
+    burstCanvas.style.width = `${width}px`;
+    burstCanvas.style.height = `${height}px`;
+    burstContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  }
 };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -275,7 +321,39 @@ const createPetalBurst = (x, y, radius = 34) => {
   }
 };
 
+const drawBurstBlobPetal = (targetContext, distance, widthScale, heightScale, color, alpha, lean = 0) => {
+  const [r, g, b] = color;
+  targetContext.beginPath();
+  targetContext.moveTo(0, -distance - heightScale);
+  targetContext.bezierCurveTo(
+    widthScale * (0.9 + lean),
+    -distance - heightScale * 0.78,
+    widthScale * 1.08,
+    -distance + heightScale * 0.38,
+    widthScale * 0.12,
+    -distance + heightScale * 0.72
+  );
+  targetContext.bezierCurveTo(
+    -widthScale * 0.92,
+    -distance + heightScale * 0.42,
+    -widthScale * (0.78 - lean),
+    -distance - heightScale * 0.7,
+    0,
+    -distance - heightScale
+  );
+  targetContext.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  targetContext.fill();
+  targetContext.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.24})`;
+  targetContext.lineWidth = Math.max(0.55, Math.min(widthScale, heightScale) * 0.035);
+  targetContext.stroke();
+};
+
 const drawPetalBursts = () => {
+  const targetContext = burstContext || context;
+  if (burstContext) {
+    burstContext.clearRect(0, 0, width, height);
+  }
+
   for (let i = petalBursts.length - 1; i >= 0; i -= 1) {
     const petal = petalBursts[i];
     petal.life += 1;
@@ -292,17 +370,16 @@ const drawPetalBursts = () => {
     petal.vy = petal.vy * 0.982 + 0.035;
     petal.rotation += petal.spin;
 
-    context.save();
-    context.translate(petal.x, petal.y);
-    context.rotate(petal.rotation);
-    drawBlobPetal(0, petal.size * 0.42, petal.size * 0.72, petal.color, alpha, Math.sin(petal.life * 0.08) * 0.08);
-    context.restore();
+    targetContext.save();
+    targetContext.translate(petal.x, petal.y);
+    targetContext.rotate(petal.rotation);
+    drawBurstBlobPetal(targetContext, 0, petal.size * 0.42, petal.size * 0.72, petal.color, alpha, Math.sin(petal.life * 0.08) * 0.08);
+    targetContext.restore();
   }
 };
 
 const handleCanvasBurstClick = (event) => {
-  if (event.target?.closest?.("a, button, input, textarea, select, summary, [role='button']")) return;
-  if (!flowerBurstTargets.length) return;
+  if (!event.isPrimary || event.button > 0) return;
 
   const x = event.clientX;
   const y = event.clientY;
@@ -321,9 +398,7 @@ const handleCanvasBurstClick = (event) => {
     }
   });
 
-  if (target) {
-    createPetalBurst(target.x, target.y, target.radius);
-  }
+  createPetalBurst(x, y, target ? target.radius : 38);
 };
 
 const updateScrollState = () => {
@@ -1233,6 +1308,77 @@ const drawFieldGround = (scrollProgress) => {
   context.restore();
 };
 
+const drawLightWaterAtmosphere = (scrollProgress) => {
+  if (root.dataset.theme === "dark") return;
+
+  context.save();
+
+  const drift = frame * 0.004;
+  context.globalAlpha = 0.78;
+  context.strokeStyle = "rgba(0, 132, 150, 0.12)";
+  context.lineWidth = 1.1;
+
+  for (let i = 0; i < 7; i += 1) {
+    const x = ((i * 193) % 1000) / 1000 * width + Math.sin(drift + i) * 18;
+    const y = height * (0.16 + ((i * 29) % 74) / 100) + Math.cos(drift * 0.8 + i) * 10;
+    const rx = width * (0.08 + (i % 3) * 0.028);
+    const ry = height * (0.018 + (i % 2) * 0.008);
+
+    context.beginPath();
+    context.ellipse(x, y, rx, ry, Math.sin(i) * 0.45, 0, Math.PI * 2);
+    context.stroke();
+  }
+
+  for (let branch = 0; branch < 4; branch += 1) {
+    const baseX = width * (0.12 + branch * 0.27) + Math.sin(drift * 0.7 + branch) * 22;
+    const baseY = height * (0.08 + (branch % 2) * 0.1);
+    context.save();
+    context.translate(baseX, baseY);
+    context.rotate(-0.52 + branch * 0.22 + Math.sin(drift + branch) * 0.04);
+    context.fillStyle = `rgba(0, 112, 130, ${0.045 + branch * 0.006})`;
+    context.filter = "blur(5px)";
+
+    for (let leaf = 0; leaf < 15; leaf += 1) {
+      const leafX = leaf * 22 - 80;
+      const leafY = Math.sin(leaf * 0.92 + branch) * 18 + leaf * 4;
+      context.save();
+      context.translate(leafX, leafY);
+      context.rotate(leaf * 0.48);
+      context.beginPath();
+      context.ellipse(0, 0, 18 + (leaf % 3) * 4, 7 + (leaf % 2) * 2, 0, 0, Math.PI * 2);
+      context.fill();
+      context.restore();
+    }
+
+    context.restore();
+  }
+
+  context.filter = "none";
+
+  for (let i = 0; i < 24; i += 1) {
+    const color = hydrangeaPalette[i % hydrangeaPalette.length];
+    const x = ((i * 127) % 1000) / 1000 * (width + 180) - 90 + Math.sin(frame * 0.006 + i) * 18;
+    const y =
+      height * (0.1 + ((i * 61) % 82) / 100) +
+      Math.sin(frame * 0.004 + i * 1.4 + scrollProgress * Math.PI) * 24;
+    const size = 7 + (i % 5) * 1.6;
+    const alpha = 0.2 + (i % 4) * 0.035;
+
+    context.save();
+    context.translate(x, y);
+    context.rotate(Math.sin(frame * 0.006 + i) * 0.8);
+    for (let petal = 0; petal < 4; petal += 1) {
+      context.save();
+      context.rotate((Math.PI * 2 * petal) / 4 + Math.PI / 4);
+      drawBlobPetal(size * 0.34, size * 0.38, size * 0.54, color, alpha, 0.04);
+      context.restore();
+    }
+    context.restore();
+  }
+
+  context.restore();
+};
+
 const drawSeaFoliage = (field) => {
   if (field <= 0.02) return;
 
@@ -1392,8 +1538,9 @@ const drawAmbient = () => {
 
   context.clearRect(0, 0, width, height);
   flowerBurstTargets.length = 0;
-  context.fillStyle = root.dataset.theme === "dark" ? "rgba(6, 24, 34, 0.16)" : "rgba(247, 252, 255, 0.18)";
+  context.fillStyle = root.dataset.theme === "dark" ? "rgba(6, 24, 34, 0.16)" : "rgba(247, 255, 253, 0.1)";
   context.fillRect(0, 0, width, height);
+  drawLightWaterAtmosphere(scrollProgress);
   drawBouquetStems(scrollProgress);
   drawSpiralBreath(scrollProgress);
   drawFieldGround(scrollProgress);
@@ -1417,6 +1564,10 @@ if (canvas && context && !reduceMotion) {
     item.style.setProperty("--flow-blur", "0px");
   });
 }
+
+themeToggle?.addEventListener("click", () => {
+  setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+});
 
 const books = [
   {
