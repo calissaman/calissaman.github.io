@@ -29,7 +29,7 @@ const setTheme = (theme, persist = true) => {
   if (persist) storeTheme(nextTheme);
 };
 
-setTheme(getStoredTheme() || root.dataset.theme || "light", false);
+setTheme(getStoredTheme() || root.dataset.theme || "dark", false);
 
 const canvas = document.querySelector(".ambient-canvas");
 const context = canvas?.getContext("2d");
@@ -71,10 +71,12 @@ const burstPalette = [
 
 const hydrangeaPalette = [
   [255, 255, 255],
-  [235, 248, 255],
-  [214, 236, 255],
   [221, 254, 250],
-  [248, 214, 230],
+  [185, 248, 246],
+  [126, 232, 236],
+  [170, 214, 255],
+  [232, 244, 255],
+  [246, 222, 235],
 ];
 
 const centerPalette = [
@@ -256,6 +258,37 @@ const floatingBottomBlooms = Array.from({ length: 22 }, (_, index) => {
     row: Math.floor(index / 4),
   };
 });
+
+const waterRipples = Array.from({ length: 14 }, (_, index) => ({
+  x: ((index * 173) % 1000) / 1000,
+  y: 0.08 + ((index * 89) % 880) / 1000,
+  rx: 0.06 + (index % 5) * 0.018,
+  ry: 0.012 + (index % 4) * 0.006,
+  tilt: -0.5 + ((index * 37) % 100) / 100,
+  speed: 0.0012 + (index % 4) * 0.00042,
+  alpha: 0.09 + (index % 5) * 0.012,
+}));
+
+const leafShadowClusters = Array.from({ length: 7 }, (_, index) => ({
+  x: 0.06 + ((index * 151) % 900) / 1000,
+  y: 0.02 + ((index * 67) % 280) / 1000,
+  rotation: -0.74 + index * 0.22,
+  scale: 0.82 + (index % 4) * 0.18,
+  leaves: 14 + (index % 4) * 4,
+  alpha: 0.04 + (index % 3) * 0.012,
+}));
+
+const hydrangeaDrifters = Array.from({ length: 54 }, (_, index) => ({
+  x: ((index * 137) % 1000) / 1000,
+  y: 0.08 + ((index * 71) % 860) / 1000,
+  size: 5.8 + (index % 7) * 1.7,
+  colorIndex: index % hydrangeaPalette.length,
+  speed: 0.00036 + (index % 6) * 0.00013,
+  drift: 10 + (index % 6) * 6,
+  rotation: index * 0.57,
+  alpha: 0.18 + (index % 5) * 0.035,
+  ripple: index % 3 === 0,
+}));
 
 const resizeCanvas = () => {
   if (!canvas || !context) return;
@@ -1314,67 +1347,103 @@ const drawLightWaterAtmosphere = (scrollProgress) => {
   context.save();
 
   const drift = frame * 0.004;
-  context.globalAlpha = 0.78;
-  context.strokeStyle = "rgba(0, 132, 150, 0.12)";
-  context.lineWidth = 1.1;
+  const waterWash = context.createLinearGradient(0, 0, width, height);
+  waterWash.addColorStop(0, "rgba(255, 255, 255, 0.26)");
+  waterWash.addColorStop(0.42, "rgba(126, 232, 236, 0.12)");
+  waterWash.addColorStop(1, "rgba(0, 184, 196, 0.1)");
+  context.fillStyle = waterWash;
+  context.fillRect(0, 0, width, height);
 
-  for (let i = 0; i < 7; i += 1) {
-    const x = ((i * 193) % 1000) / 1000 * width + Math.sin(drift + i) * 18;
-    const y = height * (0.16 + ((i * 29) % 74) / 100) + Math.cos(drift * 0.8 + i) * 10;
-    const rx = width * (0.08 + (i % 3) * 0.028);
-    const ry = height * (0.018 + (i % 2) * 0.008);
+  waterRipples.forEach((ripple, index) => {
+    const phase = (frame * ripple.speed + scrollProgress * 0.22 + index * 0.13) % 1;
+    const x = ripple.x * width + Math.sin(drift * 0.9 + index) * 28;
+    const y = ripple.y * height + Math.cos(drift * 0.7 + index * 0.8) * 16;
+    const pulse = 0.74 + Math.sin(phase * Math.PI * 2) * 0.12;
+    const rx = width * ripple.rx * pulse;
+    const ry = height * ripple.ry * (1.1 - pulse * 0.16);
 
+    context.save();
+    context.globalAlpha = ripple.alpha;
+    context.lineWidth = 1 + (index % 3) * 0.25;
+    context.strokeStyle = index % 2 === 0 ? "rgba(0, 132, 150, 0.38)" : "rgba(99, 230, 230, 0.38)";
     context.beginPath();
-    context.ellipse(x, y, rx, ry, Math.sin(i) * 0.45, 0, Math.PI * 2);
+    context.ellipse(x, y, rx, ry, ripple.tilt, 0, Math.PI * 2);
     context.stroke();
-  }
+    context.strokeStyle = "rgba(255, 255, 255, 0.42)";
+    context.lineWidth = 0.65;
+    context.beginPath();
+    context.ellipse(x + rx * 0.08, y - ry * 0.12, rx * 0.64, ry * 0.5, ripple.tilt, 0, Math.PI * 2);
+    context.stroke();
+    context.restore();
+  });
 
-  for (let branch = 0; branch < 4; branch += 1) {
-    const baseX = width * (0.12 + branch * 0.27) + Math.sin(drift * 0.7 + branch) * 22;
-    const baseY = height * (0.08 + (branch % 2) * 0.1);
+  leafShadowClusters.forEach((branch, branchIndex) => {
+    const baseX = branch.x * width + Math.sin(drift * 0.62 + branchIndex) * 34;
+    const baseY = branch.y * height + Math.cos(drift * 0.54 + branchIndex) * 22;
     context.save();
     context.translate(baseX, baseY);
-    context.rotate(-0.52 + branch * 0.22 + Math.sin(drift + branch) * 0.04);
-    context.fillStyle = `rgba(0, 112, 130, ${0.045 + branch * 0.006})`;
-    context.filter = "blur(5px)";
+    context.rotate(branch.rotation + Math.sin(drift + branchIndex) * 0.045);
+    context.scale(branch.scale, branch.scale);
+    context.fillStyle = `rgba(0, 112, 130, ${branch.alpha})`;
+    context.filter = "blur(6px)";
 
-    for (let leaf = 0; leaf < 15; leaf += 1) {
-      const leafX = leaf * 22 - 80;
-      const leafY = Math.sin(leaf * 0.92 + branch) * 18 + leaf * 4;
+    for (let leaf = 0; leaf < branch.leaves; leaf += 1) {
+      const leafX = leaf * 19 - 92;
+      const leafY = Math.sin(leaf * 0.92 + branchIndex) * 22 + leaf * 4.6;
       context.save();
       context.translate(leafX, leafY);
-      context.rotate(leaf * 0.48);
+      context.rotate(leaf * 0.46 + Math.sin(drift + leaf) * 0.06);
       context.beginPath();
-      context.ellipse(0, 0, 18 + (leaf % 3) * 4, 7 + (leaf % 2) * 2, 0, 0, Math.PI * 2);
+      context.ellipse(0, 0, 20 + (leaf % 4) * 5, 7 + (leaf % 3) * 2, 0, 0, Math.PI * 2);
       context.fill();
       context.restore();
     }
 
     context.restore();
-  }
+  });
 
   context.filter = "none";
 
-  for (let i = 0; i < 24; i += 1) {
-    const color = hydrangeaPalette[i % hydrangeaPalette.length];
-    const x = ((i * 127) % 1000) / 1000 * (width + 180) - 90 + Math.sin(frame * 0.006 + i) * 18;
+  hydrangeaDrifters.forEach((petal, index) => {
+    const color = hydrangeaPalette[petal.colorIndex];
+    const floatX = (petal.x + frame * petal.speed + scrollProgress * 0.04) % 1;
+    const x = floatX * (width + 180) - 90 + Math.sin(frame * 0.007 + index) * petal.drift;
     const y =
-      height * (0.1 + ((i * 61) % 82) / 100) +
-      Math.sin(frame * 0.004 + i * 1.4 + scrollProgress * Math.PI) * 24;
-    const size = 7 + (i % 5) * 1.6;
-    const alpha = 0.2 + (i % 4) * 0.035;
+      petal.y * height +
+      Math.sin(frame * 0.004 + index * 1.4 + scrollProgress * Math.PI) * (16 + petal.drift * 0.42);
+    const size = petal.size * (width < 700 ? 0.82 : 1);
+    const alpha = petal.alpha;
+
+    if (petal.ripple) {
+      context.save();
+      context.globalAlpha = alpha * 0.36;
+      context.strokeStyle = "rgba(0, 132, 150, 0.34)";
+      context.lineWidth = 0.85;
+      context.beginPath();
+      context.ellipse(x, y + size * 0.6, size * 2.8, size * 0.72, Math.sin(index) * 0.34, 0, Math.PI * 2);
+      context.stroke();
+      context.strokeStyle = "rgba(255, 255, 255, 0.46)";
+      context.beginPath();
+      context.ellipse(x + size * 0.4, y + size * 0.42, size * 1.3, size * 0.34, Math.sin(index) * 0.34, 0, Math.PI * 2);
+      context.stroke();
+      context.restore();
+    }
 
     context.save();
     context.translate(x, y);
-    context.rotate(Math.sin(frame * 0.006 + i) * 0.8);
-    for (let petal = 0; petal < 4; petal += 1) {
+    context.rotate(petal.rotation + Math.sin(frame * 0.006 + index) * 0.8);
+    for (let lobe = 0; lobe < 4; lobe += 1) {
       context.save();
-      context.rotate((Math.PI * 2 * petal) / 4 + Math.PI / 4);
-      drawBlobPetal(size * 0.34, size * 0.38, size * 0.54, color, alpha, 0.04);
+      context.rotate((Math.PI * 2 * lobe) / 4 + Math.PI / 4);
+      drawBlobPetal(size * 0.32, size * 0.36, size * 0.52, color, alpha, 0.04);
       context.restore();
     }
+    context.beginPath();
+    context.arc(0, 0, Math.max(0.9, size * 0.1), 0, Math.PI * 2);
+    context.fillStyle = `rgba(0, 132, 150, ${alpha * 0.42})`;
+    context.fill();
     context.restore();
-  }
+  });
 
   context.restore();
 };

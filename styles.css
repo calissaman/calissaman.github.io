@@ -1,19 +1,19 @@
 :root {
   color-scheme: light;
-  --bg: #efffff;
-  --bg-mid: #c8fbf5;
-  --bg-end: #f8fff9;
-  --surface: rgba(248, 255, 253, 0.72);
+  --bg: #eaffff;
+  --bg-mid: #b5f8ef;
+  --bg-end: #f6fff9;
+  --surface: rgba(248, 255, 253, 0.76);
   --surface-solid: #f7fffd;
-  --surface-strong: #dbfbf7;
+  --surface-strong: #cdf8f2;
   --text: #073145;
   --muted: #2e6f75;
-  --line: rgba(0, 132, 150, 0.18);
+  --line: rgba(0, 132, 150, 0.22);
   --accent: #00b8c4;
   --accent-deep: #006f82;
-  --accent-soft: #baf4ee;
-  --shadow: rgba(0, 100, 120, 0.16);
-  --header-bg: rgba(239, 255, 255, 0.72);
+  --accent-soft: #9feee9;
+  --shadow: rgba(0, 100, 120, 0.18);
+  --header-bg: rgba(234, 255, 255, 0.76);
   --radius: 8px;
   --sans: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --serif: "Newsreader", Georgia, serif;
