@@ -18,30 +18,49 @@ const storeTheme = (theme) => {
   }
 };
 
+const themeLabels = {
+  dark: "dark mode",
+  light: "light mode",
+};
+
 const setTheme = (theme, persist = true) => {
-  const nextTheme = theme === "dark" ? "dark" : "light";
+  const nextTheme = Object.prototype.hasOwnProperty.call(themeLabels, theme) ? theme : "dark";
   root.dataset.theme = nextTheme;
   if (themeToggle) {
     const dark = nextTheme === "dark";
-    themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+    const nextLabel = nextTheme === "dark" ? "light mode" : "dark mode";
+    themeToggle.setAttribute("aria-label", `Switch to ${nextLabel}.`);
     themeToggle.setAttribute("aria-pressed", String(dark));
+    themeToggle.setAttribute("title", `Current: ${themeLabels[nextTheme]}.`);
   }
   if (persist) storeTheme(nextTheme);
 };
 
-setTheme(getStoredTheme() || root.dataset.theme || "dark", false);
+const storedTheme = getStoredTheme();
+setTheme(
+  storedTheme || root.dataset.theme || "dark",
+  Boolean(storedTheme && !Object.prototype.hasOwnProperty.call(themeLabels, storedTheme))
+);
 
 const canvas = document.querySelector(".ambient-canvas");
 const context = canvas?.getContext("2d");
 const burstCanvas = document.querySelector(".burst-canvas");
 const burstContext = burstCanvas?.getContext("2d");
+const contactCanvas = document.querySelector(".contact-flower-canvas");
+const contactContext = contactCanvas?.getContext("2d");
 const flowItems = Array.from(document.querySelectorAll("[data-reveal]"));
+const bioSection = document.querySelector("#bio");
+const evalsSection = document.querySelector("#evals");
 let width = 0;
 let height = 0;
+let contactWidth = 0;
+let contactHeight = 0;
 let pixelRatio = 1;
 let frame = 0;
 const flowerBurstTargets = [];
 const petalBursts = [];
+const monogramImage = new Image();
+monogramImage.src = "assets/monogram-watermark.png";
 
 const scrollState = {
   target: 0,
@@ -69,14 +88,20 @@ const burstPalette = [
   [0, 184, 196],
 ];
 
+const lightBurstPalette = [
+  [245, 201, 103],
+  [242, 143, 120],
+  [134, 230, 226],
+  [134, 230, 226],
+  [134, 230, 226],
+];
+
 const hydrangeaPalette = [
-  [255, 255, 255],
-  [221, 254, 250],
-  [185, 248, 246],
-  [126, 232, 236],
-  [170, 214, 255],
-  [232, 244, 255],
-  [246, 222, 235],
+  [245, 201, 103],
+  [242, 143, 120],
+  [134, 230, 226],
+  [134, 230, 226],
+  [134, 230, 226],
 ];
 
 const centerPalette = [
@@ -111,6 +136,74 @@ const leafPalette = [
   [0, 150, 168],
   [99, 230, 230],
 ];
+
+const bayGardenFlowerPalette = [
+  [255, 229, 192],
+  [255, 216, 187],
+  [242, 143, 120],
+  [245, 201, 103],
+  [134, 230, 226],
+  [134, 230, 226],
+];
+
+const bayGardenLeafPalette = [
+  [245, 201, 103],
+  [242, 143, 120],
+  [255, 216, 187],
+  [134, 230, 226],
+  [134, 230, 226],
+  [134, 230, 226],
+];
+
+const bayGardenCenterPalette = [
+  [255, 229, 192],
+  [242, 143, 120],
+  [245, 201, 103],
+  [134, 230, 226],
+  [134, 230, 226],
+];
+
+const bayGardenCreamPalette = [
+  [255, 238, 209],
+  [255, 229, 192],
+  [245, 201, 103],
+  [242, 143, 120],
+  [134, 230, 226],
+  [134, 230, 226],
+];
+
+const bayGardenPetal = (petal) => {
+  const seed = Math.abs(Math.round((petal.angle || 0) * 1000 + (petal.size || 0) * 17 + (petal.bloom || 0) * 31));
+  const flower = bayGardenFlowerPalette[seed % bayGardenFlowerPalette.length];
+  const warmFlower = bayGardenFlowerPalette[(seed + 1) % 4];
+  const leaf = bayGardenLeafPalette[seed % bayGardenLeafPalette.length];
+  const center = bayGardenCenterPalette[(seed + 2) % bayGardenCenterPalette.length];
+  const line = [134, 230, 226];
+  const cream = bayGardenCreamPalette[seed % bayGardenCreamPalette.length];
+  const colorByType = {
+    clover: [245, 201, 103],
+    nemophilia: [134, 230, 226],
+    whiteCamellia: cream,
+    peony: seed % 2 === 0 ? [255, 216, 187] : [242, 143, 120],
+    rose: [242, 143, 120],
+    camellia: flower,
+    tileCamellia: seed % 2 === 0 ? [134, 230, 226] : [245, 201, 103],
+  };
+  const color = colorByType[petal.type] || flower;
+  const isAquaBloom = color[0] === 134 && color[1] === 230 && color[2] === 226;
+
+  return {
+    ...petal,
+    color,
+    center: petal.type === "clover" ? [245, 201, 103] : isAquaBloom ? [134, 230, 226] : center,
+    tileAccent: isAquaBloom ? [134, 230, 226] : petal.type === "rose" || petal.type === "peony" ? [242, 143, 120] : bayGardenFlowerPalette[(seed + 2) % bayGardenFlowerPalette.length],
+    tileLine: line,
+    tileCream: isAquaBloom ? [134, 230, 226] : cream,
+    rose: isAquaBloom ? [134, 230, 226] : [242, 143, 120],
+    roseShadow: isAquaBloom ? [134, 230, 226] : seed % 2 === 0 ? [255, 229, 192] : [245, 201, 103],
+    leaf: isAquaBloom ? [134, 230, 226] : petal.type === "clover" ? [245, 201, 103] : leaf,
+  };
+};
 
 const allowedFlowerTypes = ["camellia", "whiteCamellia", "peony", "tileCamellia", "rose", "nemophilia", "clover"];
 
@@ -308,6 +401,17 @@ const resizeCanvas = () => {
     burstCanvas.style.height = `${height}px`;
     burstContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
+
+  if (contactCanvas && contactContext) {
+    const rect = contactCanvas.getBoundingClientRect();
+    contactWidth = Math.max(1, rect.width);
+    contactHeight = Math.max(1, rect.height);
+    contactCanvas.width = Math.floor(contactWidth * pixelRatio);
+    contactCanvas.height = Math.floor(contactHeight * pixelRatio);
+    contactCanvas.style.width = `${contactWidth}px`;
+    contactCanvas.style.height = `${contactHeight}px`;
+    contactContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  }
 };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -335,10 +439,11 @@ const registerFlowerBurstTarget = (x, y, size, alpha) => {
 
 const createPetalBurst = (x, y, radius = 34) => {
   const count = 24;
+  const palette = root.dataset.theme === "light" ? lightBurstPalette : burstPalette;
   for (let i = 0; i < count; i += 1) {
     const angle = (Math.PI * 2 * i) / count + Math.sin(i * 1.7) * 0.28;
     const speed = 1.4 + ((i * 17) % 18) / 10;
-    const color = burstPalette[i % burstPalette.length];
+    const color = palette[i % palette.length];
     petalBursts.push({
       x,
       y,
@@ -453,15 +558,16 @@ const updateFlowText = () => {
 
   flowItems.forEach((item) => {
     const rect = item.getBoundingClientRect();
-    const center = rect.top + easedOffset + rect.height * 0.5;
+    const isContact = Boolean(item.closest(".contact-section"));
+    const center = rect.top + (isContact ? 0 : easedOffset) + rect.height * 0.5;
     const distance = Math.abs(center - viewportCenter);
     const focus = 1 - inverseMix(0, focusBand, distance);
     const isHero = item.classList.contains("hero-copy");
-    const easedFocus = smoothstep(0.04, 0.92, focus);
+    const easedFocus = isContact ? Math.max(0.9, smoothstep(0.04, 0.92, focus)) : smoothstep(0.04, 0.92, focus);
     const opacity = isHero && scrollState.progress < 0.12 ? 1 : mix(0.58, 1, easedFocus);
     const direction = center < viewportCenter ? -1 : 1;
-    const drift = direction * mix(18, 0, easedFocus);
-    const blur = isHero && scrollState.progress < 0.12 ? 0 : mix(2.8, 0, easedFocus);
+    const drift = isContact ? 0 : direction * mix(18, 0, easedFocus);
+    const blur = isHero && scrollState.progress < 0.12 ? 0 : mix(isContact ? 0.7 : 2.8, 0, easedFocus);
 
     item.style.setProperty("--flow-opacity", opacity.toFixed(3));
     item.style.setProperty("--flow-y", `${drift.toFixed(2)}px`);
@@ -494,6 +600,34 @@ const heroTextClearance = (x, y, scrollProgress) => {
   return insideX * insideY * active;
 };
 
+const bouquetMonogramFrame = (scrollProgress) => {
+  const liftIntoBouquet = smoothstep(0.02, 0.16, scrollProgress);
+  const markSize = Math.min(Math.min(width, height) * (width < 700 ? 0.31 : 0.28), width < 700 ? 132 : 218);
+  const x = width * 0.5;
+  const restingY = height * (width < 700 ? 0.91 : 0.94);
+  const liftedY = height * (width < 700 ? 0.8 : 0.72);
+  const y = mix(restingY, liftedY, liftIntoBouquet) + Math.sin(frame * 0.006) * 2.5;
+  const bouquet = 1 - smoothstep(0.1, 0.32, scrollProgress);
+  return { x, y, markSize, bouquet };
+};
+
+const monogramClearance = (x, y, scrollProgress) => {
+  const { x: markX, y: markY, markSize } = bouquetMonogramFrame(scrollProgress);
+  const burstProgress = bioToEvalsBurstProgress();
+  const visible = 1 - smoothstep(0.86, 1, burstProgress);
+  if (visible <= 0.02) return 0;
+  const distance = Math.hypot(x - markX, y - markY);
+  return (1 - smoothstep(markSize * 0.46, markSize * 1.08, distance)) * visible;
+};
+
+const bioToEvalsBurstProgress = () => {
+  if (!bioSection || !evalsSection) return smoothstep(0.28, 0.36, scrollState.progress);
+
+  const start = bioSection.offsetTop + bioSection.offsetHeight * 0.08;
+  const end = Math.max(start + height * 0.18, bioSection.offsetTop + bioSection.offsetHeight * 0.58);
+  return smoothstep(start, end, scrollState.eased);
+};
+
 const petalPosition = (petal, index, scrollProgress) => {
   const heroToSwirl = smoothstep(0.14, 0.3, scrollProgress);
   const swirlToSpiral = smoothstep(0.34, 0.58, scrollProgress);
@@ -502,7 +636,7 @@ const petalPosition = (petal, index, scrollProgress) => {
   const time = frame * 0.008;
   const pageDrift = scrollProgress * height * 0.22;
 
-  const bouquetBaseY = height * (width < 700 ? 0.78 : 0.75);
+  const bouquetBaseY = height * (width < 700 ? 0.86 : 0.85);
   const bouquetRadius = Math.min(width, height) * (0.07 + petal.ring * 0.35);
   const bouquetAngle = petal.angle + Math.sin(index * 0.73) * 0.18;
   const bouquetDomeLift = Math.pow(1 - petal.ring, 0.7) * height * 0.1;
@@ -572,9 +706,9 @@ const drawLeaf = (x, y, rotation, size, alpha, dark) => {
   context.rotate(rotation);
   context.beginPath();
   context.ellipse(0, 0, size * 0.28, size, 0, 0, Math.PI * 2);
-  context.fillStyle = dark ? `rgba(99, 230, 230, ${alpha * 0.46})` : `rgba(0, 112, 130, ${alpha * 0.3})`;
+  context.fillStyle = dark ? `rgba(99, 230, 230, ${alpha * 0.46})` : `rgba(245, 201, 103, ${alpha * 0.34})`;
   context.fill();
-  context.strokeStyle = dark ? `rgba(198, 249, 247, ${alpha * 0.22})` : `rgba(0, 184, 196, ${alpha * 0.18})`;
+  context.strokeStyle = dark ? `rgba(198, 249, 247, ${alpha * 0.22})` : `rgba(134, 230, 226, ${alpha * 0.22})`;
   context.lineWidth = 0.7;
   context.stroke();
   context.restore();
@@ -620,7 +754,7 @@ const drawBlobPetal = (distance, widthScale, heightScale, color, alpha, lean = 0
 
 const drawOrchidVeins = (size, alpha, dark) => {
   context.save();
-  context.strokeStyle = dark ? `rgba(236, 254, 249, ${alpha * 0.28})` : `rgba(0, 112, 130, ${alpha * 0.22})`;
+  context.strokeStyle = dark ? `rgba(236, 254, 249, ${alpha * 0.28})` : `rgba(134, 230, 226, ${alpha * 0.28})`;
   context.lineWidth = Math.max(0.45, size * 0.012);
   for (let i = -3; i <= 3; i += 1) {
     const offset = i * size * 0.055;
@@ -1026,7 +1160,7 @@ const drawBlueFiveBloom = (petal, size, alpha, dark) => {
   context.arc(0, 0, size * 0.44, 0, Math.PI * 2);
   context.fill();
 
-  context.strokeStyle = dark ? `rgba(236, 254, 249, ${alpha * 0.28})` : `rgba(0, 112, 130, ${alpha * 0.24})`;
+  context.strokeStyle = dark ? `rgba(236, 254, 249, ${alpha * 0.28})` : `rgba(134, 230, 226, ${alpha * 0.3})`;
   context.lineWidth = Math.max(0.45, size * 0.012);
   for (let i = 0; i < 5; i += 1) {
     const angle = (Math.PI * 2 * i) / 5 + 0.12;
@@ -1064,9 +1198,13 @@ const drawBlossom = (petal, x, y, rotation, size, alpha) => {
     petal = { ...petal, type: "camellia" };
   }
 
+  const dark = root.dataset.theme === "dark";
+  if (!dark) {
+    petal = bayGardenPetal(petal);
+  }
+
   const [r, g, b] = petal.color;
   const [cr, cg, cb] = petal.center;
-  const dark = root.dataset.theme === "dark";
 
   context.save();
   context.translate(x, y);
@@ -1142,7 +1280,7 @@ const drawBlossom = (petal, x, y, rotation, size, alpha) => {
     }
 
     context.save();
-    context.strokeStyle = dark ? `rgba(236, 254, 249, ${alpha * 0.7})` : `rgba(0, 112, 130, ${alpha * 0.54})`;
+    context.strokeStyle = dark ? `rgba(236, 254, 249, ${alpha * 0.7})` : `rgba(134, 230, 226, ${alpha * 0.58})`;
     context.lineWidth = Math.max(0.55, size * 0.018);
     for (let i = 0; i < 10; i += 1) {
       const angle = (Math.PI * 2 * i) / 10;
@@ -1241,24 +1379,14 @@ const drawBouquetStems = (scrollProgress) => {
     context.beginPath();
     context.moveTo(baseX + Math.sin(index * 1.4) * 24, baseY + Math.cos(index) * 8);
     context.quadraticCurveTo(baseX + petal.stemBend * 0.55, height * 0.78, x, y + petal.size * 0.78);
-    context.strokeStyle = dark ? "rgba(99, 230, 230, 0.42)" : "rgba(0, 112, 130, 0.34)";
+    context.strokeStyle = dark ? "rgba(99, 230, 230, 0.42)" : "rgba(8, 124, 145, 0.28)";
     context.lineWidth = index % 4 === 0 ? 1.15 : 0.82;
     context.stroke();
-    if (index % 5 === 1) {
-      drawLeaf(
-        baseX + (x - baseX) * 0.52,
-        baseY + (y - baseY) * 0.52,
-        -0.72 * petal.leafTurn,
-        petal.size * 0.74,
-        0.7,
-        dark
-      );
-    }
   });
 
   context.save();
   context.globalAlpha = bouquet * (dark ? 0.38 : 0.28);
-  context.strokeStyle = dark ? "rgba(198, 249, 247, 0.34)" : "rgba(0, 112, 130, 0.28)";
+  context.strokeStyle = dark ? "rgba(198, 249, 247, 0.34)" : "rgba(242, 143, 120, 0.3)";
   context.lineWidth = 1.1;
   for (let i = 0; i < 5; i += 1) {
     const y = baseY - 44 + i * 11;
@@ -1275,11 +1403,45 @@ const drawBouquetStems = (scrollProgress) => {
   context.lineTo(baseX + wrapWidth * 0.22, baseY + 56);
   context.quadraticCurveTo(baseX, baseY + 76, baseX - wrapWidth * 0.22, baseY + 56);
   context.closePath();
-  context.fillStyle = dark ? "rgba(7, 49, 69, 0.52)" : "rgba(255, 255, 255, 0.46)";
+  context.fillStyle = dark ? "rgba(7, 49, 69, 0.52)" : "rgba(255, 248, 232, 0.58)";
   context.fill();
-  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.28)" : "rgba(0, 112, 130, 0.22)";
+  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.28)" : "rgba(8, 124, 145, 0.22)";
   context.stroke();
   context.restore();
+};
+
+const drawBouquetMonogram = (scrollProgress) => {
+  if (!monogramImage.complete || !monogramImage.naturalWidth) return;
+
+  const burstProgress = bioToEvalsBurstProgress();
+  const bouquet = 1 - smoothstep(0.86, 1, burstProgress);
+  const imageReveal = 1 - smoothstep(0, 0.3, burstProgress);
+  if (bouquet <= 0.02 && burstProgress >= 1) return;
+
+  const dark = root.dataset.theme === "dark";
+  const { x, y, markSize } = bouquetMonogramFrame(scrollProgress);
+  const alpha = imageReveal * (dark ? 0.9 : 0.78);
+
+  if (alpha > 0.02) {
+    context.save();
+    context.translate(x, y);
+    context.globalAlpha = imageReveal * (dark ? 0.38 : 0.38);
+    context.fillStyle = dark ? "rgba(4, 17, 27, 0.72)" : "rgba(255, 238, 209, 0.78)";
+    context.shadowBlur = markSize * (dark ? 0.28 : 0.2);
+    context.shadowColor = dark ? "rgba(4, 17, 27, 0.72)" : "rgba(242, 143, 120, 0.28)";
+    context.beginPath();
+    context.ellipse(0, 0, markSize * 0.47, markSize * 0.39, 0, 0, Math.PI * 2);
+    context.fill();
+    context.shadowBlur = 0;
+    context.globalAlpha = alpha;
+    context.globalCompositeOperation = dark ? "screen" : "source-over";
+    context.filter = dark
+      ? "saturate(1.08) brightness(1.18) drop-shadow(0 0 18px rgba(99, 230, 230, 0.42))"
+      : "saturate(1.16) brightness(1.08) contrast(1.03) drop-shadow(0 7px 22px rgba(242, 143, 120, 0.18))";
+    context.drawImage(monogramImage, -markSize / 2, -markSize / 2, markSize, markSize);
+    context.restore();
+  }
+
 };
 
 const drawSpiralBreath = (scrollProgress) => {
@@ -1294,9 +1456,9 @@ const drawSpiralBreath = (scrollProgress) => {
   context.save();
   context.globalAlpha = spiral * (dark ? 0.24 : 0.18);
   context.lineWidth = 1.4;
-  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.55)" : "rgba(0, 112, 130, 0.42)";
+  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.55)" : "rgba(134, 230, 226, 0.48)";
   context.shadowBlur = 18;
-  context.shadowColor = dark ? "rgba(99, 230, 230, 0.28)" : "rgba(0, 184, 196, 0.2)";
+  context.shadowColor = dark ? "rgba(99, 230, 230, 0.28)" : "rgba(134, 230, 226, 0.22)";
   context.beginPath();
 
   for (let i = 0; i < 110; i += 1) {
@@ -1322,7 +1484,7 @@ const drawFieldGround = (scrollProgress) => {
 
   context.save();
   context.globalAlpha = field * (dark ? 0.26 : 0.18);
-  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.34)" : "rgba(0, 112, 130, 0.32)";
+  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.34)" : "rgba(134, 230, 226, 0.36)";
   context.lineWidth = 1;
 
   petals.forEach((petal, index) => {
@@ -1342,15 +1504,16 @@ const drawFieldGround = (scrollProgress) => {
 };
 
 const drawLightWaterAtmosphere = (scrollProgress) => {
-  if (root.dataset.theme === "dark") return;
+  if (root.dataset.theme !== "light") return;
 
   context.save();
 
   const drift = frame * 0.004;
   const waterWash = context.createLinearGradient(0, 0, width, height);
-  waterWash.addColorStop(0, "rgba(255, 255, 255, 0.26)");
-  waterWash.addColorStop(0.42, "rgba(126, 232, 236, 0.12)");
-  waterWash.addColorStop(1, "rgba(0, 184, 196, 0.1)");
+  waterWash.addColorStop(0, "rgba(255, 248, 232, 0.28)");
+  waterWash.addColorStop(0.42, "rgba(134, 230, 226, 0.12)");
+  waterWash.addColorStop(0.78, "rgba(242, 143, 120, 0.07)");
+  waterWash.addColorStop(1, "rgba(8, 124, 145, 0.1)");
   context.fillStyle = waterWash;
   context.fillRect(0, 0, width, height);
 
@@ -1365,7 +1528,7 @@ const drawLightWaterAtmosphere = (scrollProgress) => {
     context.save();
     context.globalAlpha = ripple.alpha;
     context.lineWidth = 1 + (index % 3) * 0.25;
-    context.strokeStyle = index % 2 === 0 ? "rgba(0, 132, 150, 0.38)" : "rgba(99, 230, 230, 0.38)";
+    context.strokeStyle = index % 2 === 0 ? "rgba(8, 124, 145, 0.32)" : "rgba(242, 143, 120, 0.26)";
     context.beginPath();
     context.ellipse(x, y, rx, ry, ripple.tilt, 0, Math.PI * 2);
     context.stroke();
@@ -1376,33 +1539,6 @@ const drawLightWaterAtmosphere = (scrollProgress) => {
     context.stroke();
     context.restore();
   });
-
-  leafShadowClusters.forEach((branch, branchIndex) => {
-    const baseX = branch.x * width + Math.sin(drift * 0.62 + branchIndex) * 34;
-    const baseY = branch.y * height + Math.cos(drift * 0.54 + branchIndex) * 22;
-    context.save();
-    context.translate(baseX, baseY);
-    context.rotate(branch.rotation + Math.sin(drift + branchIndex) * 0.045);
-    context.scale(branch.scale, branch.scale);
-    context.fillStyle = `rgba(0, 112, 130, ${branch.alpha})`;
-    context.filter = "blur(6px)";
-
-    for (let leaf = 0; leaf < branch.leaves; leaf += 1) {
-      const leafX = leaf * 19 - 92;
-      const leafY = Math.sin(leaf * 0.92 + branchIndex) * 22 + leaf * 4.6;
-      context.save();
-      context.translate(leafX, leafY);
-      context.rotate(leaf * 0.46 + Math.sin(drift + leaf) * 0.06);
-      context.beginPath();
-      context.ellipse(0, 0, 20 + (leaf % 4) * 5, 7 + (leaf % 3) * 2, 0, 0, Math.PI * 2);
-      context.fill();
-      context.restore();
-    }
-
-    context.restore();
-  });
-
-  context.filter = "none";
 
   hydrangeaDrifters.forEach((petal, index) => {
     const color = hydrangeaPalette[petal.colorIndex];
@@ -1451,9 +1587,10 @@ const drawLightWaterAtmosphere = (scrollProgress) => {
 const drawSeaFoliage = (field) => {
   if (field <= 0.02) return;
 
+  const dark = root.dataset.theme === "dark";
   context.save();
-  context.globalAlpha = field * 0.2;
-  context.strokeStyle = "rgba(99, 230, 230, 0.36)";
+  context.globalAlpha = field * (dark ? 0.2 : 0.32);
+  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.36)" : "rgba(8, 124, 145, 0.34)";
   context.lineWidth = 1.05;
 
   for (let i = 0; i < 18; i += 1) {
@@ -1467,7 +1604,7 @@ const drawSeaFoliage = (field) => {
     context.stroke();
 
     if (i % 2 === 0) {
-      drawLeaf(x + lean * 0.05, y + 18, Math.sin(i) * 0.7, 18 + (i % 5) * 3, 0.32, true);
+      drawLeaf(x + lean * 0.05, y + 18, Math.sin(i) * 0.7, 18 + (i % 5) * 3, dark ? 0.32 : 0.42, true);
     }
   }
 
@@ -1479,19 +1616,21 @@ const drawForegroundBloomField = (scrollProgress) => {
   if (field <= 0.02) return;
 
   const dark = root.dataset.theme === "dark";
+  const lightBoost = dark ? 1 : 1.85;
+  const lightThreshold = dark ? 0.03 : 0.018;
 
   drawSeaFoliage(field);
 
   foregroundBlooms.forEach((flower, index) => {
     const bloomStart = 0.75 + flower.row * 0.042 + (index % 4) * 0.014;
     const bloom = pulsePop(smoothstep(bloomStart, bloomStart + 0.14, scrollProgress));
-    const alpha = field * bloom * (0.2 + flower.row * 0.026);
-    if (alpha <= 0.03) return;
+    const alpha = field * bloom * (0.2 + flower.row * 0.026) * lightBoost;
+    if (alpha <= lightThreshold) return;
 
     const x = flower.x * (width + 360) - 180;
     const y = height * flower.y + mix(96 - flower.row * 12, 0, bloom) + Math.sin(frame * 0.006 + index) * 4;
     const responsiveScale = width < 700 ? 0.76 : 1;
-    const size = flower.size * responsiveScale * (0.62 + bloom * 0.34);
+    const size = flower.size * responsiveScale * (0.62 + bloom * 0.34) * (dark ? 1 : 0.46);
     const rotation = flower.rotation + Math.sin(frame * 0.004 + index * 0.7) * 0.035;
 
     drawBlossom(flower, x, y, rotation, size, alpha);
@@ -1501,8 +1640,8 @@ const drawForegroundBloomField = (scrollProgress) => {
   floatingBottomBlooms.forEach((flower, index) => {
     const floatStart = 0.78 + (index % 5) * 0.025;
     const bloom = pulsePop(smoothstep(floatStart, floatStart + 0.16, scrollProgress));
-    const alpha = field * bloom * 0.42;
-    if (alpha <= 0.03) return;
+    const alpha = field * bloom * 0.42 * (dark ? 1 : 1.55);
+    if (alpha <= lightThreshold) return;
 
     const responsiveScale = width < 700 ? 0.72 : 1;
     const drift = Math.sin(frame * 0.004 + index * 1.3) * flower.drift;
@@ -1510,11 +1649,233 @@ const drawForegroundBloomField = (scrollProgress) => {
     const x = flower.x * (width + 220) - 110 + drift;
     const y = height * flower.y - bloom * (38 + flower.row * 6) + lift;
     const rotation = flower.angle * 0.16 + Math.sin(frame * 0.003 + index) * 0.18;
-    const size = flower.size * responsiveScale * (0.7 + bloom * 0.42);
+    const size = flower.size * responsiveScale * (0.7 + bloom * 0.42) * (dark ? 1 : 0.54);
 
     drawBlossom(flower, x, y, rotation, size, alpha);
     registerFlowerBurstTarget(x, y, size, alpha);
   });
+};
+
+const contactFlowerPalettes = {
+  dark: {
+    petals: [
+      [255, 255, 255],
+      [198, 249, 247],
+      [99, 230, 230],
+      [0, 184, 196],
+      [0, 150, 168],
+    ],
+    centers: [
+      [236, 254, 249],
+      [255, 244, 179],
+      [126, 230, 219],
+    ],
+    lines: [99, 230, 230],
+  },
+  light: {
+    petals: [
+      [245, 201, 103],
+      [242, 143, 120],
+      [134, 230, 226],
+      [134, 230, 226],
+    ],
+    centers: [
+      [245, 201, 103],
+      [242, 143, 120],
+      [134, 230, 226],
+      [134, 230, 226],
+    ],
+    lines: [134, 230, 226],
+  },
+};
+
+const contactFill = (rgb, alpha) => `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+const isLightAqua = (rgb) => rgb[0] === 134 && rgb[1] === 230 && rgb[2] === 226;
+
+const drawContactPetal = (ctx, size, color, alpha, stretch = 1, curl = 0) => {
+  ctx.beginPath();
+  ctx.moveTo(0, -size * 0.1);
+  ctx.bezierCurveTo(size * 0.34 + curl, -size * 0.34, size * 0.46, -size * 0.78, 0, -size * 1.02 * stretch);
+  ctx.bezierCurveTo(-size * 0.46, -size * 0.78, -size * 0.34 + curl, -size * 0.34, 0, -size * 0.1);
+  ctx.fillStyle = contactFill(color, alpha);
+  ctx.fill();
+};
+
+const drawContactRose = (ctx, x, y, size, rotation, flower, palette, alpha) => {
+  const basePetalColor = palette.petals[(flower.tileMotif + 1) % palette.petals.length];
+  const baseInnerColor = palette.petals[(flower.tileMotif + 2) % palette.petals.length];
+  const baseCenterColor = palette.centers[flower.tileMotif % palette.centers.length];
+  const forceAqua = root.dataset.theme === "light" && (isLightAqua(basePetalColor) || isLightAqua(baseInnerColor));
+  const petalColor = forceAqua ? [134, 230, 226] : basePetalColor;
+  const innerColor = forceAqua ? [134, 230, 226] : baseInnerColor;
+  const centerColor = forceAqua ? [134, 230, 226] : baseCenterColor;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+
+  [
+    { count: 8, scale: 1, opacity: 0.62, offset: 0 },
+    { count: 6, scale: 0.72, opacity: 0.78, offset: 0.22 },
+    { count: 5, scale: 0.46, opacity: 0.9, offset: 0.14 },
+  ].forEach((layer, layerIndex) => {
+    for (let i = 0; i < layer.count; i += 1) {
+      ctx.save();
+      ctx.rotate((Math.PI * 2 * (i + layer.offset)) / layer.count + layerIndex * 0.08);
+      ctx.translate(0, -size * 0.16 * layer.scale);
+      drawContactPetal(
+        ctx,
+        size * layer.scale,
+        layerIndex === 0 ? petalColor : innerColor,
+        alpha * layer.opacity,
+        0.82,
+        Math.sin(i * 1.3) * size * 0.035
+      );
+      ctx.restore();
+    }
+  });
+
+  ctx.strokeStyle = contactFill(palette.lines, alpha * 0.52);
+  ctx.lineWidth = Math.max(0.7, size * 0.018);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, size * 0.18, size * 0.08, -0.54, 0, Math.PI * 1.78);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(size * 0.02, -size * 0.01, size * 0.1, size * 0.06, 0.62, 0, Math.PI * 1.8);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.07, 0, Math.PI * 2);
+  ctx.fillStyle = contactFill(centerColor, alpha * 0.86);
+  ctx.fill();
+  ctx.restore();
+};
+
+const drawContactNemophilia = (ctx, x, y, size, rotation, palette, alpha) => {
+  const blue = root.dataset.theme === "dark" ? [88, 189, 232] : [134, 230, 226];
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  for (let i = 0; i < 5; i += 1) {
+    ctx.save();
+    ctx.rotate((Math.PI * 2 * i) / 5 + 0.16);
+    drawContactPetal(ctx, size * 0.88, blue, alpha * 0.8, 0.74);
+    ctx.restore();
+  }
+  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.44);
+  gradient.addColorStop(0, contactFill(root.dataset.theme === "dark" ? [255, 255, 255] : [134, 230, 226], alpha * 0.92));
+  gradient.addColorStop(1, contactFill(blue, 0));
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = contactFill(palette.lines, alpha * 0.35);
+  ctx.lineWidth = Math.max(0.55, size * 0.012);
+  for (let i = 0; i < 5; i += 1) {
+    const angle = (Math.PI * 2 * i) / 5;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle) * size * 0.08, Math.sin(angle) * size * 0.08);
+    ctx.lineTo(Math.cos(angle) * size * 0.46, Math.sin(angle) * size * 0.46);
+    ctx.stroke();
+  }
+  ctx.restore();
+};
+
+const drawContactClover = (ctx, x, y, size, rotation, palette, alpha) => {
+  const color = root.dataset.theme === "dark" ? [99, 230, 230] : [245, 201, 103];
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  for (let i = 0; i < 4; i += 1) {
+    ctx.save();
+    ctx.rotate((Math.PI * 2 * i) / 4 + Math.PI / 4);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(size * 0.32, -size * 0.22, size * 0.46, -size * 0.58, 0, -size * 0.66);
+    ctx.bezierCurveTo(-size * 0.46, -size * 0.58, -size * 0.32, -size * 0.22, 0, 0);
+    ctx.fillStyle = contactFill(color, alpha * 0.68);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.08, 0, Math.PI * 2);
+  ctx.fillStyle = contactFill(palette.centers[0], alpha * 0.8);
+  ctx.fill();
+  ctx.restore();
+};
+
+const drawContactTileBloom = (ctx, x, y, size, rotation, flower, palette, alpha) => {
+  drawContactRose(ctx, x, y, size, rotation, flower, palette, alpha);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation + Math.PI / 4);
+  ctx.strokeStyle = contactFill(palette.lines, alpha * 0.5);
+  ctx.lineWidth = Math.max(0.65, size * 0.014);
+  ctx.strokeRect(-size * 0.28, -size * 0.28, size * 0.56, size * 0.56);
+  ctx.restore();
+};
+
+const drawContactFlower = (ctx, flower, x, y, size, rotation, alpha, palette) => {
+  if (flower.type === "clover") {
+    drawContactClover(ctx, x, y, size * 0.86, rotation, palette, alpha);
+  } else if (flower.type === "nemophilia") {
+    drawContactNemophilia(ctx, x, y, size * 0.88, rotation, palette, alpha);
+  } else if (flower.type === "tileCamellia") {
+    drawContactTileBloom(ctx, x, y, size, rotation, flower, palette, alpha);
+  } else {
+    drawContactRose(ctx, x, y, size, rotation, flower, palette, alpha);
+  }
+};
+
+const drawContactBloomOverlay = (scrollProgress) => {
+  if (!contactCanvas || !contactContext || contactWidth <= 1 || contactHeight <= 1) return;
+
+  contactContext.clearRect(0, 0, contactWidth, contactHeight);
+  const rect = contactCanvas.getBoundingClientRect();
+  if (rect.bottom < 0 || rect.top > height) return;
+
+  const visible = clamp((height - rect.top) / (height + rect.height * 0.32), 0, 1);
+  const field = Math.max(smoothstep(0.08, 0.72, visible), smoothstep(0.72, 0.96, scrollProgress));
+  if (field <= 0.01) return;
+
+  const dark = root.dataset.theme === "dark";
+  const palette = contactFlowerPalettes[dark ? "dark" : "light"];
+  const responsiveScale = contactWidth < 640 ? 0.42 : 0.56;
+
+  contactContext.save();
+  contactContext.globalCompositeOperation = dark ? "screen" : "source-over";
+
+  foregroundBlooms.forEach((flower, index) => {
+    const bloomStart = 0.08 + flower.row * 0.08 + (index % 4) * 0.018;
+    const bloom = pulsePop(smoothstep(bloomStart, bloomStart + 0.24, field));
+    const alpha = bloom * (dark ? 0.42 : 0.66);
+    if (alpha <= 0.025) return;
+
+    const drift = Math.sin(frame * 0.004 + index * 0.8) * (10 + flower.row * 3);
+    const x = flower.x * (contactWidth + 150) - 75 + drift;
+    const y = contactHeight * (0.47 + flower.row * 0.105) + Math.sin(frame * 0.005 + index) * 5;
+    const size = flower.size * responsiveScale * (0.1 + bloom * 0.06) * (dark ? 0.9 : 0.96);
+    const rotation = flower.rotation + Math.sin(frame * 0.003 + index) * 0.08;
+
+    drawContactFlower(contactContext, flower, x, y, size, rotation, alpha, palette);
+  });
+
+  floatingBottomBlooms.forEach((flower, index) => {
+    const bloomStart = 0.2 + (index % 6) * 0.035;
+    const bloom = pulsePop(smoothstep(bloomStart, bloomStart + 0.2, field));
+    const alpha = bloom * (dark ? 0.34 : 0.58);
+    if (alpha <= 0.025) return;
+
+    const drift = Math.sin(frame * 0.006 + index * 1.4) * flower.drift;
+    const lift = Math.cos(frame * 0.005 + index * 0.7) * 12;
+    const x = flower.x * (contactWidth + 120) - 60 + drift;
+    const y = contactHeight * (0.18 + (index % 8) * 0.085) + lift;
+    const size = flower.size * responsiveScale * (0.16 + bloom * 0.1) * (dark ? 0.95 : 1.12);
+    const rotation = flower.angle * 0.12 + Math.sin(frame * 0.004 + index) * 0.22;
+
+    drawContactFlower(contactContext, flower, x, y, size, rotation, alpha, palette);
+  });
+
+  contactContext.restore();
 };
 
 const drawPetal = (petal, index, scrollProgress) => {
@@ -1523,6 +1884,7 @@ const drawPetal = (petal, index, scrollProgress) => {
   const visibility = 0.28 + Math.sin(frame * 0.018 + petal.delay * Math.PI * 2) * 0.08;
   const alpha = dark ? visibility * 0.78 : visibility;
   const size = petal.size * (0.78 + petal.depth * 0.52) * (1 - field * 0.2);
+  const lightFlowerScale = dark ? 1 : 0.82;
   const [r, g, b] = petal.color;
   const bouquetAlpha = bouquet * (dark ? 0.62 : 0.66);
   const bouquetScale = 0.84 + (1 - petal.ring) * 0.24 + (index % 5 === 0 ? 0.05 : 0);
@@ -1535,17 +1897,19 @@ const drawPetal = (petal, index, scrollProgress) => {
   const fieldBloom = pulsePop(smoothstep(0.86 + (1 - order) * 0.06, 0.94 + (1 - order) * 0.035, scrollProgress));
   const fieldAlpha = field * fieldBloom * (dark ? 0.42 : 0.5);
   const clearance = heroTextClearance(x, y, scrollProgress);
+  const markClearance = monogramClearance(x, y, scrollProgress);
   const textSafeAlpha = 1 - clearance * 0.92;
+  const bouquetFrameAlpha = 1 - markClearance * 0.985;
 
   if (bouquetAlpha > 0.03 && index % 11 !== 0) {
-    const drawAlpha = bouquetAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha;
-    const drawSize = size * bouquetScale;
+    const drawAlpha = bouquetAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha * bouquetFrameAlpha;
+    const drawSize = size * bouquetScale * lightFlowerScale;
     drawBlossom(petal, x, y, rotation * 0.12, drawSize, drawAlpha);
     registerFlowerBurstTarget(x, y, drawSize, drawAlpha);
   }
 
   if (spiralAlpha > 0.03 && index % 5 !== 1) {
-    const drawSize = size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38);
+    const drawSize = size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38) * lightFlowerScale;
     const drawAlpha = spiralAlpha * (index % 4 === 0 ? 0.86 : 1) * textSafeAlpha;
     drawBlossom(
       petal,
@@ -1559,7 +1923,7 @@ const drawPetal = (petal, index, scrollProgress) => {
   }
 
   if (fieldAlpha > 0.03) {
-    const drawSize = size * (0.48 + fieldBloom * 0.3);
+    const drawSize = size * (0.48 + fieldBloom * 0.3) * lightFlowerScale;
     const drawAlpha = fieldAlpha * (index % 2 === 0 ? 1 : 0.72);
     drawBlossom(
       petal,
@@ -1574,7 +1938,7 @@ const drawPetal = (petal, index, scrollProgress) => {
 
   if (looseAlpha * textSafeAlpha <= 0.02) return;
 
-  const looseSize = size * (0.4 + spiral * 0.12);
+  const looseSize = size * (0.4 + spiral * 0.12) * lightFlowerScale;
   const looseDrawAlpha = looseAlpha * textSafeAlpha;
   drawBlossom(
     petal,
@@ -1589,7 +1953,7 @@ const drawPetal = (petal, index, scrollProgress) => {
   if (field > 0.56 && index % 3 === 0) {
     context.save();
     context.translate(x, y + size * 0.42);
-    context.strokeStyle = dark ? "rgba(99, 230, 230, 0.16)" : "rgba(0, 112, 130, 0.16)";
+    context.strokeStyle = dark ? "rgba(99, 230, 230, 0.16)" : "rgba(134, 230, 226, 0.18)";
     context.lineWidth = 1;
     context.beginPath();
     context.moveTo(0, 0);
@@ -1607,14 +1971,18 @@ const drawAmbient = () => {
 
   context.clearRect(0, 0, width, height);
   flowerBurstTargets.length = 0;
-  context.fillStyle = root.dataset.theme === "dark" ? "rgba(6, 24, 34, 0.16)" : "rgba(247, 255, 253, 0.1)";
+  context.fillStyle = root.dataset.theme === "dark"
+    ? "rgba(6, 24, 34, 0.16)"
+    : "rgba(247, 255, 253, 0.1)";
   context.fillRect(0, 0, width, height);
   drawLightWaterAtmosphere(scrollProgress);
   drawBouquetStems(scrollProgress);
   drawSpiralBreath(scrollProgress);
   drawFieldGround(scrollProgress);
   petals.forEach((petal, index) => drawPetal(petal, index, scrollProgress));
+  drawBouquetMonogram(scrollProgress);
   drawForegroundBloomField(scrollProgress);
+  drawContactBloomOverlay(scrollProgress);
   drawPetalBursts();
 
   frame += 1;

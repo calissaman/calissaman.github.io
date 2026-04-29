@@ -25,7 +25,13 @@
     <canvas class="burst-canvas" aria-hidden="true"></canvas>
     <div class="page-shell">
       <header class="site-header">
-        <a class="wordmark" href="#top" aria-label="Home">Calissa</a>
+        <a class="wordmark" href="#top" aria-label="Home">
+          <span class="wordmark-monogram-wrap" aria-hidden="true">
+            <img class="wordmark-monogram wordmark-monogram-light" src="assets/site-monogram.png" alt="">
+            <img class="wordmark-monogram wordmark-monogram-dark" src="assets/site-monogram-dark.png" alt="">
+          </span>
+          <span class="wordmark-text">Calissa</span>
+        </a>
         <nav class="main-nav" aria-label="Primary navigation">
           <a href="#bio">Bio</a>
           <a href="#evals">Evals</a>
@@ -41,8 +47,7 @@
       <main id="top">
         <section class="hero" aria-labelledby="hero-title">
           <div class="hero-copy" data-reveal>
-            <p class="kicker">Calissa Man</p>
-            <h1 id="hero-title">Safety evals for models that meet the world in motion.</h1>
+            <h1 id="hero-title">I believe in the power of good evals for good models.</h1>
             <p>
               My work's all about the intersection of model behaviour, user safety/redteaming
               and taste. I care about measurable, actionable ways for video, image, audio and
@@ -77,14 +82,17 @@
               <h2 id="evals-title">Multimodal safety evals</h2>
               <p>
                 My work in evals is shaped by my journey from Big Tech lobbying and setting AI
-                regulations, to working in a model lab shipping for global audiences.
+                regulations,<br />
+                to working in a model lab shipping for global audiences.
               </p>
             </div>
           </div>
           <div class="eval-ledger">
             <article class="eval-summary" data-reveal>
-              <span class="note-index">01</span>
-              <h3>Model behaviour</h3>
+              <div class="eval-title">
+                <span class="note-index">01</span>
+                <h3>Model behaviour</h3>
+              </div>
               <p>
                 Safety policies and evaluations for global model launches (e.g. Seedance),
                 including a wide range of products such as chatbots, virtual assistants, and
@@ -93,16 +101,21 @@
               </p>
             </article>
             <article class="eval-summary" data-reveal>
-              <span class="note-index">02</span>
-              <h3>AI app consumer standards</h3>
+              <div class="eval-title">
+                <span class="note-index">02</span>
+                <h3>AI app consumer standards</h3>
+              </div>
               <p>
-                Regulatory work on APAC's first consumer standards for AI apps, focused on clear
-                expectations for user protection, transparency, and accountability.
+                Regulatory work and redteaming to build APAC's first consumer standards for AI
+                apps, focused on clear expectations for user protection, transparency, and keeping
+                pace with new agentic/AI research developments.
               </p>
             </article>
             <article class="eval-summary" data-reveal>
-              <span class="note-index">03</span>
-              <h3>Testing live reasoning</h3>
+              <div class="eval-title">
+                <span class="note-index">03</span>
+                <h3>Testing live reasoning</h3>
+              </div>
               <p>
                 A daily benchmark for Claude models that evaluates answers to current-affairs
                 questions with web search. It measures how well a model handles fast-moving facts,
@@ -118,8 +131,10 @@
               </a>
             </article>
             <article class="eval-summary" data-reveal>
-              <span class="note-index">04</span>
-              <h3>Trust and safety systems</h3>
+              <div class="eval-title">
+                <span class="note-index">04</span>
+                <h3>Trust and safety systems</h3>
+              </div>
               <p>
                 Early AI safety work on trust and safety content moderation systems at TikTok,
                 followed by policy and safety consulting for large technology companies and
@@ -132,7 +147,7 @@
         <section class="bookshelf-section flow-section" id="bookshelf" aria-labelledby="bookshelf-title">
           <div class="section-heading" data-reveal>
             <p class="kicker">Bookshelf</p>
-            <h2 id="bookshelf-title">Books I keep returning to</h2>
+            <h2 id="bookshelf-title">Books I return to</h2>
           </div>
 
           <div class="bookshelf-layout">
@@ -232,6 +247,7 @@
         </section>
 
         <section class="contact-section flow-section" id="contact" aria-labelledby="contact-title">
+          <canvas class="contact-flower-canvas" aria-hidden="true"></canvas>
           <div class="contact-copy" data-reveal>
             <p class="kicker">Contact</p>
             <h2 id="contact-title">Open for thoughtful collaborations, eval work, and good reading recommendations.</h2>
@@ -245,6 +261,13 @@
             >
               <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
               <span>Resume</span>
+            </a>
+            <a
+              class="contact-link"
+              href="mailto:calissaman@gmail.com"
+              aria-label="Email Calissa"
+            >
+              <i class="fa-regular fa-envelope" aria-hidden="true"></i>
             </a>
             <a
               class="contact-link"
