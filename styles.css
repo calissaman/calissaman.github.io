@@ -643,6 +643,14 @@ h3 {
   font-size: clamp(2.2rem, 4.6vw, 4.2rem);
 }
 
+:root[data-theme="light"] .bookshelf-section .section-heading {
+  border-color: rgba(242, 143, 120, 0.26);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(134, 230, 226, 0.16), transparent 13rem),
+    radial-gradient(circle at 82% 70%, rgba(245, 201, 103, 0.16), transparent 14rem),
+    linear-gradient(135deg, rgba(255, 248, 232, 0.86), rgba(255, 208, 181, 0.24));
+}
+
 .bookshelf-main {
   display: grid;
   grid-template-rows: minmax(38vh, auto) minmax(32vh, auto);
@@ -898,17 +906,24 @@ h3 {
 
 :root[data-theme="light"] .shelf-wrap,
 :root[data-theme="light"] .book-review {
-  border-color: rgba(8, 124, 145, 0.18);
+  border-color: rgba(242, 143, 120, 0.24);
   background:
-    linear-gradient(135deg, rgba(255, 248, 232, 0.88), rgba(255, 208, 181, 0.22)),
-    color-mix(in srgb, var(--surface) 84%, transparent);
+    radial-gradient(circle at 18% 28%, rgba(134, 230, 226, 0.18), transparent 14rem),
+    radial-gradient(circle at 80% 22%, rgba(245, 201, 103, 0.2), transparent 15rem),
+    radial-gradient(circle at 72% 78%, rgba(242, 143, 120, 0.13), transparent 14rem),
+    linear-gradient(135deg, rgba(255, 248, 232, 0.9), rgba(255, 208, 181, 0.24)),
+    color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow:
+    0 1.3rem 3.6rem rgba(115, 84, 60, 0.15),
+    inset 0 1px 0 rgba(255, 255, 246, 0.72);
 }
 
 :root[data-theme="light"] .shelf {
-  border-color: rgba(8, 124, 145, 0.22);
+  border-color: rgba(8, 124, 145, 0.18);
   background:
-    linear-gradient(90deg, transparent, rgba(134, 230, 226, 0.14), transparent),
-    radial-gradient(ellipse at 50% 100%, rgba(242, 143, 120, 0.13), transparent 62%);
+    linear-gradient(90deg, transparent, rgba(134, 230, 226, 0.18), transparent),
+    radial-gradient(ellipse at 50% 100%, rgba(242, 143, 120, 0.18), transparent 62%),
+    linear-gradient(180deg, rgba(255, 248, 232, 0.05), rgba(255, 208, 181, 0.14));
 }
 
 :root[data-theme="light"] .book-spine {
@@ -1004,9 +1019,19 @@ h3 {
   border-color: rgba(8, 124, 145, 0.2);
 }
 
+:root[data-theme="light"] .book-cover {
+  box-shadow:
+    0 1.4rem 2.5rem rgba(115, 84, 60, 0.14),
+    inset 0 1px 0 rgba(255, 255, 246, 0.42);
+}
+
 :root[data-theme="light"] .book-pages {
   background:
-    linear-gradient(135deg, rgba(255, 248, 232, 0.94), rgba(255, 208, 181, 0.18));
+    linear-gradient(135deg, rgba(255, 248, 232, 0.96), rgba(255, 208, 181, 0.22));
+}
+
+:root[data-theme="light"] .book-pages span {
+  background: rgba(8, 124, 145, 0.16);
 }
 
 .book-spine:hover,

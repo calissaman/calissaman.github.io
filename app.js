@@ -2002,35 +2002,35 @@ const books = [
   {
     title: "We Are Bellingcat",
     meta: "Eliot Higgins",
-    color: "#008d9a",
+    color: "#f28f78",
     review:
       "A book that maps onto my SOCMINT hobby: following traces, finding unlikely sources of knowledge, and learning new hacks or networks. It's the same curiosity I bring to evals: keep asking where the evidence lives, who can see or measure it, and searching for unknown unknowns.",
   },
   {
     title: "The Book of Tea",
     meta: "OKAKURA KAKUZŌ",
-    color: "#2f6fba",
+    color: "#86e6e2",
     review:
       "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about human relationships too.",
   },
   {
     title: "The Idea Factory: Bell Labs and the Great Age of American Innovation",
     meta: "Jon Gertner",
-    color: "#19b8c7",
+    color: "#f5c967",
     review:
       "A timely reminder about innovation - it's not just lone genius, but through teams, tools, taste, and institutions that make ambitious research possible. The future is won by those who can connect science, engineering, product judgment, and the patience to make bold bets.",
   },
   {
     title: "Build",
     meta: "Tony Fadell",
-    color: "#0f4c81",
+    color: "#8ecfe5",
     review:
       "I like Build as a field manual for turning taste into shipped things (when to trust data, when to use judgment, how to make abstract ideas tangible, and why storytelling matters when you need people to build with you).",
   },
   {
     title: "",
     meta: "",
-    color: "#5ecbd3",
+    color: "#ffd0b5",
     review: "Always open to new books to read!",
   },
 ];
