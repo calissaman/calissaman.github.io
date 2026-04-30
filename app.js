@@ -2030,7 +2030,7 @@ const books = [
   {
     title: "",
     meta: "",
-    color: "#ffd0b5",
+    color: "#86e6e2",
     review: "Always open to new books to read!",
   },
 ];

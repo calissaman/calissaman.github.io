@@ -956,7 +956,7 @@ h3 {
 }
 
 :root[data-theme="light"] .book-spine[data-book="4"] {
-  --book-color: #ffd0b5 !important;
+  --book-color: #86e6e2 !important;
 }
 
 :root[data-theme="light"] .book-spine::after {
@@ -1011,7 +1011,7 @@ h3 {
 }
 
 :root[data-theme="light"] .book-review[data-book="4"] {
-  --active-book-color: #ffd0b5 !important;
+  --active-book-color: #86e6e2 !important;
 }
 
 :root[data-theme="light"] .book-cover,
