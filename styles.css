@@ -169,20 +169,27 @@ a {
   position: absolute;
   inset: 4px;
   display: block;
-  width: 40px !important;
-  min-width: 40px;
-  max-width: 40px !important;
-  height: 40px !important;
-  min-height: 40px;
-  max-height: 40px !important;
+  width: calc(100% - 8px) !important;
+  min-width: calc(100% - 8px);
+  max-width: calc(100% - 8px) !important;
+  height: calc(100% - 8px) !important;
+  min-height: calc(100% - 8px);
+  max-height: calc(100% - 8px) !important;
   border-radius: 999px;
-  object-fit: contain;
-  object-position: center;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
   opacity: 0.88;
   filter: saturate(0.94) brightness(1.04);
+  pointer-events: none;
+}
+
+.wordmark-monogram-light {
+  background-image: url("assets/site-monogram.png");
 }
 
 .wordmark-monogram-dark {
+  background-image: url("assets/site-monogram-dark.png");
   opacity: 0;
 }
 
@@ -887,6 +894,119 @@ h3 {
   --spine-grid:
     repeating-linear-gradient(135deg, transparent 0 0.62rem, rgba(7, 49, 69, 0.18) 0.66rem 0.76rem, transparent 0.8rem 1.3rem),
     repeating-linear-gradient(45deg, transparent 0 0.62rem, rgba(255, 255, 246, 0.28) 0.66rem 0.76rem, transparent 0.8rem 1.3rem);
+}
+
+:root[data-theme="light"] .shelf-wrap,
+:root[data-theme="light"] .book-review {
+  border-color: rgba(8, 124, 145, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 248, 232, 0.88), rgba(255, 208, 181, 0.22)),
+    color-mix(in srgb, var(--surface) 84%, transparent);
+}
+
+:root[data-theme="light"] .shelf {
+  border-color: rgba(8, 124, 145, 0.22);
+  background:
+    linear-gradient(90deg, transparent, rgba(134, 230, 226, 0.14), transparent),
+    radial-gradient(ellipse at 50% 100%, rgba(242, 143, 120, 0.13), transparent 62%);
+}
+
+:root[data-theme="light"] .book-spine {
+  color: #fffaf0;
+  background:
+    var(--spine-motif),
+    var(--spine-grid),
+    linear-gradient(180deg, rgba(255, 255, 246, 0.4) 0 0.48rem, transparent 0.48rem calc(100% - 0.48rem), rgba(255, 255, 246, 0.24) calc(100% - 0.48rem)),
+    repeating-linear-gradient(180deg, transparent 0 1.7rem, rgba(255, 255, 246, 0.18) 1.7rem 1.82rem, transparent 1.82rem 2.6rem),
+    linear-gradient(90deg, rgba(255, 255, 246, 0.38), transparent 28%, rgba(8, 124, 145, 0.08) 76%, rgba(8, 124, 145, 0.18)),
+    var(--book-color);
+  background-blend-mode: screen, soft-light, normal, normal, normal, normal;
+  box-shadow: 0 1rem 1.9rem rgba(115, 84, 60, 0.16);
+}
+
+:root[data-theme="light"] .book-spine[data-book="0"] {
+  --book-color: #f28f78 !important;
+}
+
+:root[data-theme="light"] .book-spine[data-book="1"] {
+  --book-color: #86e6e2 !important;
+}
+
+:root[data-theme="light"] .book-spine[data-book="2"] {
+  --book-color: #f5c967 !important;
+}
+
+:root[data-theme="light"] .book-spine[data-book="3"] {
+  --book-color: #8ecfe5 !important;
+}
+
+:root[data-theme="light"] .book-spine[data-book="4"] {
+  --book-color: #ffd0b5 !important;
+}
+
+:root[data-theme="light"] .book-spine::after {
+  border-color: rgba(255, 255, 246, 0.64);
+  --spine-frame:
+    linear-gradient(135deg, transparent 48%, rgba(255, 250, 240, 0.34) 49% 51%, transparent 52%),
+    linear-gradient(45deg, transparent 48%, rgba(8, 124, 145, 0.13) 49% 51%, transparent 52%);
+}
+
+:root[data-theme="light"] .book-spine::before {
+  border-color: rgba(255, 250, 240, 0.56);
+  background:
+    radial-gradient(circle at 25% 50%, rgba(255, 250, 240, 0.76) 0 0.09rem, transparent 0.11rem),
+    radial-gradient(circle at 75% 50%, rgba(255, 250, 240, 0.76) 0 0.09rem, transparent 0.11rem),
+    rgba(255, 250, 240, 0.22);
+}
+
+:root[data-theme="light"] .book-spine .spine-title {
+  border-color: rgba(255, 250, 240, 0.7);
+  background: rgba(255, 250, 240, 0.82);
+  color: #123b4c;
+}
+
+:root[data-theme="light"] .spine-symbol,
+:root[data-theme="light"] .spine-symbol-factory,
+:root[data-theme="light"] .spine-symbol-ipod {
+  border-color: rgba(255, 250, 240, 0.72);
+  color: rgba(255, 250, 240, 0.96);
+  text-shadow: 0 0.1rem 0.22rem rgba(18, 59, 76, 0.2);
+}
+
+:root[data-theme="light"] .shelf-board {
+  background:
+    linear-gradient(180deg, rgba(134, 230, 226, 0.88), rgba(8, 124, 145, 0.78));
+  box-shadow: 0 1.2rem 2.4rem rgba(115, 84, 60, 0.16);
+}
+
+:root[data-theme="light"] .book-review[data-book="0"] {
+  --active-book-color: #f28f78 !important;
+}
+
+:root[data-theme="light"] .book-review[data-book="1"] {
+  --active-book-color: #86e6e2 !important;
+}
+
+:root[data-theme="light"] .book-review[data-book="2"] {
+  --active-book-color: #f5c967 !important;
+}
+
+:root[data-theme="light"] .book-review[data-book="3"] {
+  --active-book-color: #8ecfe5 !important;
+}
+
+:root[data-theme="light"] .book-review[data-book="4"] {
+  --active-book-color: #ffd0b5 !important;
+}
+
+:root[data-theme="light"] .book-cover,
+:root[data-theme="light"] .book-pages {
+  border-color: rgba(8, 124, 145, 0.2);
+}
+
+:root[data-theme="light"] .book-pages {
+  background:
+    linear-gradient(135deg, rgba(255, 248, 232, 0.94), rgba(255, 208, 181, 0.18));
 }
 
 .book-spine:hover,

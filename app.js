@@ -1425,14 +1425,6 @@ const drawBouquetMonogram = (scrollProgress) => {
   if (alpha > 0.02) {
     context.save();
     context.translate(x, y);
-    context.globalAlpha = imageReveal * (dark ? 0.38 : 0.38);
-    context.fillStyle = dark ? "rgba(4, 17, 27, 0.72)" : "rgba(255, 238, 209, 0.78)";
-    context.shadowBlur = markSize * (dark ? 0.28 : 0.2);
-    context.shadowColor = dark ? "rgba(4, 17, 27, 0.72)" : "rgba(242, 143, 120, 0.28)";
-    context.beginPath();
-    context.ellipse(0, 0, markSize * 0.47, markSize * 0.39, 0, 0, Math.PI * 2);
-    context.fill();
-    context.shadowBlur = 0;
     context.globalAlpha = alpha;
     context.globalCompositeOperation = dark ? "screen" : "source-over";
     context.filter = dark
