@@ -126,8 +126,8 @@ a {
   z-index: 1;
   display: inline-flex;
   align-items: center;
-  min-height: 2.55rem;
-  gap: 0.58rem;
+  min-height: 48px;
+  gap: 0.65rem;
   width: fit-content;
   font-family: var(--serif);
   font-size: clamp(1.35rem, 3vw, 2rem);
@@ -139,30 +139,47 @@ a {
 .wordmark-text {
   display: inline-flex;
   align-items: center;
-  min-height: 2.55rem;
+  min-height: 48px;
   padding-bottom: 0.03em;
   line-height: 1;
 }
 
 .wordmark-monogram-wrap {
   position: relative;
-  display: inline-grid;
-  width: 2.55rem;
-  height: 2.55rem;
-  flex: 0 0 auto;
-}
-
-.wordmark-monogram {
-  grid-area: 1 / 1;
-  width: 100%;
-  height: 100%;
+  display: inline-flex;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  overflow: hidden;
   border-radius: 999px;
-  object-fit: cover;
-  opacity: 0.88;
-  filter: saturate(0.94) brightness(1.04);
+  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
     0 0.45rem 1.2rem color-mix(in srgb, var(--shadow) 58%, transparent);
+}
+
+.wordmark-monogram {
+  position: absolute;
+  inset: 4px;
+  display: block;
+  width: 40px !important;
+  min-width: 40px;
+  max-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px;
+  max-height: 40px !important;
+  border-radius: 999px;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.88;
+  filter: saturate(0.94) brightness(1.04);
 }
 
 .wordmark-monogram-dark {
