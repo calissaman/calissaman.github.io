@@ -2009,21 +2009,21 @@ const books = [
   {
     title: "The Book of Tea",
     meta: "OKAKURA KAKUZŌ",
-    color: "#86e6e2",
+    color: "#ffb2a0",
     review:
       "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about human relationships too.",
   },
   {
     title: "The Idea Factory: Bell Labs and the Great Age of American Innovation",
     meta: "Jon Gertner",
-    color: "#f5c967",
+    color: "#f5a16f",
     review:
       "A timely reminder about innovation - it's not just lone genius, but through teams, tools, taste, and institutions that make ambitious research possible. The future is won by those who can connect science, engineering, product judgment, and the patience to make bold bets.",
   },
   {
     title: "Build",
     meta: "Tony Fadell",
-    color: "#8ecfe5",
+    color: "#e9796d",
     review:
       "I like Build as a field manual for turning taste into shipped things (when to trust data, when to use judgment, how to make abstract ideas tangible, and why storytelling matters when you need people to build with you).",
   },

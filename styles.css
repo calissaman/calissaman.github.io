@@ -644,11 +644,12 @@ h3 {
 }
 
 :root[data-theme="light"] .bookshelf-section .section-heading {
-  border-color: rgba(242, 143, 120, 0.26);
+  border-color: rgba(242, 143, 120, 0.34);
   background:
-    radial-gradient(circle at 12% 18%, rgba(134, 230, 226, 0.16), transparent 13rem),
-    radial-gradient(circle at 82% 70%, rgba(245, 201, 103, 0.16), transparent 14rem),
-    linear-gradient(135deg, rgba(255, 248, 232, 0.86), rgba(255, 208, 181, 0.24));
+    radial-gradient(circle at 14% 22%, rgba(255, 178, 160, 0.22), transparent 13rem),
+    radial-gradient(circle at 82% 70%, rgba(242, 143, 120, 0.22), transparent 14rem),
+    radial-gradient(circle at 72% 20%, rgba(134, 230, 226, 0.08), transparent 12rem),
+    linear-gradient(135deg, rgba(255, 248, 232, 0.86), rgba(255, 208, 181, 0.34));
 }
 
 .bookshelf-main {
@@ -906,24 +907,25 @@ h3 {
 
 :root[data-theme="light"] .shelf-wrap,
 :root[data-theme="light"] .book-review {
-  border-color: rgba(242, 143, 120, 0.24);
+  border-color: rgba(242, 143, 120, 0.36);
   background:
-    radial-gradient(circle at 18% 28%, rgba(134, 230, 226, 0.18), transparent 14rem),
-    radial-gradient(circle at 80% 22%, rgba(245, 201, 103, 0.2), transparent 15rem),
-    radial-gradient(circle at 72% 78%, rgba(242, 143, 120, 0.13), transparent 14rem),
-    linear-gradient(135deg, rgba(255, 248, 232, 0.9), rgba(255, 208, 181, 0.24)),
+    radial-gradient(circle at 18% 28%, rgba(255, 178, 160, 0.26), transparent 15rem),
+    radial-gradient(circle at 80% 22%, rgba(242, 143, 120, 0.24), transparent 15rem),
+    radial-gradient(circle at 72% 78%, rgba(245, 161, 111, 0.2), transparent 14rem),
+    radial-gradient(circle at 24% 82%, rgba(134, 230, 226, 0.08), transparent 13rem),
+    linear-gradient(135deg, rgba(255, 248, 232, 0.9), rgba(255, 208, 181, 0.38)),
     color-mix(in srgb, var(--surface) 88%, transparent);
   box-shadow:
-    0 1.3rem 3.6rem rgba(115, 84, 60, 0.15),
+    0 1.3rem 3.6rem rgba(115, 84, 60, 0.18),
     inset 0 1px 0 rgba(255, 255, 246, 0.72);
 }
 
 :root[data-theme="light"] .shelf {
-  border-color: rgba(8, 124, 145, 0.18);
+  border-color: rgba(242, 143, 120, 0.24);
   background:
-    linear-gradient(90deg, transparent, rgba(134, 230, 226, 0.18), transparent),
-    radial-gradient(ellipse at 50% 100%, rgba(242, 143, 120, 0.18), transparent 62%),
-    linear-gradient(180deg, rgba(255, 248, 232, 0.05), rgba(255, 208, 181, 0.14));
+    linear-gradient(90deg, transparent, rgba(255, 178, 160, 0.22), transparent),
+    radial-gradient(ellipse at 50% 100%, rgba(242, 143, 120, 0.26), transparent 62%),
+    linear-gradient(180deg, rgba(255, 248, 232, 0.05), rgba(255, 208, 181, 0.2));
 }
 
 :root[data-theme="light"] .book-spine {
@@ -944,15 +946,15 @@ h3 {
 }
 
 :root[data-theme="light"] .book-spine[data-book="1"] {
-  --book-color: #86e6e2 !important;
+  --book-color: #ffb2a0 !important;
 }
 
 :root[data-theme="light"] .book-spine[data-book="2"] {
-  --book-color: #f5c967 !important;
+  --book-color: #f5a16f !important;
 }
 
 :root[data-theme="light"] .book-spine[data-book="3"] {
-  --book-color: #8ecfe5 !important;
+  --book-color: #e9796d !important;
 }
 
 :root[data-theme="light"] .book-spine[data-book="4"] {
@@ -990,7 +992,7 @@ h3 {
 
 :root[data-theme="light"] .shelf-board {
   background:
-    linear-gradient(180deg, rgba(134, 230, 226, 0.88), rgba(8, 124, 145, 0.78));
+    linear-gradient(180deg, rgba(255, 178, 160, 0.94), rgba(242, 143, 120, 0.88));
   box-shadow: 0 1.2rem 2.4rem rgba(115, 84, 60, 0.16);
 }
 
@@ -999,15 +1001,15 @@ h3 {
 }
 
 :root[data-theme="light"] .book-review[data-book="1"] {
-  --active-book-color: #86e6e2 !important;
+  --active-book-color: #ffb2a0 !important;
 }
 
 :root[data-theme="light"] .book-review[data-book="2"] {
-  --active-book-color: #f5c967 !important;
+  --active-book-color: #f5a16f !important;
 }
 
 :root[data-theme="light"] .book-review[data-book="3"] {
-  --active-book-color: #8ecfe5 !important;
+  --active-book-color: #e9796d !important;
 }
 
 :root[data-theme="light"] .book-review[data-book="4"] {
