@@ -36,11 +36,7 @@ const setTheme = (theme, persist = true) => {
   if (persist) storeTheme(nextTheme);
 };
 
-const storedTheme = getStoredTheme();
-setTheme(
-  storedTheme || root.dataset.theme || "dark",
-  Boolean(storedTheme && !Object.prototype.hasOwnProperty.call(themeLabels, storedTheme))
-);
+setTheme(root.dataset.theme || "dark", false);
 
 const canvas = document.querySelector(".ambient-canvas");
 const context = canvas?.getContext("2d");
@@ -1995,7 +1991,7 @@ if (canvas && context && !reduceMotion) {
 }
 
 themeToggle?.addEventListener("click", () => {
-  setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+  setTheme(root.dataset.theme === "dark" ? "light" : "dark", false);
 });
 
 const books = [
