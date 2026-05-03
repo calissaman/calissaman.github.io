@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Outfit:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Outfit:wght@400;500;600&display=swap"
       rel="stylesheet"
     >
     <link
@@ -35,6 +35,7 @@
         <nav class="main-nav" aria-label="Primary navigation">
           <a href="#bio">Bio</a>
           <a href="#evals">Evals</a>
+          <a href="#sgsf">SG-&gt;SF</a>
           <a href="#bookshelf">Bookshelf</a>
           <a href="#contact">Contact</a>
         </nav>
@@ -60,8 +61,11 @@
           </div>
         </section>
 
-        <section class="intro-band flow-section" id="bio" aria-label="A short personal statement">
+        <section class="intro-band flow-section" id="bio" aria-labelledby="bio-title">
           <div class="statement" data-reveal>
+            <div class="bio-heading">
+              <h2 id="bio-title">Bio</h2>
+            </div>
             <p>
               I built safety evals and policies from end to end for multimodal models at ByteDance's
               Seed Research Lab, and developed APAC's first AI app consumer standards as a regulator.
@@ -69,8 +73,8 @@
             <p>
               My AI safety work began in 2021 on trust and safety content moderation systems at
               TikTok, before consulting for Big Tech and early-stage startups on AI safety and
-              policy at Plug and Play's incubator. I like to operate quickly at the intersection
-              of research, safety, and product.
+              policy at Plug and Play's incubator. I like to operate where research, product and
+              GTM intersect.
             </p>
           </div>
         </section>
@@ -81,9 +85,7 @@
             <div>
               <h2 id="evals-title">Multimodal safety evals</h2>
               <p>
-                My work in evals is shaped by my journey from Big Tech lobbying and setting AI
-                regulations,<br />
-                to working in a model lab shipping for global audiences.
+                My work is shaped by my journey from Big Tech lobbying and setting AI regulations, to working with early stage startups and shipping for global audiences in a frontier model lab.
               </p>
             </div>
           </div>
@@ -144,6 +146,76 @@
           </div>
         </section>
 
+        <section class="sgsf-section flow-section" id="sgsf" aria-labelledby="sgsf-title">
+          <div class="section-heading" data-reveal>
+            <p class="kicker">SG-&gt;SF</p>
+            <div>
+              <h2 id="sgsf-title">From Singapore to San Francisco</h2>
+              <p>
+                Bridging 2 homes that teach new ways to think about technology and taste.
+              </p>
+            </div>
+          </div>
+          <div class="sgsf-triptych" data-reveal aria-label="Clickable SG to SF image dispatches">
+            <button
+              class="sgsf-panel sgsf-panel-banner"
+              type="button"
+              data-sgsf-modal="letter"
+              aria-label="Open the visual letter between Singapore and San Francisco"
+            >
+              <img
+                src="assets/sgsf-banner.png"
+                alt="Illustrated banner blending Singapore and San Francisco with a handwritten note."
+              >
+              <span class="sgsf-panel-meta">Dear future me</span>
+            </button>
+            <div class="sgsf-panel-row">
+              <button
+                class="sgsf-panel"
+                type="button"
+                data-sgsf-modal="dispatch"
+                aria-label="Open the SG to SF dispatch note"
+              >
+                <img
+                  src="assets/sgsf-postcard.png"
+                  alt="Postcard-style illustration addressed from Singapore to San Francisco."
+                >
+                <span class="sgsf-panel-meta">Letter</span>
+              </button>
+              <button
+                class="sgsf-panel sgsf-panel-poem"
+                type="button"
+                data-sgsf-modal="poem"
+                aria-label="Open the full SG to SF poem"
+              >
+                <img
+                  src="assets/sgsf-home.png"
+                  alt="Blue-green illustrated waterfront merging Singapore, San Francisco, and home."
+                >
+                <span class="sgsf-panel-meta">Poem</span>
+              </button>
+            </div>
+          </div>
+          <div
+            class="sgsf-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sgsf-modal-title"
+            aria-describedby="sgsf-modal-body"
+            hidden
+          >
+            <div class="sgsf-modal-backdrop" data-sgsf-close></div>
+            <div class="sgsf-modal-card" role="document" tabindex="-1">
+              <p class="sgsf-modal-meta" id="sgsf-modal-meta"></p>
+              <h3 id="sgsf-modal-title"></h3>
+              <div class="sgsf-modal-body" id="sgsf-modal-body"></div>
+              <button class="sgsf-modal-close" type="button" data-sgsf-close aria-label="Close SG to SF note">
+                Close
+              </button>
+            </div>
+          </div>
+        </section>
+
         <section class="bookshelf-section flow-section" id="bookshelf" aria-labelledby="bookshelf-title">
           <div class="section-heading" data-reveal>
             <p class="kicker">Bookshelf</p>
@@ -160,7 +232,7 @@
                     role="option"
                     aria-selected="true"
                     data-book="0"
-                    style="--book-h: 16.5rem; --book-w: 3.4rem; --book-color: #f28f78;"
+                    style="--book-h: 16.5rem; --book-w: 3.4rem; --book-color: #008d9a;"
                   >
                     <span class="spine-symbol" aria-hidden="true">
                       <i class="fa-solid fa-bell"></i>
@@ -174,7 +246,7 @@
                     role="option"
                     aria-selected="false"
                     data-book="1"
-                    style="--book-h: 14.8rem; --book-w: 3rem; --book-color: #ffb2a0;"
+                    style="--book-h: 14.8rem; --book-w: 3rem; --book-color: #2f6fba;"
                   >
                     <span class="spine-symbol" aria-hidden="true">
                       <i class="fa-solid fa-mug-hot"></i>
@@ -187,7 +259,7 @@
                     role="option"
                     aria-selected="false"
                     data-book="2"
-                    style="--book-h: 17.4rem; --book-w: 3.5rem; --book-color: #f5a16f;"
+                    style="--book-h: 17.4rem; --book-w: 3.5rem; --book-color: #19b8c7;"
                   >
                     <span class="spine-symbol spine-symbol-factory" aria-hidden="true">
                       <i class="fa-solid fa-gears"></i>
@@ -200,7 +272,7 @@
                     role="option"
                     aria-selected="false"
                     data-book="3"
-                    style="--book-h: 15.6rem; --book-w: 2.9rem; --book-color: #e9796d;"
+                    style="--book-h: 15.6rem; --book-w: 2.9rem; --book-color: #0f4c81;"
                   >
                     <span class="spine-symbol spine-symbol-ipod" aria-hidden="true">
                       <i class="fa-solid fa-music"></i>
@@ -213,7 +285,7 @@
                     role="option"
                     aria-selected="false"
                     data-book="4"
-                    style="--book-h: 18.1rem; --book-w: 3rem; --book-color: #86e6e2;"
+                    style="--book-h: 18.1rem; --book-w: 3rem; --book-color: #5ecbd3;"
                     aria-label="Blank book"
                   >
                     <span class="spine-title" aria-hidden="true"></span>

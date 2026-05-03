@@ -2,14 +2,6 @@ const root = document.documentElement;
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const themeToggle = document.querySelector(".theme-toggle");
 
-const getStoredTheme = () => {
-  try {
-    return window.localStorage.getItem("calissa-theme");
-  } catch {
-    return null;
-  }
-};
-
 const storeTheme = (theme) => {
   try {
     window.localStorage.setItem("calissa-theme", theme);
@@ -36,7 +28,7 @@ const setTheme = (theme, persist = true) => {
   if (persist) storeTheme(nextTheme);
 };
 
-setTheme(root.dataset.theme || "dark", false);
+setTheme(root.dataset.theme || "light", false);
 
 const canvas = document.querySelector(".ambient-canvas");
 const context = canvas?.getContext("2d");
@@ -47,12 +39,16 @@ const contactContext = contactCanvas?.getContext("2d");
 const flowItems = Array.from(document.querySelectorAll("[data-reveal]"));
 const bioSection = document.querySelector("#bio");
 const evalsSection = document.querySelector("#evals");
+const sgsfSection = document.querySelector("#sgsf");
+const bookshelfSection = document.querySelector("#bookshelf");
 let width = 0;
 let height = 0;
 let contactWidth = 0;
 let contactHeight = 0;
 let pixelRatio = 1;
 let frame = 0;
+let flowTextFrame = 0;
+let lastFrameTime = 0;
 const flowerBurstTargets = [];
 const petalBursts = [];
 const monogramImage = new Image();
@@ -64,6 +60,7 @@ const scrollState = {
   previous: 0,
   velocity: 0,
   direction: 1,
+  directionEase: 1,
   progress: 0,
 };
 
@@ -134,39 +131,44 @@ const leafPalette = [
 ];
 
 const bayGardenFlowerPalette = [
-  [255, 229, 192],
-  [255, 216, 187],
-  [242, 143, 120],
-  [245, 201, 103],
-  [134, 230, 226],
-  [134, 230, 226],
+  [255, 232, 196],
+  [255, 198, 160],
+  [246, 150, 126],
+  [244, 205, 101],
+  [129, 218, 214],
+  [92, 190, 202],
+  [157, 216, 220],
 ];
 
 const bayGardenLeafPalette = [
-  [245, 201, 103],
-  [242, 143, 120],
-  [255, 216, 187],
-  [134, 230, 226],
-  [134, 230, 226],
-  [134, 230, 226],
+  [92, 190, 202],
+  [54, 159, 173],
+  [129, 218, 214],
+  [244, 205, 101],
+  [157, 216, 220],
 ];
 
 const bayGardenCenterPalette = [
-  [255, 229, 192],
-  [242, 143, 120],
-  [245, 201, 103],
-  [134, 230, 226],
-  [134, 230, 226],
+  [255, 232, 196],
+  [255, 198, 160],
+  [246, 150, 126],
+  [244, 205, 101],
+  [129, 218, 214],
+  [92, 190, 202],
 ];
 
 const bayGardenCreamPalette = [
-  [255, 238, 209],
-  [255, 229, 192],
-  [245, 201, 103],
-  [242, 143, 120],
-  [134, 230, 226],
-  [134, 230, 226],
+  [255, 244, 216],
+  [255, 232, 196],
+  [255, 218, 174],
+  [244, 205, 101],
+  [157, 216, 220],
+  [129, 218, 214],
 ];
+
+const isAquaRgb = (rgb) => rgb[0] <= 170 && rgb[1] >= 185 && rgb[2] >= 190;
+const isCoralRgb = (rgb) => rgb[0] >= 230 && rgb[1] >= 120 && rgb[1] <= 205 && rgb[2] <= 180;
+const isCreamYellowRgb = (rgb) => rgb[0] >= 235 && rgb[1] >= 185 && rgb[2] <= 220;
 
 const bayGardenPetal = (petal) => {
   const seed = Math.abs(Math.round((petal.angle || 0) * 1000 + (petal.size || 0) * 17 + (petal.bloom || 0) * 31));
@@ -177,28 +179,45 @@ const bayGardenPetal = (petal) => {
   const line = [134, 230, 226];
   const cream = bayGardenCreamPalette[seed % bayGardenCreamPalette.length];
   const colorByType = {
-    clover: [245, 201, 103],
-    nemophilia: [134, 230, 226],
+    clover: seed % 2 === 0 ? [129, 218, 214] : [54, 159, 173],
+    nemophilia: seed % 2 === 0 ? [129, 218, 214] : [157, 216, 220],
     whiteCamellia: cream,
-    peony: seed % 2 === 0 ? [255, 216, 187] : [242, 143, 120],
-    rose: [242, 143, 120],
+    peony: seed % 2 === 0 ? [255, 198, 160] : [246, 150, 126],
+    rose: [246, 150, 126],
     camellia: flower,
-    tileCamellia: seed % 2 === 0 ? [134, 230, 226] : [245, 201, 103],
+    tileCamellia: seed % 2 === 0 ? [129, 218, 214] : [244, 205, 101],
   };
   const color = colorByType[petal.type] || flower;
-  const isAquaBloom = color[0] === 134 && color[1] === 230 && color[2] === 226;
+  const isAquaBloom = isAquaRgb(color);
+  const isCoralBloom = isCoralRgb(color);
+  const isCreamYellowBloom = isCreamYellowRgb(color);
+  const harmonizedCenter = isAquaBloom
+    ? color
+    : isCoralBloom
+      ? color
+      : isCreamYellowBloom
+        ? color
+        : center;
 
   return {
     ...petal,
     color,
-    center: petal.type === "clover" ? [245, 201, 103] : isAquaBloom ? [134, 230, 226] : center,
-    tileAccent: isAquaBloom ? [134, 230, 226] : petal.type === "rose" || petal.type === "peony" ? [242, 143, 120] : bayGardenFlowerPalette[(seed + 2) % bayGardenFlowerPalette.length],
-    tileLine: line,
-    tileCream: isAquaBloom ? [134, 230, 226] : cream,
-    rose: isAquaBloom ? [134, 230, 226] : [242, 143, 120],
-    roseShadow: isAquaBloom ? [134, 230, 226] : seed % 2 === 0 ? [255, 229, 192] : [245, 201, 103],
-    leaf: isAquaBloom ? [134, 230, 226] : petal.type === "clover" ? [245, 201, 103] : leaf,
+    center: harmonizedCenter,
+    tileAccent: isAquaBloom ? color : petal.type === "rose" || petal.type === "peony" ? [246, 150, 126] : bayGardenFlowerPalette[(seed + 2) % bayGardenFlowerPalette.length],
+    tileLine: [92, 190, 202],
+    tileCream: isAquaBloom ? color : cream,
+    rose: isAquaBloom ? color : [246, 150, 126],
+    roseShadow: isAquaBloom ? [157, 216, 220] : seed % 2 === 0 ? [255, 232, 196] : [255, 198, 160],
+    leaf: isAquaBloom ? [92, 190, 202] : leaf,
   };
+};
+
+const themedPetal = (petal, dark) => {
+  if (dark) return petal;
+  if (!petal.lightVariant) {
+    petal.lightVariant = bayGardenPetal(petal);
+  }
+  return petal.lightVariant;
 };
 
 const allowedFlowerTypes = ["camellia", "whiteCamellia", "peony", "tileCamellia", "rose", "nemophilia", "clover"];
@@ -264,6 +283,7 @@ const petals = Array.from({ length: petalCount }, (_, index) => {
     spiralOrder,
   };
 });
+const petalFramePositions = new Array(petalCount);
 
 const foregroundBlooms = Array.from({ length: 18 }, (_, index) => {
   const flowerTypes = [
@@ -296,7 +316,7 @@ const foregroundBlooms = Array.from({ length: 18 }, (_, index) => {
     delay: (index % 9) / 9,
     depth: 1.08 + row * 0.18 + ((index * 7) % 5) * 0.08,
     ring: 1,
-    size: 52 + row * 20 + ((index * 29) % 42),
+    size: 30 + row * 10 + ((index * 29) % 24),
     turn: index % 2 === 0 ? 1 : -1,
     color: type === "whiteCamellia" ? [248, 252, 246] : type === "nemophilia" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[(index + row + 1) % petalPalette.length],
     center: type === "nemophilia" ? [236, 254, 249] : type === "whiteCamellia" ? [255, 255, 255] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
@@ -326,7 +346,7 @@ const floatingBottomBlooms = Array.from({ length: 22 }, (_, index) => {
     delay: (index % 8) / 8,
     depth: 0.92 + ((index * 11) % 7) * 0.06,
     ring: 1,
-    size: 18 + ((index * 17) % 22),
+    size: 14 + ((index * 17) % 16),
     turn: index % 2 === 0 ? 1 : -1,
     color: type === "nemophilia" ? [88, 135, 232] : type === "clover" ? leafPalette[index % leafPalette.length] : petalPalette[(index + 2) % petalPalette.length],
     center: type === "nemophilia" ? [236, 254, 249] : type === "clover" ? [198, 249, 247] : centerPalette[index % centerPalette.length],
@@ -381,9 +401,10 @@ const hydrangeaDrifters = Array.from({ length: 54 }, (_, index) => ({
 
 const resizeCanvas = () => {
   if (!canvas || !context) return;
-  pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
   width = window.innerWidth;
   height = window.innerHeight;
+  const pixelRatioCap = width < 700 ? 1.25 : 1.5;
+  pixelRatio = Math.min(window.devicePixelRatio || 1, pixelRatioCap);
   canvas.width = Math.floor(width * pixelRatio);
   canvas.height = Math.floor(height * pixelRatio);
   canvas.style.width = `${width}px`;
@@ -408,6 +429,7 @@ const resizeCanvas = () => {
     contactCanvas.style.height = `${contactHeight}px`;
     contactContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
+
 };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -535,13 +557,17 @@ const handleCanvasBurstClick = (event) => {
   createPetalBurst(x, y, target ? target.radius : 38);
 };
 
-const updateScrollState = () => {
+const updateScrollState = (deltaFrames = 1) => {
   const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+  const scrollEase = 1 - Math.pow(1 - 0.085, deltaFrames);
+  const velocityEase = 1 - Math.pow(1 - 0.14, deltaFrames);
+  const directionEase = 1 - Math.pow(1 - 0.08, deltaFrames);
   scrollState.target = window.scrollY;
   scrollState.previous = scrollState.eased;
-  scrollState.eased += (scrollState.target - scrollState.eased) * 0.085;
-  scrollState.velocity += (scrollState.eased - scrollState.previous - scrollState.velocity) * 0.14;
+  scrollState.eased += (scrollState.target - scrollState.eased) * scrollEase;
+  scrollState.velocity += (scrollState.eased - scrollState.previous - scrollState.velocity) * velocityEase;
   scrollState.direction = scrollState.velocity >= 0 ? 1 : -1;
+  scrollState.directionEase += (scrollState.direction - scrollState.directionEase) * directionEase;
   scrollState.progress = scrollState.eased / maxScroll;
 };
 
@@ -600,8 +626,8 @@ const bouquetMonogramFrame = (scrollProgress) => {
   const liftIntoBouquet = smoothstep(0.02, 0.16, scrollProgress);
   const markSize = Math.min(Math.min(width, height) * (width < 700 ? 0.31 : 0.28), width < 700 ? 132 : 218);
   const x = width * 0.5;
-  const restingY = height * (width < 700 ? 0.91 : 0.94);
-  const liftedY = height * (width < 700 ? 0.8 : 0.72);
+  const restingY = height * (width < 700 ? 0.78 : 0.82);
+  const liftedY = height * (width < 700 ? 0.68 : 0.62);
   const y = mix(restingY, liftedY, liftIntoBouquet) + Math.sin(frame * 0.006) * 2.5;
   const bouquet = 1 - smoothstep(0.1, 0.32, scrollProgress);
   return { x, y, markSize, bouquet };
@@ -624,15 +650,25 @@ const bioToEvalsBurstProgress = () => {
   return smoothstep(start, end, scrollState.eased);
 };
 
-const petalPosition = (petal, index, scrollProgress) => {
-  const heroToSwirl = smoothstep(0.14, 0.3, scrollProgress);
-  const swirlToSpiral = smoothstep(0.34, 0.58, scrollProgress);
-  const spiralHold = smoothstep(0.48, 0.62, scrollProgress) * (1 - smoothstep(0.84, 0.93, scrollProgress));
-  const spiralToField = smoothstep(0.86, 0.98, scrollProgress);
-  const time = frame * 0.008;
-  const pageDrift = scrollProgress * height * 0.22;
+const bookshelfLeadProgress = () => {
+  if (!sgsfSection || !bookshelfSection) return scrollState.progress;
 
-  const bouquetBaseY = height * (width < 700 ? 0.86 : 0.85);
+  const start = sgsfSection.offsetTop + sgsfSection.offsetHeight * 0.38;
+  const end = Math.max(start + height * 0.78, bookshelfSection.offsetTop - height * 0.18);
+  return clamp((scrollState.eased - start) / Math.max(1, end - start), 0, 1);
+};
+
+const petalPosition = (petal, index, scrollProgress) => {
+  const bookshelfProgress = bookshelfLeadProgress();
+  const heroToSwirl = smoothstep(0.14, 0.3, scrollProgress);
+  const swirlToSpiral = smoothstep(0.04, 0.3, bookshelfProgress);
+  const spiralHold = smoothstep(0.1, 0.38, bookshelfProgress) * (1 - smoothstep(0.9, 1, bookshelfProgress));
+  const spiralToField = smoothstep(0.94, 1, bookshelfProgress);
+  const time = frame * 0.0062;
+  const pageDrift = scrollProgress * height * 0.22;
+  const reverseLift = Math.max(0, -scrollState.directionEase) * smoothstep(0.08, 0.86, bookshelfProgress) * height * 0.1;
+
+  const bouquetBaseY = height * (width < 700 ? 0.79 : 0.78);
   const bouquetRadius = Math.min(width, height) * (0.07 + petal.ring * 0.35);
   const bouquetAngle = petal.angle + Math.sin(index * 0.73) * 0.18;
   const bouquetDomeLift = Math.pow(1 - petal.ring, 0.7) * height * 0.1;
@@ -655,19 +691,22 @@ const petalPosition = (petal, index, scrollProgress) => {
     Math.sin(time + index) * 18;
 
   const spiralProgress = petal.spiralOrder ?? index / (petalCount - 1);
-  const spiralRadius = Math.min(width, height) * (0.09 + 0.32 * (1 - spiralProgress) + petal.depth * 0.045);
-  const spiralSpin = smoothstep(0.36, 0.74, scrollProgress) * Math.PI * 3.65;
+  const spiralRadius = Math.min(width, height) * (0.068 + 0.27 * (1 - spiralProgress) + petal.depth * 0.038);
+  const spiralSpin = smoothstep(0.08, 0.72, bookshelfProgress) * Math.PI * 2.42;
   const spiralAngle = -spiralProgress * Math.PI * 8.35 + spiralSpin + Math.sin(index * 1.27) * 0.2;
-  const spiralCenterX = width * (0.53 + Math.sin(scrollProgress * Math.PI * 1.6) * 0.025);
-  const spiralCenterY = height * (1.06 - spiralProgress * 1.34);
+  const spiralCenterX = width * (0.52 + Math.sin(bookshelfProgress * Math.PI * 1.1) * 0.012);
+  const spiralCenterY = height * (0.82 - spiralProgress * 0.58);
+  const spiralFall = smoothstep(0.58, 0.95, bookshelfProgress) * height * 0.12;
   const spiralX =
     spiralCenterX +
-    Math.cos(spiralAngle) * spiralRadius * 1.12 +
-    Math.sin(time * 0.9 + index * 0.2) * 7;
+    Math.cos(spiralAngle) * spiralRadius * 1.04 +
+    Math.sin(time * 0.9 + index * 0.2) * 2.8;
   const spiralY =
     spiralCenterY +
-    Math.sin(spiralAngle) * spiralRadius * 0.62 +
-    Math.cos(time * 0.7 + index * 0.3) * 7;
+    spiralFall +
+    Math.sin(spiralAngle) * spiralRadius * 0.56 -
+    reverseLift +
+    Math.cos(time * 0.7 + index * 0.3) * 2.8;
 
   const row = index % 5;
   const fieldX =
@@ -678,7 +717,7 @@ const petalPosition = (petal, index, scrollProgress) => {
     height * (0.7 + row * 0.07) +
     Math.sin(time * 0.55 + index * 0.4) * 11;
 
-  const spiralMagnet = smoothstep(0.3, 0.46, scrollProgress);
+  const spiralMagnet = smoothstep(0.04, 0.28, bookshelfProgress);
   const x1 = mix(bouquetX, swirlX, heroToSwirl * (1 - spiralMagnet * 0.55));
   const y1 = mix(bouquetY, swirlY, heroToSwirl * (1 - spiralMagnet * 0.55));
   const x2 = mix(x1, spiralX, swirlToSpiral);
@@ -693,6 +732,7 @@ const petalPosition = (petal, index, scrollProgress) => {
     spiral: Math.max(swirlToSpiral * (1 - spiralToField), spiralHold),
     spiralHold,
     order: spiralProgress,
+    bookshelfProgress,
   };
 };
 
@@ -1195,9 +1235,7 @@ const drawBlossom = (petal, x, y, rotation, size, alpha) => {
   }
 
   const dark = root.dataset.theme === "dark";
-  if (!dark) {
-    petal = bayGardenPetal(petal);
-  }
+  petal = themedPetal(petal, dark);
 
   const [r, g, b] = petal.color;
   const [cr, cg, cb] = petal.center;
@@ -1363,7 +1401,7 @@ const drawBouquetStems = (scrollProgress) => {
 
   const dark = root.dataset.theme === "dark";
   const baseX = width * 0.5;
-  const baseY = height * 0.96;
+  const baseY = height * (width < 700 ? 0.9 : 0.88);
   const wrapWidth = Math.min(width * 0.22, 150);
 
   context.save();
@@ -1371,7 +1409,7 @@ const drawBouquetStems = (scrollProgress) => {
   petals.forEach((petal, index) => {
     if (index % 3 === 0) return;
     if (petal.type === "clover") return;
-    const { x, y } = petalPosition(petal, index, scrollProgress);
+    const { x, y } = petalFramePositions[index] || petalPosition(petal, index, scrollProgress);
     context.beginPath();
     context.moveTo(baseX + Math.sin(index * 1.4) * 24, baseY + Math.cos(index) * 8);
     context.quadraticCurveTo(baseX + petal.stemBend * 0.55, height * 0.78, x, y + petal.size * 0.78);
@@ -1423,9 +1461,10 @@ const drawBouquetMonogram = (scrollProgress) => {
     context.translate(x, y);
     context.globalAlpha = alpha;
     context.globalCompositeOperation = dark ? "screen" : "source-over";
-    context.filter = dark
-      ? "saturate(1.08) brightness(1.18) drop-shadow(0 0 18px rgba(99, 230, 230, 0.42))"
-      : "saturate(1.16) brightness(1.08) contrast(1.03) drop-shadow(0 7px 22px rgba(242, 143, 120, 0.18))";
+    context.beginPath();
+    context.arc(0, 0, markSize * 0.42, 0, Math.PI * 2);
+    context.fillStyle = dark ? "rgba(99, 230, 230, 0.07)" : "rgba(255, 229, 192, 0.16)";
+    context.fill();
     context.drawImage(monogramImage, -markSize / 2, -markSize / 2, markSize, markSize);
     context.restore();
   }
@@ -1435,32 +1474,7 @@ const drawBouquetMonogram = (scrollProgress) => {
 const drawSpiralBreath = (scrollProgress) => {
   const spiral = smoothstep(0.34, 0.58, scrollProgress) * (1 - smoothstep(0.86, 0.98, scrollProgress));
   if (spiral <= 0.02) return;
-
-  const dark = root.dataset.theme === "dark";
-  const centerX = width * 0.52;
-  const centerY = height * 0.5;
-  const maxRadius = Math.min(width, height) * 0.62;
-
-  context.save();
-  context.globalAlpha = spiral * (dark ? 0.24 : 0.18);
-  context.lineWidth = 1.4;
-  context.strokeStyle = dark ? "rgba(99, 230, 230, 0.55)" : "rgba(134, 230, 226, 0.48)";
-  context.shadowBlur = 18;
-  context.shadowColor = dark ? "rgba(99, 230, 230, 0.28)" : "rgba(134, 230, 226, 0.22)";
-  context.beginPath();
-
-  for (let i = 0; i < 110; i += 1) {
-    const t = i / 109;
-    const radius = maxRadius * Math.sqrt(t);
-    const angle = -i * goldenAngle * 0.3 + spiral * Math.PI * 1.1;
-    const x = centerX + Math.cos(angle) * radius;
-    const y = centerY + Math.sin(angle) * radius * 0.86;
-    if (i === 0) context.moveTo(x, y);
-    else context.lineTo(x, y);
-  }
-
-  context.stroke();
-  context.restore();
+  // The flowers now carry the spiral motion; omitting the guide line keeps the section calmer.
 };
 
 const drawFieldGround = (scrollProgress) => {
@@ -1478,7 +1492,7 @@ const drawFieldGround = (scrollProgress) => {
   petals.forEach((petal, index) => {
     if (index % 2 !== 0) return;
     if (petal.type === "clover") return;
-    const { x, y } = petalPosition(petal, index, scrollProgress);
+    const { x, y } = petalFramePositions[index] || petalPosition(petal, index, scrollProgress);
     context.beginPath();
     context.moveTo(x, height + 8);
     context.quadraticCurveTo(x + Math.sin(index) * 8, mix(height, baseY, 0.65), x, y + petal.size * 0.5);
@@ -1662,23 +1676,25 @@ const contactFlowerPalettes = {
   },
   light: {
     petals: [
-      [245, 201, 103],
-      [242, 143, 120],
-      [134, 230, 226],
-      [134, 230, 226],
+      [244, 205, 101],
+      [246, 150, 126],
+      [255, 198, 160],
+      [129, 218, 214],
+      [92, 190, 202],
     ],
     centers: [
-      [245, 201, 103],
-      [242, 143, 120],
-      [134, 230, 226],
-      [134, 230, 226],
+      [244, 205, 101],
+      [246, 150, 126],
+      [255, 232, 196],
+      [129, 218, 214],
+      [92, 190, 202],
     ],
-    lines: [134, 230, 226],
+    lines: [92, 190, 202],
   },
 };
 
 const contactFill = (rgb, alpha) => `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
-const isLightAqua = (rgb) => rgb[0] === 134 && rgb[1] === 230 && rgb[2] === 226;
+const isLightAqua = isAquaRgb;
 
 const drawContactPetal = (ctx, size, color, alpha, stretch = 1, curl = 0) => {
   ctx.beginPath();
@@ -1693,10 +1709,17 @@ const drawContactRose = (ctx, x, y, size, rotation, flower, palette, alpha) => {
   const basePetalColor = palette.petals[(flower.tileMotif + 1) % palette.petals.length];
   const baseInnerColor = palette.petals[(flower.tileMotif + 2) % palette.petals.length];
   const baseCenterColor = palette.centers[flower.tileMotif % palette.centers.length];
-  const forceAqua = root.dataset.theme === "light" && (isLightAqua(basePetalColor) || isLightAqua(baseInnerColor));
+  const light = root.dataset.theme === "light";
+  const forceAqua = light && (isLightAqua(basePetalColor) || isLightAqua(baseInnerColor));
   const petalColor = forceAqua ? [134, 230, 226] : basePetalColor;
   const innerColor = forceAqua ? [134, 230, 226] : baseInnerColor;
-  const centerColor = forceAqua ? [134, 230, 226] : baseCenterColor;
+  const centerColor = forceAqua
+    ? [134, 230, 226]
+    : light && (isCoralRgb(petalColor) || isCoralRgb(innerColor))
+      ? [242, 143, 120]
+      : light && (isCreamYellowRgb(petalColor) || isCreamYellowRgb(innerColor))
+        ? isCreamYellowRgb(innerColor) ? innerColor : petalColor
+        : baseCenterColor;
 
   ctx.save();
   ctx.translate(x, y);
@@ -1739,7 +1762,7 @@ const drawContactRose = (ctx, x, y, size, rotation, flower, palette, alpha) => {
 };
 
 const drawContactNemophilia = (ctx, x, y, size, rotation, palette, alpha) => {
-  const blue = root.dataset.theme === "dark" ? [88, 189, 232] : [134, 230, 226];
+  const blue = root.dataset.theme === "dark" ? [88, 189, 232] : [129, 218, 214];
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
@@ -1750,7 +1773,7 @@ const drawContactNemophilia = (ctx, x, y, size, rotation, palette, alpha) => {
     ctx.restore();
   }
   const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.44);
-  gradient.addColorStop(0, contactFill(root.dataset.theme === "dark" ? [255, 255, 255] : [134, 230, 226], alpha * 0.92));
+  gradient.addColorStop(0, contactFill(root.dataset.theme === "dark" ? [255, 255, 255] : [255, 244, 216], alpha * 0.92));
   gradient.addColorStop(1, contactFill(blue, 0));
   ctx.fillStyle = gradient;
   ctx.beginPath();
@@ -1769,7 +1792,8 @@ const drawContactNemophilia = (ctx, x, y, size, rotation, palette, alpha) => {
 };
 
 const drawContactClover = (ctx, x, y, size, rotation, palette, alpha) => {
-  const color = root.dataset.theme === "dark" ? [99, 230, 230] : [245, 201, 103];
+  const light = root.dataset.theme === "light";
+  const color = light ? [54, 159, 173] : [99, 230, 230];
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
@@ -1786,7 +1810,7 @@ const drawContactClover = (ctx, x, y, size, rotation, palette, alpha) => {
   }
   ctx.beginPath();
   ctx.arc(0, 0, size * 0.08, 0, Math.PI * 2);
-  ctx.fillStyle = contactFill(palette.centers[0], alpha * 0.8);
+  ctx.fillStyle = contactFill(light ? [129, 218, 214] : palette.centers[0], alpha * 0.8);
   ctx.fill();
   ctx.restore();
 };
@@ -1866,20 +1890,26 @@ const drawContactBloomOverlay = (scrollProgress) => {
   contactContext.restore();
 };
 
-const drawPetal = (petal, index, scrollProgress) => {
+const drawPetal = (petal, index, scrollProgress, position) => {
   const dark = root.dataset.theme === "dark";
-  const { x, y, rotation, field, bouquet, spiral, spiralHold, order } = petalPosition(petal, index, scrollProgress);
+  const { x, y, rotation, field, bouquet, spiral, spiralHold, order, bookshelfProgress } = position || petalPosition(petal, index, scrollProgress);
   const visibility = 0.28 + Math.sin(frame * 0.018 + petal.delay * Math.PI * 2) * 0.08;
   const alpha = dark ? visibility * 0.78 : visibility;
   const size = petal.size * (0.78 + petal.depth * 0.52) * (1 - field * 0.2);
-  const lightFlowerScale = dark ? 1 : 0.82;
+  const ambientFlowerScale = dark ? 1 : 0.82;
+  const bouquetFlowerScale = 1;
   const [r, g, b] = petal.color;
-  const bouquetAlpha = bouquet * (dark ? 0.62 : 0.66);
+  const offscreenPadding = size * 2.4 + 120;
+  if (x < -offscreenPadding || x > width + offscreenPadding || y < -offscreenPadding || y > height + offscreenPadding) {
+    return;
+  }
+  const bouquetAlpha = bouquet * 0.62;
   const bouquetScale = 0.84 + (1 - petal.ring) * 0.24 + (index % 5 === 0 ? 0.05 : 0);
   const kineticBloom = clamp(Math.abs(scrollState.velocity) * 0.004, 0, 0.22);
-  const popWindowStart = 0.35 + order * 0.24;
-  const spiralPop = pulsePop(smoothstep(popWindowStart, popWindowStart + 0.07, scrollProgress));
-  const spiralGate = smoothstep(popWindowStart - 0.018, popWindowStart + 0.035, scrollProgress);
+  const spiralTiming = bookshelfProgress ?? bookshelfLeadProgress();
+  const popWindowStart = 0.05 + order * 0.32;
+  const spiralPop = pulsePop(smoothstep(popWindowStart, popWindowStart + 0.14, spiralTiming));
+  const spiralGate = smoothstep(popWindowStart - 0.03, popWindowStart + 0.09, spiralTiming);
   const spiralAlpha = spiral * spiralPop * spiralGate * (dark ? 0.72 : 0.84);
   const looseAlpha = Math.min(alpha * (1 - bouquet * 0.92) * (1 - spiral * 0.98) * (1 - field * 0.9), dark ? 0.16 : 0.2);
   const fieldBloom = pulsePop(smoothstep(0.86 + (1 - order) * 0.06, 0.94 + (1 - order) * 0.035, scrollProgress));
@@ -1891,13 +1921,13 @@ const drawPetal = (petal, index, scrollProgress) => {
 
   if (bouquetAlpha > 0.03 && index % 11 !== 0) {
     const drawAlpha = bouquetAlpha * (index % 3 === 0 ? 0.82 : 1) * textSafeAlpha * bouquetFrameAlpha;
-    const drawSize = size * bouquetScale * lightFlowerScale;
+    const drawSize = size * bouquetScale * bouquetFlowerScale;
     drawBlossom(petal, x, y, rotation * 0.12, drawSize, drawAlpha);
     registerFlowerBurstTarget(x, y, drawSize, drawAlpha);
   }
 
   if (spiralAlpha > 0.03 && index % 5 !== 1) {
-    const drawSize = size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38) * lightFlowerScale;
+    const drawSize = size * (0.22 + spiralPop * 0.66 + spiralHold * 0.09 + kineticBloom * 0.38) * ambientFlowerScale;
     const drawAlpha = spiralAlpha * (index % 4 === 0 ? 0.86 : 1) * textSafeAlpha;
     drawBlossom(
       petal,
@@ -1911,7 +1941,7 @@ const drawPetal = (petal, index, scrollProgress) => {
   }
 
   if (fieldAlpha > 0.03) {
-    const drawSize = size * (0.48 + fieldBloom * 0.3) * lightFlowerScale;
+    const drawSize = size * (0.48 + fieldBloom * 0.3) * ambientFlowerScale;
     const drawAlpha = fieldAlpha * (index % 2 === 0 ? 1 : 0.72);
     drawBlossom(
       petal,
@@ -1926,7 +1956,7 @@ const drawPetal = (petal, index, scrollProgress) => {
 
   if (looseAlpha * textSafeAlpha <= 0.02) return;
 
-  const looseSize = size * (0.4 + spiral * 0.12) * lightFlowerScale;
+  const looseSize = size * (0.4 + spiral * 0.12) * ambientFlowerScale;
   const looseDrawAlpha = looseAlpha * textSafeAlpha;
   drawBlossom(
     petal,
@@ -1951,10 +1981,16 @@ const drawPetal = (petal, index, scrollProgress) => {
   }
 };
 
-const drawAmbient = () => {
+const drawAmbient = (timestamp = performance.now()) => {
   if (!canvas || !context) return;
-  updateScrollState();
-  updateFlowText();
+  const deltaFrames = lastFrameTime ? clamp((timestamp - lastFrameTime) / 16.67, 0.5, 1.6) : 1;
+  lastFrameTime = timestamp;
+  updateScrollState(deltaFrames);
+  const flowTextInterval = width < 700 ? 3 : 2;
+  if (flowTextFrame % flowTextInterval === 0 || Math.abs(scrollState.velocity) > 0.35) {
+    updateFlowText();
+  }
+  flowTextFrame += 1;
   const scrollProgress = scrollState.progress;
 
   context.clearRect(0, 0, width, height);
@@ -1964,16 +2000,19 @@ const drawAmbient = () => {
     : "rgba(247, 255, 253, 0.1)";
   context.fillRect(0, 0, width, height);
   drawLightWaterAtmosphere(scrollProgress);
+  petals.forEach((petal, index) => {
+    petalFramePositions[index] = petalPosition(petal, index, scrollProgress);
+  });
   drawBouquetStems(scrollProgress);
   drawSpiralBreath(scrollProgress);
   drawFieldGround(scrollProgress);
-  petals.forEach((petal, index) => drawPetal(petal, index, scrollProgress));
+  petals.forEach((petal, index) => drawPetal(petal, index, scrollProgress, petalFramePositions[index]));
   drawBouquetMonogram(scrollProgress);
   drawForegroundBloomField(scrollProgress);
   drawContactBloomOverlay(scrollProgress);
   drawPetalBursts();
 
-  frame += 1;
+  frame += deltaFrames;
   window.requestAnimationFrame(drawAmbient);
 };
 
@@ -1983,6 +2022,7 @@ if (canvas && context && !reduceMotion) {
   window.addEventListener("resize", resizeCanvas, { passive: true });
   window.addEventListener("pointerdown", handleCanvasBurstClick, { passive: true });
 } else {
+  resizeCanvas();
   flowItems.forEach((item) => {
     item.style.setProperty("--flow-opacity", "1");
     item.style.setProperty("--flow-y", "0px");
@@ -1991,42 +2031,131 @@ if (canvas && context && !reduceMotion) {
 }
 
 themeToggle?.addEventListener("click", () => {
-  setTheme(root.dataset.theme === "dark" ? "light" : "dark", false);
+  setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+});
+
+const sgsfModal = document.querySelector(".sgsf-modal");
+const sgsfModalCard = document.querySelector(".sgsf-modal-card");
+const sgsfModalMeta = document.querySelector("#sgsf-modal-meta");
+const sgsfModalTitle = document.querySelector("#sgsf-modal-title");
+const sgsfModalBody = document.querySelector("#sgsf-modal-body");
+const sgsfModalTriggers = document.querySelectorAll("[data-sgsf-modal]");
+let lastSgsfTrigger = null;
+
+const sgsfNotes = {
+  letter: {
+    meta: "Bay Garden / SG -> SF",
+    title: "A letter between cities",
+    body: [
+      "Singapore gave me an instinct for efficiency, high trust, and global systems that work for diverse users. San Francisco pulls me toward the future of frontier research, shipping at scale, and ambitious products.",
+      "I like bridging the gap between the two: careful enough to mitigate risk, and curious enough to build thoughtfully anyway.",
+    ],
+  },
+  dispatch: {
+    meta: "Dispatch / one way",
+    title: "SF is calling",
+    body: [
+      "To the version of me who said she would think about it later: let's stop thinking, let's start building.",
+      "A postcard for momentum, taste, and the kind of work that asks me to stay curious while staying careful.",
+    ],
+  },
+  poem: {
+    meta: "Field note / poem",
+    title: "Field note",
+    poem:
+      "somewhere between\nan angsana tree\nand a cable car\n\nI am trying to build\ncloser to the frontier\nwithout forgetting\nwhere my sense of safety\ncame from",
+  },
+};
+
+const renderSgsfBody = (note) => {
+  if (!sgsfModalBody) return;
+  sgsfModalBody.innerHTML = "";
+  if (note.poem) {
+    const poem = document.createElement("p");
+    poem.className = "sgsf-poem-full";
+    poem.textContent = note.poem;
+    sgsfModalBody.append(poem);
+    return;
+  }
+  note.body.forEach((line) => {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = line;
+    sgsfModalBody.append(paragraph);
+  });
+};
+
+const openSgsfModal = (kind, trigger) => {
+  const note = sgsfNotes[kind];
+  if (!note || !sgsfModal || !sgsfModalCard || !sgsfModalMeta || !sgsfModalTitle) return;
+
+  lastSgsfTrigger = trigger;
+  sgsfModalMeta.textContent = note.meta;
+  sgsfModalTitle.textContent = note.title;
+  renderSgsfBody(note);
+  sgsfModalCard.scrollTop = 0;
+  sgsfModal.hidden = false;
+  document.body.classList.add("modal-open");
+  window.requestAnimationFrame(() => sgsfModalCard.focus());
+};
+
+const closeSgsfModal = () => {
+  if (!sgsfModal) return;
+  sgsfModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  if (lastSgsfTrigger instanceof HTMLElement) {
+    lastSgsfTrigger.focus();
+  }
+};
+
+sgsfModalTriggers.forEach((trigger) => {
+  trigger.addEventListener("click", () => {
+    openSgsfModal(trigger.dataset.sgsfModal, trigger);
+  });
+});
+
+sgsfModal?.querySelectorAll("[data-sgsf-close]").forEach((closeControl) => {
+  closeControl.addEventListener("click", closeSgsfModal);
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && sgsfModal && !sgsfModal.hidden) {
+    closeSgsfModal();
+  }
 });
 
 const books = [
   {
     title: "We Are Bellingcat",
     meta: "Eliot Higgins",
-    color: "#f28f78",
+    color: "#008d9a",
     review:
       "A book that maps onto my SOCMINT hobby: following traces, finding unlikely sources of knowledge, and learning new hacks or networks. It's the same curiosity I bring to evals: keep asking where the evidence lives, who can see or measure it, and searching for unknown unknowns.",
   },
   {
     title: "The Book of Tea",
     meta: "OKAKURA KAKUZŌ",
-    color: "#ffb2a0",
+    color: "#2f6fba",
     review:
       "\"Teaism is the art of concealing beauty that you may discover it, of suggesting what you dare not reveal.\" I like how Okakura treats taste as attention, humility, and restraint. The line \"Those who cannot feel the littleness of great things in themselves are apt to overlook the greatness of little things in others\" feels close to how I think about human relationships too.",
   },
   {
     title: "The Idea Factory: Bell Labs and the Great Age of American Innovation",
     meta: "Jon Gertner",
-    color: "#f5a16f",
+    color: "#19b8c7",
     review:
       "A timely reminder about innovation - it's not just lone genius, but through teams, tools, taste, and institutions that make ambitious research possible. The future is won by those who can connect science, engineering, product judgment, and the patience to make bold bets.",
   },
   {
     title: "Build",
     meta: "Tony Fadell",
-    color: "#e9796d",
+    color: "#0f4c81",
     review:
       "I like Build as a field manual for turning taste into shipped things (when to trust data, when to use judgment, how to make abstract ideas tangible, and why storytelling matters when you need people to build with you).",
   },
   {
     title: "",
     meta: "",
-    color: "#86e6e2",
+    color: "#5ecbd3",
     review: "Always open to new books to read!",
   },
 ];
