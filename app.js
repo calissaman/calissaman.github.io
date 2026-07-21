@@ -28,7 +28,7 @@ const setTheme = (theme, persist = true) => {
   if (persist) storeTheme(nextTheme);
 };
 
-setTheme(root.dataset.theme || "light", false);
+setTheme(root.dataset.theme || "dark", false);
 
 const canvas = document.querySelector(".ambient-canvas");
 const context = canvas?.getContext("2d");
