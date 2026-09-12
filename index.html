@@ -1,34 +1,39 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Calissa | Personal Website</title>
     <meta
       name="description"
-      content="A personal website with quiet editorial pacing, light and dark scroll animation, and an interactive bookshelf."
-    >
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      content="Calissa Man. Model behaviour, multimodal safety evaluations, and taste. Between Singapore and San Francisco."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Outfit:wght@400;500;600&display=swap"
       rel="stylesheet"
-    >
+    />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    >
-    <link rel="stylesheet" href="styles.css">
+    />
+    <link rel="stylesheet" href="styles.css?v=20260912-26" />
+    <link rel="stylesheet" href="time-scroller.css?v=20260912-25" />
+    <link rel="icon" type="image/png" href="assets/site-monogram.png" />
+    <link
+      rel="preload"
+      as="image"
+      href="assets/scene/day-v9.jpg?v=20260912-32"
+    />
   </head>
   <body>
-    <canvas class="ambient-canvas" aria-hidden="true"></canvas>
-    <canvas class="burst-canvas" aria-hidden="true"></canvas>
+    <a class="skip-link" href="#introduction">Skip to introduction</a>
     <div class="page-shell">
       <header class="site-header">
         <a class="wordmark" href="#top" aria-label="Home">
           <span class="wordmark-monogram-wrap" aria-hidden="true">
-            <span class="wordmark-monogram wordmark-monogram-light"></span>
-            <span class="wordmark-monogram wordmark-monogram-dark"></span>
+            <span class="wordmark-monogram"></span>
           </span>
           <span class="wordmark-text">Calissa</span>
         </a>
@@ -39,124 +44,483 @@
           <a href="#bookshelf">Bookshelf</a>
           <a href="#contact">Contact</a>
         </nav>
-        <button class="theme-toggle" type="button" aria-label="Switch to light mode" aria-pressed="true">
-          <i class="fa-regular fa-moon theme-icon-dark" aria-hidden="true"></i>
-          <i class="fa-regular fa-sun theme-icon-light" aria-hidden="true"></i>
+        <button
+          class="theme-toggle"
+          type="button"
+          aria-label="Switch to light mode"
+          aria-pressed="true"
+        >
+          <span class="theme-breeze-block" aria-hidden="true">
+            <img
+              class="theme-breeze-sun"
+              src="assets/scene/theme-breeze-sun.svg?v=20260912-19"
+              width="42"
+              height="42"
+              alt=""
+            />
+            <img
+              class="theme-breeze-moon"
+              src="assets/scene/theme-breeze-moon.svg?v=20260912-28"
+              width="42"
+              height="42"
+              alt=""
+            />
+          </span>
         </button>
       </header>
 
       <main id="top">
-        <section class="hero" aria-labelledby="hero-title">
-          <div class="hero-copy" data-reveal>
-            <h1 id="hero-title">I believe in the power of good evals for good models.</h1>
-            <p>
-              My work's all about the intersection of model behaviour, user safety/redteaming
-              and taste. I care about measurable, actionable ways for video, image, audio and
-              coding models to perform even better in a world that refuses to be simple.
-            </p>
+        <section
+          class="shophouse-hero"
+          aria-label="Singapore after rain, an interactive shophouse scene"
+        >
+          <div class="scene-stage">
+            <img
+              class="scene-fallback"
+              src="assets/scene/day-v9.jpg?v=20260912-32"
+              alt="Three ornate Peranakan shophouses beside reflective rainwater, with a skyscraper and two HDB blocks in the distance."
+              fetchpriority="high"
+            />
+            <canvas class="scene-canvas" aria-hidden="true"></canvas>
+            <canvas class="scene-objects" aria-hidden="true"></canvas>
+            <button
+              class="scene-hotspot branch-hotspot"
+              type="button"
+              aria-label="Release a trumpet flower from the branch"
+              title="Release a flower"
+            ></button>
+            <button
+              class="scene-hotspot light-hotspot"
+              type="button"
+              aria-label="Turn off the bistro lights"
+              aria-pressed="true"
+              title="Bistro lights"
+            ></button>
+            <button
+              class="scene-hotspot skyline-hotspot"
+              type="button"
+              aria-label="Turn off the skyline lights"
+              aria-pressed="true"
+              title="Skyline lights"
+            ></button>
           </div>
-          <div class="scroll-cue" aria-hidden="true">
-            <span></span>
-            <span>Scroll</span>
+          <div class="scene-clock">
+            <button
+              class="clock-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="time-panel"
+            >
+              <span class="clock-city">Singapore</span>
+              <span class="clock-value">12:00 pm</span>
+              <span class="clock-hint">Explore the day</span>
+            </button>
+            <div class="time-panel" id="time-panel" hidden>
+              <div class="time-panel-heading">
+                <span>Time of day</span
+                ><button
+                  type="button"
+                  class="time-close"
+                  aria-label="Close time control"
+                >
+                  ×
+                </button>
+              </div>
+              <div
+                class="city-options"
+                role="group"
+                aria-label="Clock location"
+              >
+                <button type="button" data-city="singapore" aria-pressed="true">
+                  SG
+                </button>
+                <button
+                  type="button"
+                  data-city="san_francisco"
+                  aria-pressed="false"
+                >
+                  SF
+                </button>
+                <button type="button" data-city="local" aria-pressed="false">
+                  Local
+                </button>
+              </div>
+              <div class="time-scrubber">
+                <div class="time-markers" aria-hidden="true">
+                  <span>Midnight</span><span>Noon</span><span>Midnight</span>
+                </div>
+                <label class="sr-only" for="environment-time"
+                  >Environmental time</label
+                >
+                <input
+                  id="environment-time"
+                  type="range"
+                  min="0"
+                  max="1439"
+                  step="1"
+                  value="720"
+                  aria-valuetext="12:00 pm"
+                />
+              </div>
+              <div class="city-clocks">
+                <span>SG <time id="sg-clock"></time></span
+                ><span>SF <time id="sf-clock"></time></span>
+              </div>
+              <button class="return-local" type="button">
+                Back to local time
+              </button>
+              <span class="time-mode" aria-live="polite"
+                >Live Singapore time</span
+              >
+            </div>
+          </div>
+          <div class="scene-sound">
+            <button class="ambient-toggle" type="button" aria-pressed="false">
+              <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i
+              ><span>Sound off</span>
+            </button>
+            <details class="music-menu">
+              <summary>Music</summary>
+              <div class="music-panel">
+                <label class="music-upload"
+                  >Choose your music<input
+                    type="file"
+                    id="music-files"
+                    accept="audio/*"
+                    multiple
+                /></label>
+                <p class="track-name" role="status">
+                  Your playlist, on this device.
+                </p>
+                <div class="music-controls">
+                  <button
+                    type="button"
+                    class="track-previous"
+                    aria-label="Previous track"
+                    disabled
+                  >
+                    ‹</button
+                  ><button type="button" class="track-play" disabled>
+                    Play</button
+                  ><button
+                    type="button"
+                    class="track-next"
+                    aria-label="Next track"
+                    disabled
+                  >
+                    ›
+                  </button>
+                </div>
+                <label class="volume-label" for="music-volume">Volume</label
+                ><input
+                  type="range"
+                  id="music-volume"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value="0.35"
+                />
+              </div>
+            </details>
+          </div>
+          <div class="scene-bottom">
+            <span class="scene-caption">What I love most about Singapore</span
+            ><a class="scene-scroll" href="#introduction"
+              >Meet Calissa <span aria-hidden="true">↓</span></a
+            ><span class="scene-instruction"
+              >Touch the water. Stay a while.</span
+            >
+          </div>
+          <p class="sr-only scene-status" role="status"></p>
+          <noscript
+            ><p class="scene-notice">
+              Explore the rest of the site below. Enable JavaScript for the
+              interactive scene.
+            </p></noscript
+          >
+        </section>
+        <section class="hero" id="introduction" aria-labelledby="hero-title">
+          <div class="hero-copy" data-reveal>
+            <h1 id="hero-title">
+              I believe in the power of good evals for good models.
+            </h1>
+            <p>
+              My work's all about the intersection of model behaviour, user
+              safety/redteaming and taste. I care about measurable, actionable
+              ways for video, image, audio and coding models to perform even
+              better in a world that refuses to be simple.
+            </p>
           </div>
         </section>
 
-        <section class="intro-band flow-section" id="bio" aria-labelledby="bio-title">
+        <section
+          class="intro-band flow-section"
+          id="bio"
+          aria-labelledby="bio-title"
+        >
           <div class="statement" data-reveal>
             <div class="bio-heading">
               <h2 id="bio-title">Bio</h2>
             </div>
             <p>
-              I built safety evals and policies from end to end for multimodal models at ByteDance's
-              Seed Research Lab, and developed APAC's first AI app consumer standards as a regulator.
+              I built multimodal and safety evals and policies for multimodal
+              models and AI products at ByteDance's Seed Research Lab, after
+              developing APAC's first AI app consumer standards as a regulator.
             </p>
             <p>
-              My AI safety work began in 2021 on trust and safety content moderation systems at
-              TikTok, before consulting for Big Tech and early-stage startups on AI safety and
-              policy at Plug and Play's incubator. I like to operate where research, product and
-              GTM intersect.
+              My AI safety work began in 2021 on trust and safety content
+              moderation systems at TikTok, before consulting for Big Tech and
+              early-stage startups on AI safety and policy at Plug and Play's
+              incubator. I like to operate where research, product and GTM
+              intersect.
             </p>
           </div>
         </section>
 
-        <section class="evals-section flow-section" id="evals" aria-labelledby="evals-title">
+        <section
+          class="evals-section flow-section"
+          id="evals"
+          aria-labelledby="evals-title"
+        >
           <div class="section-heading" data-reveal>
             <p class="kicker">Evals</p>
             <div>
               <h2 id="evals-title">Multimodal safety evals</h2>
               <p>
-                My work is shaped by my journey from Big Tech lobbying and setting AI regulations, to working with early stage startups and shipping for global audiences in a frontier model lab.
+                My work is shaped by my journey from Big Tech lobbying and
+                setting AI regulations, to working with early stage startups and
+                shipping for global audiences in a frontier model lab.
               </p>
             </div>
           </div>
-          <div class="eval-ledger">
-            <article class="eval-summary" data-reveal>
-              <div class="eval-title">
-                <span class="note-index">01</span>
-                <h3>Model Behaviour &amp; Frontier Capabilities</h3>
-              </div>
-              <p>
-                Safety policies and evaluations for global model launches (e.g. Seedance),
-                including a wide range of products such as chatbots, virtual assistants, and
-                image/video generation apps. Focused on model personality, user harm,
-                image/video quality, agentic capabilities and potential abuses of models.
-              </p>
-            </article>
-            <article class="eval-summary" data-reveal>
-              <div class="eval-title">
-                <span class="note-index">02</span>
-                <h3>AI app consumer standards</h3>
-              </div>
-              <p>
-                Regulatory work and redteaming to build APAC's first consumer standards for AI
-                apps, focused on clear expectations for user protection, transparency, and keeping
-                pace with new agentic/AI research developments.
-              </p>
-            </article>
-            <article class="eval-summary" data-reveal>
-              <div class="eval-title">
-                <span class="note-index">03</span>
-                <h3>Testing live reasoning</h3>
-              </div>
-              <p>
-                A daily benchmark for Claude models that evaluates answers to current-affairs
-                questions with web search. It measures how well a model handles fast-moving facts,
-                contested reporting, and limits of certainty.
-              </p>
-              <a
-                class="text-link"
-                href="https://github.com/calissaman/DailyCurrentEventsEval"
-                target="_blank"
-                rel="noreferrer"
-              >
-                View repository
-              </a>
-            </article>
-            <article class="eval-summary" data-reveal>
-              <div class="eval-title">
-                <span class="note-index">04</span>
-                <h3>Trust and safety systems</h3>
-              </div>
-              <p>
-                Early AI safety work on trust and safety content moderation systems at TikTok,
-                followed by policy and safety consulting for large technology companies and
-                early-stage AI startups.
-              </p>
-            </article>
+          <div class="eval-body">
+            <div class="eval-artworks">
+              <figure class="eval-tile-art" data-tile-motion="rows">
+                <div
+                  class="eval-tile-panel"
+                  role="img"
+                  aria-label="Eight antique Peranakan relief tiles in four paired rows, with pink floral motifs, turquoise bows, green garlands and mint glaze."
+                >
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 0"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 0"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 1"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 1"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 2"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 2"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 3"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 3"
+                    aria-hidden="true"
+                    ><span class="eval-tile-glint"></span
+                  ></span>
+                </div>
+                <figcaption>
+                  <button
+                    class="eval-tiles-replay"
+                    type="button"
+                    hidden
+                    aria-label="Replay the floral tile rows"
+                  >
+                    Replay rows
+                  </button>
+                </figcaption>
+              </figure>
+              <figure class="eval-tile-art">
+                <div
+                  class="eval-tile-panel"
+                  role="img"
+                  aria-label="Peranakan ceramic tiles with turquoise glaze, pink peonies and colourful birds, assembling into one panel."
+                >
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 0"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 0"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 2; --tile-row: 0"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 1"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 1"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 2; --tile-row: 1"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 2"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 2"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 2; --tile-row: 2"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 0; --tile-row: 3"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 1; --tile-row: 3"
+                    aria-hidden="true"
+                  ></span>
+                  <span
+                    class="eval-tile"
+                    style="--tile-column: 2; --tile-row: 3"
+                    aria-hidden="true"
+                  ></span>
+                </div>
+                <figcaption>
+                  <button
+                    class="eval-tiles-replay"
+                    type="button"
+                    hidden
+                    aria-label="Replay the tile assembly"
+                  >
+                    Replay tiles
+                  </button>
+                </figcaption>
+              </figure>
+            </div>
+            <div class="eval-ledger">
+              <article class="eval-summary" data-reveal>
+                <div class="eval-title">
+                  <span class="note-index">01</span>
+                  <h3>Model Behaviour &amp; Frontier Capabilities</h3>
+                </div>
+                <p>
+                  Safety policies and evaluations for global model launches
+                  (e.g. Seedance), including a wide range of products such as
+                  chatbots, virtual assistants, and image/video generation apps.
+                  Focused on model personality, user harm, image/video quality,
+                  agentic capabilities and potential abuses of models.
+                </p>
+              </article>
+              <article class="eval-summary" data-reveal>
+                <div class="eval-title">
+                  <span class="note-index">02</span>
+                  <h3>AI app consumer standards</h3>
+                </div>
+                <p>
+                  Regulatory work and redteaming to build APAC's first consumer
+                  standards for AI apps, focused on clear expectations for user
+                  protection, transparency, and keeping pace with new agentic/AI
+                  research developments.
+                </p>
+              </article>
+              <article class="eval-summary" data-reveal>
+                <div class="eval-title">
+                  <span class="note-index">03</span>
+                  <h3>Testing live reasoning</h3>
+                </div>
+                <p>
+                  A daily benchmark for Claude models that evaluates answers to
+                  current-affairs questions with web search. It measures how
+                  well a model handles fast-moving facts, contested reporting,
+                  and limits of certainty.
+                </p>
+                <a
+                  class="text-link"
+                  href="https://github.com/calissaman/DailyCurrentEventsEval"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View repository
+                </a>
+              </article>
+              <article class="eval-summary" data-reveal>
+                <div class="eval-title">
+                  <span class="note-index">04</span>
+                  <h3>Trust and safety systems</h3>
+                </div>
+                <p>
+                  Early AI safety work on trust and safety content moderation
+                  systems at TikTok, followed by policy and safety consulting
+                  for large technology companies and early-stage AI startups.
+                </p>
+              </article>
+            </div>
           </div>
         </section>
 
-        <section class="sgsf-section flow-section" id="sgsf" aria-labelledby="sgsf-title">
+        <section
+          class="sgsf-section flow-section"
+          id="sgsf"
+          aria-labelledby="sgsf-title"
+        >
           <div class="section-heading" data-reveal>
             <p class="kicker">SG-&gt;SF</p>
             <div>
               <h2 id="sgsf-title">From Singapore to San Francisco</h2>
               <p>
-                Bridging 2 homes that teach new ways to think about technology and taste.
+                Bridging 2 homes that teach new ways to think about technology
+                and taste.
               </p>
             </div>
           </div>
-          <div class="sgsf-triptych" data-reveal aria-label="Clickable SG to SF image dispatches">
+          <div
+            class="sgsf-triptych"
+            data-reveal
+            aria-label="Clickable SG to SF image dispatches"
+          >
             <button
               class="sgsf-panel sgsf-panel-banner"
               type="button"
@@ -164,9 +528,12 @@
               aria-label="Open the visual letter between Singapore and San Francisco"
             >
               <img
+                loading="lazy"
                 src="assets/sgsf-banner.png"
+                width="1654"
+                height="454"
                 alt="Illustrated banner blending Singapore and San Francisco with a handwritten note."
-              >
+              />
               <span class="sgsf-panel-meta">Dear future me</span>
             </button>
             <div class="sgsf-panel-row">
@@ -177,9 +544,12 @@
                 aria-label="Open the SG to SF dispatch note"
               >
                 <img
+                  loading="lazy"
                   src="assets/sgsf-postcard.png"
+                  width="758"
+                  height="467"
                   alt="Postcard-style illustration addressed from Singapore to San Francisco."
-                >
+                />
                 <span class="sgsf-panel-meta">Letter</span>
               </button>
               <button
@@ -189,34 +559,43 @@
                 aria-label="Open the full SG to SF poem"
               >
                 <img
+                  loading="lazy"
                   src="assets/sgsf-home.png"
+                  width="1610"
+                  height="977"
                   alt="Blue-green illustrated waterfront merging Singapore, San Francisco, and home."
-                >
+                />
                 <span class="sgsf-panel-meta">Poem</span>
               </button>
             </div>
           </div>
-          <div
+          <dialog
             class="sgsf-modal"
-            role="dialog"
-            aria-modal="true"
             aria-labelledby="sgsf-modal-title"
             aria-describedby="sgsf-modal-body"
-            hidden
           >
             <div class="sgsf-modal-backdrop" data-sgsf-close></div>
             <div class="sgsf-modal-card" role="document" tabindex="-1">
               <p class="sgsf-modal-meta" id="sgsf-modal-meta"></p>
               <h3 id="sgsf-modal-title"></h3>
               <div class="sgsf-modal-body" id="sgsf-modal-body"></div>
-              <button class="sgsf-modal-close" type="button" data-sgsf-close aria-label="Close SG to SF note">
+              <button
+                class="sgsf-modal-close"
+                type="button"
+                data-sgsf-close
+                aria-label="Close SG to SF note"
+              >
                 Close
               </button>
             </div>
-          </div>
+          </dialog>
         </section>
 
-        <section class="bookshelf-section flow-section" id="bookshelf" aria-labelledby="bookshelf-title">
+        <section
+          class="bookshelf-section flow-section"
+          id="bookshelf"
+          aria-labelledby="bookshelf-title"
+        >
           <div class="section-heading" data-reveal>
             <p class="kicker">Bookshelf</p>
             <h2 id="bookshelf-title">Books I return to</h2>
@@ -224,93 +603,107 @@
 
           <div class="bookshelf-layout">
             <div class="bookshelf-main">
-              <div class="shelf-wrap" data-reveal>
-                <div class="shelf" role="listbox" aria-label="Books with reviews">
-                  <button
-                    class="book-spine is-active"
-                    type="button"
-                    role="option"
-                    aria-selected="true"
-                    data-book="0"
-                    style="--book-h: 16.5rem; --book-w: 3.4rem; --book-color: #008d9a;"
-                  >
-                    <span class="spine-symbol" aria-hidden="true">
-                      <i class="fa-solid fa-bell"></i>
-                      <i class="fa-solid fa-cat"></i>
-                    </span>
-                    <span class="spine-title">We Are Bellingcat</span>
-                  </button>
-                  <button
-                    class="book-spine"
-                    type="button"
-                    role="option"
-                    aria-selected="false"
-                    data-book="1"
-                    style="--book-h: 14.8rem; --book-w: 3rem; --book-color: #2f6fba;"
-                  >
-                    <span class="spine-symbol" aria-hidden="true">
-                      <i class="fa-solid fa-mug-hot"></i>
-                    </span>
-                    <span class="spine-title">The Book of Tea</span>
-                  </button>
-                  <button
-                    class="book-spine"
-                    type="button"
-                    role="option"
-                    aria-selected="false"
-                    data-book="2"
-                    style="--book-h: 17.4rem; --book-w: 3.5rem; --book-color: #19b8c7;"
-                  >
-                    <span class="spine-symbol spine-symbol-factory" aria-hidden="true">
-                      <i class="fa-solid fa-gears"></i>
-                    </span>
-                    <span class="spine-title">The Idea Factory</span>
-                  </button>
-                  <button
-                    class="book-spine"
-                    type="button"
-                    role="option"
-                    aria-selected="false"
-                    data-book="3"
-                    style="--book-h: 15.6rem; --book-w: 2.9rem; --book-color: #0f4c81;"
-                  >
-                    <span class="spine-symbol spine-symbol-ipod" aria-hidden="true">
-                      <i class="fa-solid fa-music"></i>
-                    </span>
-                    <span class="spine-title">Build</span>
-                  </button>
-                  <button
-                    class="book-spine"
-                    type="button"
-                    role="option"
-                    aria-selected="false"
-                    data-book="4"
-                    style="--book-h: 18.1rem; --book-w: 3rem; --book-color: #5ecbd3;"
-                    aria-label="Blank book"
-                  >
-                    <span class="spine-title" aria-hidden="true"></span>
-                  </button>
-                </div>
-                <div class="shelf-board" aria-hidden="true"></div>
+              <div class="shelf" aria-label="Choose a book to read my notes">
+                <button
+                  class="book-choice is-active"
+                  type="button"
+                  data-book="0"
+                  aria-pressed="true"
+                  aria-controls="selected-review"
+                >
+                  <img
+                    src="assets/books/bellingcat.jpg"
+                    alt="We Are Bellingcat, by Eliot Higgins — publisher's cover"
+                    width="300"
+                    height="450"
+                    loading="lazy"
+                  />
+                  <span class="book-label">We Are Bellingcat</span>
+                </button>
+                <button
+                  class="book-choice"
+                  type="button"
+                  data-book="1"
+                  aria-pressed="false"
+                  aria-controls="selected-review"
+                >
+                  <img
+                    src="assets/books/tea.jpg"
+                    alt="The Book of Tea, by Okakura Kakuzō — publisher's cover"
+                    width="300"
+                    height="450"
+                    loading="lazy"
+                  />
+                  <span class="book-label">The Book of Tea</span>
+                </button>
+                <button
+                  class="book-choice"
+                  type="button"
+                  data-book="2"
+                  aria-pressed="false"
+                  aria-controls="selected-review"
+                >
+                  <img
+                    class="book-cover-borderless"
+                    src="assets/books/idea-factory.jpg"
+                    alt="The Idea Factory, by Jon Gertner — publisher's cover"
+                    width="300"
+                    height="450"
+                    loading="lazy"
+                  />
+                  <span class="book-label">The Idea Factory</span>
+                </button>
+                <button
+                  class="book-choice"
+                  type="button"
+                  data-book="3"
+                  aria-pressed="false"
+                  aria-controls="selected-review"
+                >
+                  <img
+                    src="assets/books/build.jpg"
+                    alt="Build, by Tony Fadell — publisher's cover"
+                    width="300"
+                    height="450"
+                    loading="lazy"
+                  />
+                  <span class="book-label">Build</span>
+                </button>
+                <button
+                  class="book-choice"
+                  type="button"
+                  data-book="4"
+                  aria-pressed="false"
+                  aria-controls="selected-review"
+                >
+                  <img
+                    class="book-cover-borderless"
+                    src="assets/books/aesthetic-intelligence.jpg"
+                    alt="Aesthetic Intelligence, by Pauline Brown, book cover"
+                    width="257"
+                    height="389"
+                    loading="lazy"
+                  />
+                  <span class="book-label">Aesthetic Intelligence</span>
+                </button>
               </div>
 
-              <article class="book-review" aria-live="polite" data-book="0" data-reveal>
-                <div class="book-object" aria-hidden="true">
-                  <div class="book-cover"></div>
-                  <div class="book-pages">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
+              <article
+                id="selected-review"
+                class="book-review"
+                aria-live="polite"
+                data-book="0"
+                data-reveal
+              >
                 <div class="review-copy">
                   <p class="kicker" id="review-meta">Eliot Higgins</p>
                   <h3 id="review-title">We Are Bellingcat</h3>
                   <p id="review-text">
-                    A book that maps onto my SOCMINT hobby: following traces, finding unlikely
-                    sources of knowledge, and learning new hacks or networks. It's the same
-                    curiosity I bring to evals: keep asking where the evidence lives, who can see
-                    or measure it, and searching for unknown unknowns.
+                    A book that maps onto my SOCMINT hobby: following traces,
+                    finding unlikely sources of knowledge, and learning new
+                    hacks or networks. It's the same curiosity I bring to evals:
+                    keep asking where the evidence lives, who can see or measure
+                    it, and searching for unknown unknowns.
                   </p>
                 </div>
               </article>
@@ -318,11 +711,16 @@
           </div>
         </section>
 
-        <section class="contact-section flow-section" id="contact" aria-labelledby="contact-title">
-          <canvas class="contact-flower-canvas" aria-hidden="true"></canvas>
+        <section
+          class="contact-section flow-section"
+          id="contact"
+          aria-labelledby="contact-title"
+        >
           <div class="contact-copy" data-reveal>
             <p class="kicker">Contact</p>
-            <h2 id="contact-title">Open for thoughtful collaborations, eval work, and good reading recommendations.</h2>
+            <h2 id="contact-title">
+              Open to eval &amp; post-training work and new books/food recs.
+            </h2>
           </div>
           <div class="contact-links" data-reveal>
             <a
@@ -362,8 +760,12 @@
           </div>
         </section>
       </main>
+      <footer class="site-footer">
+        <span>Calissa Man</span><a href="#top">Back to the shophouses ↑</a
+        ><span>Same streets. Different horizons.</span>
+      </footer>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js?v=20260912-32"></script>
   </body>
 </html>

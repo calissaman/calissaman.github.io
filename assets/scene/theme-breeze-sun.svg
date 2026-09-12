@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="ceramic-sun-glaze" x1="27" y1="12" x2="101" y2="121" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fffdf4"/>
+      <stop offset=".36" stop-color="#f5ead4"/>
+      <stop offset=".63" stop-color="#e4d1af"/>
+      <stop offset=".79" stop-color="#f8efd9"/>
+      <stop offset="1" stop-color="#ceb58f"/>
+    </linearGradient>
+    <radialGradient id="ceramic-sun-center" cx=".34" cy=".27" r=".8">
+      <stop stop-color="#fffef7"/>
+      <stop offset=".6" stop-color="#f4e7ca"/>
+      <stop offset="1" stop-color="#cbb28c"/>
+    </radialGradient>
+    <g id="ceramic-sun-corner" stroke-linecap="round">
+      <path d="M18 34c-6-7-1-17 8-17 8 0 13 8 9 14-3 6-12 6-13 0-1-4 3-7 6-5" stroke="#c4a984" stroke-width="2.3"/>
+      <path d="M18 32c-4-7 1-14 8-14 7 0 11 7 8 12-3 4-9 5-10 1" stroke="#fffdf3" stroke-width="1.5"/>
+      <path d="M15 39c6 0 12-2 17-6" stroke="#fff8e8" stroke-width="1.5"/>
+    </g>
+  </defs>
+  <path d="M31 9H97Q107 9 107 20V21H108Q119 21 119 32V96Q119 107 108 107H107V108Q107 119 96 119H32Q21 119 21 108V107H20Q9 107 9 96V32Q9 21 20 21H21V20Q21 9 31 9ZM35 28Q28 28 28 35V93Q28 100 35 100H93Q100 100 100 93V35Q100 28 93 28Z" fill="url(#ceramic-sun-glaze)" fill-rule="evenodd" stroke="#b99d77" stroke-width="1.1"/>
+  <path d="M32 12h64c5 0 8 3 8 8m-92 12v62m20 22h64c5 0 8-3 8-8" stroke="#fffdf4" stroke-width="1.7" stroke-linecap="round" opacity=".85"/>
+  <path d="M35 26h58q9 0 9 9v58M26 35v58q0 9 9 9h58" stroke="#c7ae88" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+  <path d="M38 18h52M18 40v48M40 110h48M110 40v48" stroke="#fff9e9" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>
+  <g fill="url(#ceramic-sun-glaze)" stroke="#ba9f7f" stroke-width="1" stroke-linejoin="round">
+    <path d="M60 46 61 27H67L68 46ZM82 60 101 61V67L82 68ZM60 82 61 101H67L68 82ZM46 60 27 61V67L46 68Z"/>
+    <path d="m47 51-15-16 3-3 16 15Zm30-4 16-15 3 3-15 16Zm4 30 15 16-3 3-16-15Zm-30 4-16 15-3-3 15-16Z"/>
+    <circle cx="64" cy="64" r="20" fill="url(#ceramic-sun-center)"/>
+  </g>
+  <path d="M49 59a16 16 0 0 1 26-7" stroke="#fffdf4" stroke-width="2.3" stroke-linecap="round" opacity=".88"/>
+  <path d="M79 68a16 16 0 0 1-22 11" stroke="#bca17f" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+  <use href="#ceramic-sun-corner"/>
+  <use href="#ceramic-sun-corner" transform="rotate(90 64 64)"/>
+  <use href="#ceramic-sun-corner" transform="rotate(180 64 64)"/>
+  <use href="#ceramic-sun-corner" transform="rotate(270 64 64)"/>
+</svg>

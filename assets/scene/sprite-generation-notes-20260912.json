@@ -1,0 +1,103 @@
+{
+  "created": "2026-09-12",
+  "method": "Built-in image_gen imagegen. Reference files visually inspected before generation. Generated originals copied into staging and mechanically downscaled with macOS sips -Z 384. Pillow used only for read-only dimensions, alpha statistics and bounding boxes. No manual pixel/semantic editing.",
+  "verification": "All final files inspected visually at 384px and verified as RGBA with alpha extrema [0,255]. Use contentBoundsAlphaOver16 for canvas drawImage source rectangles; alpha>0 bounds include nearly invisible padding noise. Otter highly saturated RGB edge pixels have alpha <=2/255 and do not represent opaque colored fringes.",
+  "assets": [
+    {
+      "file": "otter-window.png",
+      "dimensions": [
+        384,
+        339
+      ],
+      "bytes": 183645,
+      "contentBoundsAlphaOver16": {
+        "x": 33,
+        "y": 25,
+        "width": 324,
+        "height": 298
+      },
+      "zeroAlphaPixels": 58469,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "original": "accepted otter-window master (not bundled)",
+      "prompt": "Create a transparent-background PNG cutout sprite: one photorealistic Asian small-clawed otter, front view, just its head, shoulders and two front paws resting at the lower edge. Warm brown fur, cream muzzle, fine whiskers, gentle dark eyes, rounded ears, anatomically small claws. Soft warm indoor lighting. No ledge or objects. Isolated subject only. The background must be truly transparent with an alpha channel, as a production PNG asset. All corners must have alpha zero. Do not draw a checkerboard pattern. No solid color backdrop. No shadow outside the otter. Delicate natural fur edges. Leave transparent padding around the whole subject. No illustration or cartoon.",
+      "references": [],
+      "visualCheck": "Photorealistic warm brown otter head, shoulders and two small-clawed paws; fine fur/whiskers, no sill or background.",
+      "rejectedAttempts": [
+        {
+          "original": "rejected otter-window attempt 1 (not bundled)",
+          "reason": "RGB image with baked checkerboard.",
+          "prompt": "Use case: photorealistic-natural. Asset type: one small transparent PNG website sprite composited into a shophouse window. Generate a photorealistic Asian small-clawed otter viewed straight from the front, peeking with just its head, neck, and two front paws as if resting on an unseen window ledge. The paws sit close together at the bottom edge; the ledge itself must NOT be drawn. Warm brown dense fine fur, slightly damp fur tips, lighter cream-gray muzzle and throat, fine natural whiskers, small rounded ears, dark gentle attentive eyes, realistic small-clawed paws and anatomy. Soft warm indoor side light but neutral enough to blend into day or night. Center the single otter, head and paws fully visible with about 8% transparent padding. Head and shoulders only, no full body, no tail. Reference image is for natural otter realism and warm shophouse light only, do not copy its scene. Actual transparent background with real alpha, including all corners and the open spaces beside the paws; no ground, no sill, no window frame, no scenery, no drop shadow outside the subject. Photographic fur detail and delicate whisker alpha edges, no white fringe, no cartoon, no illustration, no text, no checkerboard baked into image.",
+          "references": [
+            "user-provided shophouse and botanical reference (not bundled)"
+          ]
+        },
+        {
+          "original": "rejected otter-window attempt 2 (not bundled)",
+          "reason": "Transparency-repair edit still returned RGB with baked checkerboard.",
+          "prompt": "Precise background removal edit of the single attached otter image. Preserve the exact existing photorealistic otter head, shoulders, fur, eyes and two front paws, composition, lighting, and all anatomy. Remove EVERY part of the gray-and-white checkerboard, which is currently incorrectly baked into the image. The checkerboard is not part of the subject. Return an actual RGBA PNG file with true zero-alpha transparency surrounding the otter and beneath/beside its paws. The entire rectangular background and all four corners must be transparent pixels. Do not paint a transparency checkerboard or a solid background. Preserve delicate whiskers and natural hair edges with appropriate antialiasing, without gray or white fringe. No additional objects, no sill, no scenery, no text. This request is only to repair transparency; do not redesign the otter."
+        }
+      ]
+    },
+    {
+      "file": "merlion-plush.png",
+      "dimensions": [
+        384,
+        384
+      ],
+      "bytes": 84209,
+      "contentBoundsAlphaOver16": {
+        "x": 114,
+        "y": 18,
+        "width": 154,
+        "height": 354
+      },
+      "zeroAlphaPixels": 107963,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "original": "Merlion plush sprite master (not bundled)",
+      "prompt": "Use case: identity-preserve / background-extraction. Asset type: one real transparent PNG website sprite. Input image 1 is the exact plush identity reference. Reproduce this single white Merlion lion-fish fabric plush faithfully, front view: elongated fish body, subtle stitched scalloped fish scales, divided fish tail at bottom, rounded lion face framed by a scalloped mane, tiny embroidered black dot eyes, black stitched X nose, dotted whisker marks, a short vertical nose seam and curved stitched smile. Preserve its soft handmade proportions and cotton/short-pile fabric texture. Remove the wall, surface, wall shadow, and label/tag, and isolate the whole plush centered, with all of its tail and mane visible. Input image 2 is only for the gentle warm indoor lighting mood, not additional objects or scenery. White fabric remains white, with very subtle warm highlights and enough natural shading to show stitching. Genuine transparent PNG alpha background, transparent corners, clean edge with no white halo or opaque outline, no floating cast shadow, no baked checkerboard. Photorealistic product cutout, no redesign, no mermaid, no cartoon, no new objects, no text.",
+      "references": [
+        "user-provided Merlion plush photograph (not bundled)",
+        "user-provided shophouse and botanical reference (not bundled)"
+      ],
+      "visualCheck": "White soft fabric lion-fish plush matches supplied reference identity: black embroidery, scalloped mane, stitched fish scales and divided tail. Wall and tag removed."
+    },
+    {
+      "file": "trumpet-flower-v2.png",
+      "dimensions": [
+        384,
+        384
+      ],
+      "bytes": 142858,
+      "contentBoundsAlphaOver16": {
+        "x": 24,
+        "y": 34,
+        "width": 339,
+        "height": 317
+      },
+      "zeroAlphaPixels": 87532,
+      "cornerAlpha": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "original": "trumpet-flower-v2 master (not bundled)",
+      "prompt": "Use case: precise-object-edit. Asset type: one photorealistic transparent PNG flower sprite that will float and fall in a website scene. Image 1 is the current flower sprite, whose artificial bright pink five-point star anatomy must be replaced. Image 2 is a scenic mood/reference for warm Singapore realism only; do not copy its stylized star flowers. Make one delicate real pale blush-pink trumpet-tree flower, Tabebuia rosea type. Essential anatomy: one continuous fused funnel-shaped corolla opening into FIVE softly rounded, softly ruffled lobes; petals JOIN into a shallow cupped throat, never five separate spear-shaped petals. Creamy yellow-white throat inside the funnel, tiny fine pink veins, thin translucent tissue, irregular soft petal edges with subtle curls and natural asymmetry. Slightly oblique overhead view of the open flower, with a little depth visible inside the throat, suitable as a loose blossom floating flat on water or drifting down. Pale blush pink and cream, restrained saturation, realistic delicate botanical macro photography. Center the single blossom with approximately 10% transparent padding, no stem, no leaves, no water, no surface, no scene or additional flowers. Actual transparent PNG background with real alpha and clean soft edges, no halo and no baked checkerboard. Not a sakura or plum blossom, not a generic daisy, not frangipani, not a geometric star, not bright neon or artificial plastic.",
+      "references": [
+        "assets/scene/trumpet-flower.png",
+        "user-provided shophouse and botanical reference (not bundled)"
+      ],
+      "visualCheck": "Pale pink, softly ruffled fused trumpet corolla with five lobes, cream funnel throat, fine veins and natural tissue texture; oblique overhead view. No stem, water, or separate star petals."
+    }
+  ]
+}

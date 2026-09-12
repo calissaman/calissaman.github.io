@@ -1,0 +1,67 @@
+[
+  {
+    "title": "We Are Bellingcat",
+    "author": "Eliot Higgins",
+    "isbn": "9781635578478",
+    "edition": "Bloomsbury Publishing, US paperback, 19 April 2022",
+    "sourcePage": "https://academic.macmillan.com/academictrade/9781635578478/wearebellingcat/",
+    "coverUrl": "https://mpd-biblio-covers.imgix.net/9781635578478.jpg?w=450",
+    "localPath": "bellingcat.jpg",
+    "width": 450,
+    "height": 675,
+    "bytes": 27391,
+    "visuallyVerified": true
+  },
+  {
+    "title": "The Book of Tea",
+    "author": "Kakuzo Okakura",
+    "isbn": "9780141191843",
+    "edition": "Penguin Classics paperback, 28 December 2010; introduction by Christopher Benfey",
+    "sourcePage": "https://www.penguinrandomhouse.com/books/308458/the-book-of-tea-by-kakuzo-okakura/",
+    "coverUrl": "https://images1.penguinrandomhouse.com/cover/9780141191843",
+    "localPath": "tea.jpg",
+    "width": 292,
+    "height": 450,
+    "bytes": 29458,
+    "visuallyVerified": true
+  },
+  {
+    "title": "The Idea Factory",
+    "author": "Jon Gertner",
+    "isbn": "9780143122791",
+    "edition": "Penguin Books paperback, 26 February 2013",
+    "sourcePage": "https://www.penguinrandomhouse.com/books/303275/the-idea-factory-by-jon-gertner/",
+    "coverUrl": "https://images3.penguinrandomhouse.com/cover/9780143122791",
+    "localPath": "idea-factory.jpg",
+    "width": 293,
+    "height": 450,
+    "bytes": 49456,
+    "visuallyVerified": true
+  },
+  {
+    "title": "Build",
+    "author": "Tony Fadell",
+    "isbn": "9780552177757",
+    "edition": "Penguin UK paperback, 16 April 2026",
+    "sourcePage": "https://www.penguin.co.uk/books/442426/build-by-fadell-tony/9780552177757",
+    "coverUrl": "https://cdn.penguin.co.uk/dam-assets/books/9780552177757/9780552177757-jacket-large.jpg",
+    "localPath": "build.jpg",
+    "width": 321,
+    "height": 500,
+    "bytes": 63046,
+    "visuallyVerified": true
+  },
+  {
+    "title": "Aesthetic Intelligence",
+    "author": "Pauline Brown",
+    "isbn": "9780062883308",
+    "edition": "Harper Business hardcover; January 2020 per Kinokuniya listing",
+    "sourcePage": "https://kinokuniya.com.sg/products/9780062883308",
+    "coverUrl": "https://kinokuniya.com.sg/cdn/shop/files/9780062883308-1.jpg?v=1781604766",
+    "localPath": "aesthetic-intelligence.jpg",
+    "width": 257,
+    "height": 389,
+    "bytes": 13064,
+    "visuallyVerified": true
+  }
+]
