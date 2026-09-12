@@ -1,0 +1,20 @@
+# Scene v10: Angsana crown flowers
+
+Generated with the built-in image_gen tool as precise edits to the day and night v9 backgrounds. Yellow flower clusters are confined to the upper half of the right Angsana canopy. The lower branches retain green leaves, the bird's nest ferns, trunk, grass, and hydrangea.
+
+Both generated PNG masters were exported as native 1536 × 1024 JPEGs at quality 97, without resizing.
+
+## Saved assets
+
+- `assets/scene/day-v10.jpg`
+- `assets/scene/night-v10.jpg`
+
+The prior v9 backgrounds remain available. Interactive visitors, flowers, water, and table objects retain their existing assets and behavior.
+
+## Day prompt
+
+Use case: precise-object-edit. Edit only the distribution of yellow blossoms on the large ANG SANA / ANGSANA tree framing the RIGHT side of this scene. The small yellow flower clusters should occur ONLY in the UPPER HALF of the visible tree canopy, like a real Angsana crown. Keep the yellow flowers in the upper crown, roughly source y=0–360. Remove EVERY yellow flower cluster below about source y=400 and replace each with ordinary green Angsana leaves matching the existing nearby leaf texture, scale and lighting. Use a natural leafy transition through y=330–400, not a straight horizontal cutoff. The lower half of the tree, around the mid trunk and bird's nest ferns down toward the grass, must have GREEN LEAVES AND FERNS, with NO yellow flowers. Keep the bird's nest ferns themselves, trunk, roots, existing branch shapes, grass, and hydrangea bush intact. Preserve natural warm light on green leaves without making them look like yellow blooms. Change only these low yellow-flower clusters; keep everything else as close to pixel-identical as possible: all three Peranakan shophouse facades and tile detail, green/red trim, blue upstairs windows and shutters, morning glory vine, potted tie shu and separate Tan Hua plant, existing empty cafe tabletop and chairs, hydrangea shape and position, pale pink trumpet flowers on the left, skyline, sky, water, reflections and shoreline. Do not add animals, cups, candles, cocktails, extra plants, structures, lettering, or interfaces. Preserve crisp photographic materials and the original 1536 by 1024 framing, perspective and proportions. This is the DAY artwork. Keep the original daytime light and blue sky exactly as they are.
+
+## Night prompt
+
+Use case: precise-object-edit. Edit only the distribution of yellow blossoms on the large ANG SANA / ANGSANA tree framing the RIGHT side of this scene. The small yellow flower clusters should occur ONLY in the UPPER HALF of the visible tree canopy, like a real Angsana crown. Keep the yellow flowers in the upper crown, roughly source y=0–360. Remove EVERY yellow flower cluster below about source y=400 and replace each with ordinary green Angsana leaves matching the existing nearby leaf texture, scale and lighting. Use a natural leafy transition through y=330–400, not a straight horizontal cutoff. The lower half of the tree, around the mid trunk and bird's nest ferns down toward the grass, must have GREEN LEAVES AND FERNS, with NO yellow flowers. Keep the bird's nest ferns themselves, trunk, roots, existing branch shapes, grass, and hydrangea bush intact. Preserve natural warm light on green leaves without making them look like yellow blooms. Change only these low yellow-flower clusters; keep everything else as close to pixel-identical as possible: all three Peranakan shophouse facades and tile detail, green/red trim, blue upstairs windows and shutters, morning glory vine, potted tie shu and separate Tan Hua plant, existing empty cafe tabletop and chairs, hydrangea shape and position, pale pink trumpet flowers on the left, skyline, sky, water, reflections and shoreline. Do not add animals, cups, candles, cocktails, extra plants, structures, lettering, or interfaces. Preserve crisp photographic materials and the original 1536 by 1024 framing, perspective and proportions. This is the NIGHT artwork. Keep the original dark blue sky, warm window lights and nighttime illumination exactly as they are.

@@ -1,11 +1,27 @@
 import {
   clamp,
-  smooth,
   constrainToWater,
   addRipple,
   breakFlower,
   flowerSize,
 } from "./scene-model.js?v=20260912-29";
+
+export function prepareFlowerImage(
+  image,
+  createCanvas = () => document.createElement("canvas"),
+) {
+  const canvas = createCanvas();
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, 0, 0);
+  const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for (let alpha = 3; alpha < pixels.data.length; alpha += 4) {
+    if (pixels.data[alpha] >= 240) pixels.data[alpha] = 255;
+  }
+  ctx.putImageData(pixels, 0, 0);
+  return canvas;
+}
 
 export function createFlowers({
   stage,
@@ -16,6 +32,10 @@ export function createFlowers({
   isReduced,
   announce,
 }) {
+  const preparedSprites = sprites.map((sprite) => ({
+    ...sprite,
+    image: prepareFlowerImage(sprite.image),
+  }));
   const cancelGestures = [];
   const buttons = sim.flowers.map((flower) => {
     const button = document.createElement("button");
@@ -146,11 +166,11 @@ export function createFlowers({
         }
         button.hidden = !flower.active || flower.breaking;
         if (!flower.active) continue;
-        const sprite = sprites[flower.variant % sprites.length];
+        const sprite = preparedSprites[flower.variant % preparedSprites.length];
         if (button.dataset.view !== sprite.view)
           button.dataset.view = sprite.view;
-        const appearance = smooth(0, 0.9, sim.time - flower.appearedAt);
         ctx.save();
+        ctx.globalCompositeOperation = "source-over";
         ctx.filter = `brightness(${1 - night * 0.3})`;
         if (flower.breaking) {
           const size = flower.fragmentSize;
@@ -159,7 +179,7 @@ export function createFlowers({
             ctx.save();
             ctx.translate(petal.x, petal.y);
             ctx.rotate(petal.angle);
-            ctx.globalAlpha = petal.opacity * 0.98 * appearance;
+            ctx.globalAlpha = petal.opacity;
             ctx.beginPath();
             const originX = (sprite.origin[0] - 0.5) * size;
             const originY =
@@ -186,11 +206,11 @@ export function createFlowers({
             ctx.save();
             ctx.translate(0, size * 0.2);
             ctx.scale(1, 0.25);
-            ctx.globalAlpha = 0.16 * appearance;
+            ctx.globalAlpha = 0.16;
             paintFlower(ctx, size, sprite);
             ctx.restore();
           }
-          ctx.globalAlpha = 0.98 * appearance;
+          ctx.globalAlpha = 1;
           paintFlower(ctx, size, sprite);
           button.style.transform = `translate(${layout.x + flower.x * layout.scale - 22}px,${layout.y + flower.y * layout.scale - 22}px)`;
         }

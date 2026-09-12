@@ -16,10 +16,14 @@ import {
   createRenderer,
   drawWaterFallback,
 } from "./scene-renderer.js?v=20260912-29";
-import { createFlowers } from "./scene-flowers.js?v=20260912-29";
+import { createFlowers } from "./scene-flowers.js?v=20260913-35";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
-import { createWindows } from "./scene-windows.js?v=20260912-29";
+import {
+  createWindows,
+  prepareMerlionImage,
+} from "./scene-windows.js?v=20260913-38";
+import { createGardenVisitor } from "./garden-visitor.js?v=20260913-34";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260912-22";
 import {
@@ -73,8 +77,8 @@ export async function createScene({
   }
   const images = await Promise.allSettled(
     [
-      "day-v9.jpg",
-      "night-v9.jpg",
+      "day-v10.jpg",
+      "night-v10.jpg",
       "trumpet-front-v3.png",
       "trumpet-side-v3.png",
       "bud.png",
@@ -84,7 +88,7 @@ export async function createScene({
       "merlion-plush.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260912-32" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index < 2 ? "20260913-36" : "20260912-27"}`,
       ),
     ),
   );
@@ -230,11 +234,24 @@ export async function createScene({
     stage,
     closedShutters,
     otter,
-    merlion,
+    merlion: merlion ? prepareMerlionImage(merlion) : null,
     announce(message) {
       status.textContent = message;
     },
   });
+  const gardenVisitor = createGardenVisitor({
+    stage,
+    announce(message) {
+      status.textContent = message;
+    },
+  });
+  loadImage("assets/scene/blonde-raccoon.png?v=20260913-34").then(
+    (image) => {
+      gardenVisitor.setImage(image);
+      draw();
+    },
+    () => {},
+  );
   const timeScroller = setupTimeScroller({
     panel: timePanel,
     onTimeChange(minutes) {
@@ -396,6 +413,7 @@ export async function createScene({
       });
     }
     windows.resize(layout);
+    gardenVisitor.resize(layout);
     draw();
   }
   function sourcePoint(e) {
@@ -519,6 +537,7 @@ export async function createScene({
         waterField: waterSurface.frame,
       });
     windows.draw(ctx, displayNight);
+    gardenVisitor.draw(ctx, displayNight);
     drawTableSetting(ctx, tableAssets, {
       minutes: environmentTime,
       time: sim.time,
@@ -561,6 +580,7 @@ export async function createScene({
       : displayMorningGlory +
         (targetMorningGlory - displayMorningGlory) * easing;
     windows.step(easing);
+    gardenVisitor.step(dt, reduced);
     lights.forEach((v, i) => (lights[i] += (lightTargets[i] - v) * easing));
     if (now - lastClock > 1000) {
       syncTime();

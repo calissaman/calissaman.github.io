@@ -17,13 +17,21 @@
       <path d="M18 32c-4-7 1-14 8-14 7 0 11 7 8 12-3 4-9 5-10 1" stroke="#fffdf3" stroke-width="1.5"/>
       <path d="M15 39c6 0 12-2 17-6" stroke="#fff8e8" stroke-width="1.5"/>
     </g>
+    <path id="ceramic-night-star" d="M0-7 2.06-2.83 6.66-2.16 3.33 1.08 4.11 5.66 0 3.5-4.11 5.66-3.33 1.08-6.66-2.16-2.06-2.83Z"/>
   </defs>
   <path d="M31 9H97Q107 9 107 20V21H108Q119 21 119 32V96Q119 107 108 107H107V108Q107 119 96 119H32Q21 119 21 108V107H20Q9 107 9 96V32Q9 21 20 21H21V20Q21 9 31 9ZM35 28Q28 28 28 35V93Q28 100 35 100H93Q100 100 100 93V35Q100 28 93 28Z" fill="url(#ceramic-moon-glaze)" fill-rule="evenodd" stroke="#b99d77" stroke-width="1.1"/>
   <path d="M32 12h64c5 0 8 3 8 8m-92 12v62m20 22h64c5 0 8-3 8-8" stroke="#fffdf4" stroke-width="1.7" stroke-linecap="round" opacity=".85"/>
   <path d="M35 26h58q9 0 9 9v58M26 35v58q0 9 9 9h58" stroke="#c7ae88" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
   <path d="M38 18h52M18 40v48M40 110h48M110 40v48" stroke="#fff9e9" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>
-  <path d="M84 38C62 30 39 44 39 64C39 84 62 98 84 90C67 85 60 75 61 62C62 51 71 42 84 38Z" fill="url(#ceramic-moon-center)" stroke="#fff8e8" stroke-width="1.2" stroke-linejoin="round"/>
-  <path d="M66 38C52 42 44 51 44 64C44 77 54 87 66 89" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <path d="M70 34C48 29 32 45 32 64C32 83 48 99 70 94C56 88 49 77 49 64C49 51 56 40 70 34Z" fill="url(#ceramic-moon-center)" stroke="#fffdf4" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M54 36C42 41 36 52 36 64C36 76 42 87 54 92" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+  <g fill="#fffdf4" stroke="#fffdf4" stroke-width=".5" stroke-linejoin="round">
+    <use href="#ceramic-night-star" transform="translate(84 38) scale(.9)"/>
+    <use href="#ceramic-night-star" transform="translate(89 52) scale(.9)"/>
+    <use href="#ceramic-night-star" transform="translate(81 65)"/>
+    <use href="#ceramic-night-star" transform="translate(90 78) scale(.9)"/>
+    <use href="#ceramic-night-star" transform="translate(85 92) scale(.85)"/>
+  </g>
   <use href="#ceramic-moon-corner"/>
   <use href="#ceramic-moon-corner" transform="rotate(90 64 64)"/>
   <use href="#ceramic-moon-corner" transform="rotate(180 64 64)"/>

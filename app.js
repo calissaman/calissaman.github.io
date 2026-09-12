@@ -1,4 +1,4 @@
-import { createScene } from "./scene.js?v=20260912-32";
+import { createScene } from "./scene.js?v=20260913-38";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 const root = document.documentElement;
@@ -191,7 +191,8 @@ const books = [
     title: "Aesthetic Intelligence",
     meta: "Pauline Brown",
     color: "#b84442",
-    review: "",
+    review:
+      "Understanding what exact aesthetics move people and compel them to act/consume/support a brand is crucial, and those who can truly define what's hot/not will stand out. Essay in the works!",
   },
 ];
 

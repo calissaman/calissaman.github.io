@@ -1,5 +1,22 @@
 import { windowVisitorAt } from "./scene-model.js?v=20260912-29";
 
+export function prepareMerlionImage(
+  image,
+  createCanvas = () => document.createElement("canvas"),
+) {
+  const canvas = createCanvas();
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, 0, 0);
+  const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for (let alpha = 3; alpha < pixels.data.length; alpha += 4) {
+    if (pixels.data[alpha] >= 240) pixels.data[alpha] = 255;
+  }
+  ctx.putImageData(pixels, 0, 0);
+  return canvas;
+}
+
 export function createWindows({
   stage,
   closedShutters,
@@ -17,22 +34,67 @@ export function createWindows({
   );
   green.title = "Open or close the upstairs shutters";
   green.disabled = !closedShutters;
-  const blue = document.createElement("button");
-  blue.type = "button";
-  blue.className = "scene-hotspot blue-window-hotspot";
-  blue.setAttribute(
-    "aria-label",
-    "Look into the blue shophouse upstairs window",
-  );
-  blue.setAttribute("aria-pressed", "false");
-  blue.title = "Take a closer look";
-  stage.append(green, blue);
+  stage.append(green);
+
+  const blueWindows = [
+    {
+      visitor: "otter",
+      name: "A little otter",
+      side: "left",
+      className: "blue-window-hotspot",
+      image: otter,
+      rect: [963, 206, 88, 175],
+      opening: [
+        [1007, 233],
+        [1035, 224],
+        [1036, 371],
+        [1007, 377],
+      ],
+      crop: [33, 25, 324, 298],
+      x: 1007,
+      width: 28,
+      baseline: 374,
+    },
+    {
+      visitor: "merlion",
+      name: "A white Merlion plushie",
+      side: "right",
+      className: "merlion-window-hotspot",
+      image: merlion,
+      rect: [1094, 209, 87, 153],
+      opening: [
+        [1100, 222],
+        [1128, 218],
+        [1130, 353],
+        [1101, 357],
+      ],
+      crop: [114, 18, 154, 354],
+      x: 1101,
+      width: 27,
+      baseline: 355,
+    },
+  ].map((window) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `scene-hotspot ${window.className}`;
+    button.setAttribute(
+      "aria-label",
+      `Look for ${window.visitor === "otter" ? "the otter" : "the Merlion plushie"} in the ${window.side} blue shophouse upstairs window`,
+    );
+    button.setAttribute("aria-pressed", "false");
+    button.title = "Take a closer look";
+    stage.append(button);
+    return {
+      ...window,
+      button,
+      active: false,
+      revealed: false,
+      revealAmount: 0,
+    };
+  });
 
   let closed = false;
   let closedAmount = 0;
-  let visitor = null;
-  let revealed = false;
-  let revealAmount = 0;
   green.addEventListener("click", () => {
     closed = !closed;
     green.setAttribute("aria-pressed", String(closed));
@@ -42,37 +104,46 @@ export function createWindows({
     );
     announce(`The green shophouse shutters are ${closed ? "closed" : "open"}.`);
   });
-  blue.addEventListener("click", () => {
-    if (visitor && !(visitor === "otter" ? otter : merlion)) {
+  for (const window of blueWindows) {
+    window.button.addEventListener("click", () => {
+      if (!window.active) {
+        announce(
+          `The ${window.side} blue upstairs window is quiet at this hour.`,
+        );
+        return;
+      }
+      if (!window.image) {
+        announce(
+          "The blue upstairs visitor is unavailable because its image could not load.",
+        );
+        return;
+      }
+      window.revealed = !window.revealed;
+      window.button.setAttribute("aria-pressed", String(window.revealed));
       announce(
-        "The blue upstairs visitor is unavailable because its image could not load.",
+        `${window.name} ${window.revealed ? "peeks out from" : "settles back inside"} the ${window.side} blue upstairs window.`,
       );
-      return;
-    }
-    revealed = visitor ? !revealed : false;
-    blue.setAttribute("aria-pressed", String(revealed));
-    announce(
-      visitor
-        ? `${visitor === "otter" ? "A little otter" : "A white Merlion plushie"} ${revealed ? "peeks out from" : "settles back inside"} the blue upstairs window.`
-        : "The blue upstairs window is quiet at this hour.",
-    );
-  });
+    });
+  }
 
   return {
     update(minutes) {
-      const nextVisitor = windowVisitorAt(minutes);
-      if (nextVisitor !== visitor) {
-        visitor = nextVisitor;
-        revealed = false;
-        revealAmount = 0;
-        blue.setAttribute("aria-pressed", "false");
+      const visitor = windowVisitorAt(minutes);
+      for (const window of blueWindows) {
+        const active = visitor === window.visitor;
+        if (active !== window.active) {
+          window.active = active;
+          window.revealed = false;
+          window.revealAmount = 0;
+          window.button.setAttribute("aria-pressed", "false");
+        }
+        window.button.dataset.visitor = active ? window.visitor : "none";
       }
-      blue.dataset.visitor = visitor || "none";
     },
     resize(layout) {
       for (const [button, rect] of [
         [green, [444, 279, 194, 151]],
-        [blue, [963, 206, 88, 175]],
+        ...blueWindows.map((window) => [window.button, window.rect]),
       ]) {
         const [x, y, width, height] = rect;
         Object.assign(button.style, {
@@ -85,7 +156,10 @@ export function createWindows({
     },
     step(easing) {
       closedAmount += (Number(closed) - closedAmount) * easing;
-      revealAmount += (Number(revealed) - revealAmount) * easing;
+      for (const window of blueWindows) {
+        window.revealAmount +=
+          (Number(window.revealed) - window.revealAmount) * easing;
+      }
     },
     draw(ctx, night) {
       if (closedShutters && closedAmount > 0.001) {
@@ -102,33 +176,42 @@ export function createWindows({
         ctx.drawImage(closedShutters, 434, 267, 212, 170);
         ctx.restore();
       }
-      const image =
-        visitor === "otter" ? otter : visitor === "merlion" ? merlion : null;
-      if (!image) return;
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(1007, 233);
-      ctx.lineTo(1035, 224);
-      ctx.lineTo(1036, 371);
-      ctx.lineTo(1007, 377);
-      ctx.closePath();
-      ctx.clip();
-      const width = 28;
-      const crop =
-        visitor === "otter" ? [33, 25, 324, 298] : [114, 18, 154, 354];
-      const height = (width * crop[3]) / crop[2];
-      const concealed = height * 0.58 * (1 - revealAmount);
-      ctx.globalAlpha = 0.88;
-      ctx.filter = `brightness(${0.86 + night * 0.1})`;
-      ctx.drawImage(
-        image,
-        ...crop,
-        1007,
-        374 - height + concealed,
-        width,
-        height,
-      );
-      ctx.restore();
+      for (const window of blueWindows) {
+        if (!window.active || !window.image) continue;
+        ctx.save();
+        ctx.beginPath();
+        window.opening.forEach(([x, y], index) => {
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.clip();
+        if (window.visitor === "merlion") {
+          const recess = ctx.createLinearGradient(1100, 218, 1130, 357);
+          recess.addColorStop(0, "#0b1c24");
+          recess.addColorStop(0.6, "#122a31");
+          recess.addColorStop(1, "#1b292a");
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = recess;
+          ctx.fillRect(1100, 218, 30, 139);
+        }
+        const height = (window.width * window.crop[3]) / window.crop[2];
+        const concealed = height * 0.58 * (1 - window.revealAmount);
+        ctx.globalAlpha = window.visitor === "merlion" ? 1 : 0.88;
+        ctx.filter =
+          window.visitor === "merlion"
+            ? "none"
+            : `brightness(${0.86 + night * 0.1})`;
+        ctx.drawImage(
+          window.image,
+          ...window.crop,
+          window.x,
+          window.baseline - height + concealed,
+          window.width,
+          height,
+        );
+        ctx.restore();
+      }
     },
   };
 }
