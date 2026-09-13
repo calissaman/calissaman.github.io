@@ -1,4 +1,4 @@
-import { createScene } from "./scene.js?v=20260913-68";
+import { createScene } from "./scene.js?v=20260913-69";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 const root = document.documentElement;

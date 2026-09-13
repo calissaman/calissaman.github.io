@@ -33,6 +33,10 @@ import {
 import { prepareFacadeScene } from "./scene-facade.js?v=20260913-65";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-68";
+import {
+  createDaylightEffects,
+  daylightAt,
+} from "./daylight-effects.js?v=20260913-69";
 import { createSceneDetails } from "./scene-details.js?v=20260913-68";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
@@ -297,6 +301,7 @@ export async function createScene({
   }
   const sim = createSimulation();
   const waterSurface = createWaterSurface();
+  const daylightEffects = createDaylightEffects();
   let down = null;
   const resolution = createSceneResolution();
   const media = matchMedia("(prefers-reduced-motion: reduce)");
@@ -325,6 +330,8 @@ export async function createScene({
       : minutesInZone(new Date(), city),
     targetNight = nightAt(environmentTime),
     displayNight = targetNight,
+    targetDaylight = daylightAt(environmentTime),
+    displayDaylight = targetDaylight,
     targetBloom = bloomAt(environmentTime),
     displayBloom = targetBloom,
     targetMorningGlory = morningGloryAt(environmentTime),
@@ -416,6 +423,7 @@ export async function createScene({
   function syncTime() {
     if (live) environmentTime = minutesInZone(new Date(), city);
     targetNight = nightAt(environmentTime);
+    targetDaylight = daylightAt(environmentTime);
     targetBloom = bloomAt(environmentTime);
     targetMorningGlory = morningGloryAt(environmentTime);
     clockValue.textContent = formatMinutes(environmentTime);
@@ -521,7 +529,10 @@ export async function createScene({
     height = stage.clientHeight;
     layout = sceneLayout(width, height);
     details.resize(layout, window.devicePixelRatio || 1);
-    if (geometryChanged) waterSurface.resize({ width, height, layout });
+    if (geometryChanged) {
+      waterSurface.resize({ width, height, layout });
+      daylightEffects.resize({ width, height, layout });
+    }
     pixelRatio = resolution.resize(
       { width, height, dpr: window.devicePixelRatio || 1 },
       performance.now(),
@@ -672,6 +683,12 @@ export async function createScene({
         waterField: waterSurface.frame,
       });
     details.draw(displayNight);
+    daylightEffects.draw(ctx, {
+      time: sim.time,
+      daylight: displayDaylight,
+      reduced,
+      waterField: waterSurface.frame,
+    });
     lighting.draw(ctx, displayNight);
     yellowWindows.draw(ctx, displayNight);
     windows.draw(ctx, displayNight);
@@ -716,6 +733,7 @@ export async function createScene({
     if (flower) maintainWaterFlowers(sim);
     const easing = 1 - Math.exp(-Math.min(dt, 0.05) * (reduced ? 16 : 4));
     displayNight += (targetNight - displayNight) * easing;
+    displayDaylight += (targetDaylight - displayDaylight) * easing;
     displayBloom += (targetBloom - displayBloom) * easing;
     displayMorningGlory = reduced
       ? targetMorningGlory
