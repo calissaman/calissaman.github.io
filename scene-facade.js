@@ -1,5 +1,82 @@
-import { drawFacadePanels } from "./facade-panels.js?v=20260913-62";
+import {
+  drawFacadePanels,
+  FACADE_PANELS,
+} from "./facade-panels.js?v=20260913-62";
 import { drawMatchingYellowShutters } from "./yellow-windows.js?v=20260913-65";
+
+export function drawBlueWindowTrim(ctx, image) {
+  if (!image) return;
+  ctx.save();
+  ctx.beginPath();
+  trace(ctx, [
+    [937, 160],
+    [1167, 110],
+    [1167, 366],
+    [1179, 405],
+    [1176, 437],
+    [1190, 474],
+    [1190, 490],
+    [937, 505],
+  ]);
+  ctx.clip();
+  for (const hole of [
+    [
+      [970, 237],
+      [1051, 217],
+      [1051, 374],
+      [970, 388],
+    ],
+    [
+      [1087, 197],
+      [1188, 179],
+      [1188, 370],
+      [1087, 384],
+    ],
+    ...FACADE_PANELS.filter((panel) => panel.house === "blue").map(
+      (panel) => panel.quad,
+    ),
+  ]) {
+    ctx.beginPath();
+    ctx.rect(925, 40, 345, 465);
+    trace(ctx, hole);
+    ctx.clip("evenodd");
+  }
+  ctx.beginPath();
+  ctx.rect(925, 40, 345, 465);
+  ctx.moveTo(971, 233);
+  ctx.lineTo(971, 214);
+  ctx.bezierCurveTo(975, 194, 1008, 176, 1038, 192);
+  ctx.lineTo(1043, 198);
+  ctx.lineTo(1043, 221);
+  ctx.closePath();
+  ctx.clip("evenodd");
+  ctx.beginPath();
+  ctx.rect(925, 40, 345, 465);
+  ctx.moveTo(1092, 218);
+  ctx.lineTo(1092, 190);
+  ctx.bezierCurveTo(1112, 164, 1154, 151, 1176, 167);
+  ctx.lineTo(1185, 185);
+  ctx.lineTo(1185, 202);
+  ctx.closePath();
+  ctx.clip("evenodd");
+  ctx.drawImage(image, 925, 40, 345, 465);
+  ctx.restore();
+}
+
+export function drawMatchingBlueShutter(ctx, image) {
+  if (!image) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(1027, 216);
+  ctx.lineTo(1049, 224);
+  ctx.lineTo(1049, 369);
+  ctx.lineTo(1027, 363);
+  ctx.closePath();
+  ctx.clip();
+  ctx.drawImage(image, 948, 205, 128, 192);
+  ctx.restore();
+}
+
 export const FACADE_RECT = Object.freeze({
   x: 425,
   y: 185,
@@ -91,7 +168,7 @@ export function traceGreenWindows(ctx) {
 
 export async function prepareFacadeScene(
   original,
-  { floral, wallLamp, panels, planter, night = false },
+  { floral, wallLamp, panels, planter, blueShutter, blueTrim, night = false },
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -118,8 +195,10 @@ export async function prepareFacadeScene(
   if (wallLamp) {
     ctx.drawImage(wallLamp, WALL_LAMP_RECT.x, WALL_LAMP_RECT.y);
   }
+  drawBlueWindowTrim(ctx, blueTrim);
   if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });
   drawMatchingYellowShutters(ctx);
+  drawMatchingBlueShutter(ctx, blueShutter);
   if (planter) drawCleanPlanter(ctx, planter, createCanvas);
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));

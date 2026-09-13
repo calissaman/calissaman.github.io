@@ -31,7 +31,7 @@ export const SCENE_LIGHTS = [
   {
     id: "blue-upper-left",
     name: "left blue upstairs window light",
-    rect: [973, 231, 66, 145],
+    rect: [973, 220, 80, 156],
     target: [973, 231, 66, 86],
   },
   {

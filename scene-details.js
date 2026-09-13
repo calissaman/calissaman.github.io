@@ -4,6 +4,10 @@ import {
 } from "./bistro-scene.js?v=20260914-75";
 import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
 import { drawMorningGloryVine } from "./morning-glory.js?v=20260914-75";
+import {
+  drawMatchingBlueShutter,
+  drawBlueWindowTrim,
+} from "./scene-facade.js?v=20260914-76";
 
 const RECT = { x: 410, y: 0, width: 860, height: 832 };
 const OUTLINE = [
@@ -26,6 +30,8 @@ export function createSceneDetails({
   bistro,
   pillars = [],
   vines = [],
+  blueShutters = [],
+  blueTrim = [],
 }) {
   if (!day || !night) return { resize() {}, draw() {} };
   const canvas = document.createElement("canvas");
@@ -90,6 +96,14 @@ export function createSceneDetails({
       for (const [i, image] of vines.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawMorningGloryVine(ctx, image);
+      }
+      for (const [i, image] of blueTrim.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawBlueWindowTrim(ctx, image);
+      }
+      for (const [i, image] of blueShutters.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawMatchingBlueShutter(ctx, image);
       }
       if (portrait) {
         ctx.globalAlpha = 1;
