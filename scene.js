@@ -54,7 +54,7 @@ import {
   createTreeBlooms,
   TREE_HOTSPOTS,
 } from "./tree-blooms.js?v=20260913-67";
-import { prepareTreeScene } from "./tree-art.js?v=20260913-63";
+import { prepareTreeScene } from "./tree-art.js?v=20260913-71";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -133,9 +133,11 @@ export async function createScene({
       "angsana-flower.png",
       "yellow-window-interior.png",
       "bistro-room-consistent.png",
+      "park-frangipani-day.png",
+      "park-frangipani-night.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -163,16 +165,18 @@ export async function createScene({
     angsanaFlower,
     yellowInterior,
     bistroRoom,
+    parkDay,
+    parkNight,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
   const panels = { green: panelGreen, cream: panelCream, blue: panelBlue };
   let day = originalDay,
     night = originalNight;
-  if (day && night && canopyDay && canopyNight) {
+  if (day && night) {
     [day, night] = await Promise.all([
-      prepareTreeScene(day, canopyDay),
-      prepareTreeScene(night, canopyNight),
+      prepareTreeScene(day, canopyDay, parkDay),
+      prepareTreeScene(night, canopyNight, parkNight),
     ]);
   }
   if (day && night) {
