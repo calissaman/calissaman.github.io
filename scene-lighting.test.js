@@ -85,12 +85,20 @@ test("each lamp and window switches independently and restores exactly on the ne
   const f = fixture(t);
   assert.equal(new Set(f.buttons.map((b) => b.dataset.light)).size, 26);
   for (const button of f.buttons) {
+    const baseline = painted(f.lighting, 1);
     assert.equal(button.type, "button");
     button.click();
     f.lighting.step(1);
     assert.equal(button.getAttribute("aria-pressed"), "false");
-    assert.deepEqual(painted(f.lighting, 1), [button.dataset.light + "-night"]);
-    assert.deepEqual(painted(f.lighting, 0), [button.dataset.light + "-day"]);
+    const id = button.dataset.light + "-night";
+    const expected = baseline.includes(id)
+      ? baseline.filter((p) => p !== id)
+      : [...baseline, id];
+    assert.deepEqual(painted(f.lighting, 1).sort(), expected.sort());
+    assert.deepEqual(
+      painted(f.lighting, 0).sort(),
+      expected.map((p) => p.replace(/-night$/, "-day")).sort(),
+    );
     assert.ok(
       f.buttons
         .filter((b) => b !== button)
@@ -98,7 +106,7 @@ test("each lamp and window switches independently and restores exactly on the ne
     );
     button.click();
     f.lighting.step(1);
-    assert.deepEqual(painted(f.lighting, 1), []);
+    assert.deepEqual(painted(f.lighting, 1), baseline);
   }
 });
 
@@ -127,12 +135,35 @@ test("switches retain their chosen state across day and night changes", (t) => {
   f.lighting.update(720);
   f.lighting.step(1);
   assert.deepEqual(
-    painted(f.lighting, 0).filter((id) => !id.startsWith("street-")),
+    painted(f.lighting, 0).filter(
+      (id) => !id.startsWith("street-") && !id.startsWith("tutu-"),
+    ),
     ["blue-upper-left-day"],
   );
   f.lighting.update(1320);
   f.lighting.step(1);
-  assert.deepEqual(painted(f.lighting, 1), ["blue-upper-left-night"]);
+  assert.deepEqual(
+    painted(f.lighting, 1).filter((id) => !id.startsWith("tutu-")),
+    ["blue-upper-left-night"],
+  );
+});
+
+test("each tutu kueh lamp loses its glow when switched off and retains that choice through the day", (t) => {
+  const f = fixture(t);
+  assert.ok(painted(f.lighting, 1).includes("tutu-shelf-night"));
+  assert.ok(painted(f.lighting, 1).includes("tutu-counter-night"));
+  f.button("tutu-shelf").click();
+  for (const minutes of [0, 240, 720, 1080, 1439]) {
+    f.lighting.update(minutes);
+    f.lighting.step(1);
+    assert.equal(f.button("tutu-shelf").getAttribute("aria-pressed"), "false");
+    assert.equal(f.button("tutu-counter").getAttribute("aria-pressed"), "true");
+    assert.ok(!painted(f.lighting, 0).includes("tutu-shelf-day"));
+    assert.ok(painted(f.lighting, 0).includes("tutu-counter-day"));
+  }
+  f.button("tutu-shelf").click();
+  f.lighting.step(1);
+  assert.ok(painted(f.lighting, 0).includes("tutu-shelf-day"));
 });
 
 test("table lighting follows the bistro fixtures without changing other switches", (t) => {

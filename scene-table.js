@@ -1,6 +1,6 @@
 export const KOPI_CUPS = Object.freeze([
-  { x: 1058, baseY: 713, width: 31, steamY: 692.5 },
-  { x: 1095, baseY: 713.8, width: 32, steamY: 692.8 },
+  { x: 1062, baseY: 712, width: 26, steamY: 691 },
+  { x: 1094, baseY: 710.8, width: 25, steamY: 690.5 },
 ]);
 
 export const NIGHT_TABLE_RECT = Object.freeze({

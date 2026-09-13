@@ -21,7 +21,7 @@ import {
   createSceneLighting,
   prepareLightPatches,
   SCENE_LIGHTS,
-} from "./scene-lighting.js?v=20260913-64";
+} from "./scene-lighting.js?v=20260913-66";
 import { createYellowWindows } from "./yellow-windows.js?v=20260913-65";
 import { createFlowers } from "./scene-flowers.js?v=20260913-63";
 import { setupAudio } from "./audio.js?v=20260912-6";
@@ -32,7 +32,7 @@ import {
 } from "./scene-windows.js?v=20260913-60";
 import { prepareFacadeScene } from "./scene-facade.js?v=20260913-65";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
-import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
+import { prepareBistroScene } from "./bistro-scene.js?v=20260913-66";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -43,7 +43,7 @@ import {
   drawTableSetting,
   prepareTableImage,
   prepareDinnerSprite,
-} from "./scene-table.js?v=20260913-56";
+} from "./scene-table.js?v=20260913-66";
 
 import {
   createTreeBlooms,
@@ -87,11 +87,11 @@ export async function createScene({
     unlitTable: null,
   };
   for (const [key, file] of [
-    ["kopiCup", "kopi-cup-level.png"],
+    ["kopiCup", "kopi-cup-low-view.png"],
     ["dinner", "tiffin-cocktails.png"],
   ]) {
     loadImage(
-      `assets/scene/${file}?v=${key === "kopiCup" ? "20260913-54" : "20260913-55"}`,
+      `assets/scene/${file}?v=${key === "kopiCup" ? "20260913-66" : "20260913-55"}`,
     ).then(
       (image) => {
         if (key === "kopiCup") tableAssets.kopiCup = prepareTableImage(image);
@@ -128,9 +128,10 @@ export async function createScene({
       "canopy-night.png",
       "angsana-flower.png",
       "yellow-window-interior.png",
+      "bistro-room-consistent.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -157,6 +158,7 @@ export async function createScene({
     canopyNight,
     angsanaFlower,
     yellowInterior,
+    bistroRoom,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
@@ -191,8 +193,11 @@ export async function createScene({
   if (day && night && bistroDayPatch && bistroNightPatch) {
     try {
       [day, night] = await Promise.all([
-        prepareBistroScene(day, bistroDayPatch),
-        prepareBistroScene(night, bistroNightPatch),
+        prepareBistroScene(day, bistroDayPatch, { shared: bistroRoom }),
+        prepareBistroScene(night, bistroNightPatch, {
+          shared: bistroRoom,
+          night: true,
+        }),
       ]);
     } catch (error) {
       console.warn("Bistro artwork patches could not load.", error);

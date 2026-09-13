@@ -97,24 +97,32 @@ export const SCENE_LIGHTS = [
     bistro: true,
   },
   {
-    id: "bistro-shelf",
-    name: "bistro shelf lamp",
-    rect: [1175, 600, 23, 27],
-    ellipse: true,
+    id: "tutu-shelf",
+    name: "shelf tutu kueh lamp",
+    rect: [1147, 598, 35, 33],
+    target: [1156, 606, 19, 19],
+    dome: [1165, 615, 8, 6],
     bistro: true,
   },
   {
     id: "bistro-candle-left",
-    name: "left bistro counter candle",
-    rect: [1138, 665, 18, 27],
+    name: "bistro counter candles",
+    rect: [1138, 660, 34, 31],
+    bulbs: [
+      [1147, 682, 5, 7],
+      [1163, 671, 7, 12],
+    ],
+    hitClipX: [0, 1173],
     ellipse: true,
     bistro: true,
   },
   {
-    id: "bistro-candle-right",
-    name: "right bistro counter candle",
-    rect: [1180, 665, 18, 27],
-    ellipse: true,
+    id: "tutu-counter",
+    name: "counter tutu kueh lamp",
+    rect: [1163, 659, 38, 34],
+    target: [1172, 669, 23, 20],
+    dome: [1182.5, 677.7, 9, 6],
+    hitClipX: [1173, 1536],
     bistro: true,
   },
   ...[
@@ -134,12 +142,63 @@ export function lightButtonRect(light, layout) {
   const [x, y, width, height] = light.target || light.rect;
   const w = Math.max(24, width * layout.scale);
   const h = Math.max(24, height * layout.scale);
+  const left = layout.x + (x + width / 2) * layout.scale - w / 2;
   return {
-    left: `${layout.x + (x + width / 2) * layout.scale - w / 2}px`,
+    left: `${left}px`,
     top: `${layout.y + (y + height / 2) * layout.scale - h / 2}px`,
     width: `${w}px`,
     height: `${h}px`,
+    ...(light.hitClipX && {
+      clipPath: `inset(0 ${Math.max(0, left + w - layout.x - light.hitClipX[1] * layout.scale)}px 0 ${Math.max(0, layout.x + light.hitClipX[0] * layout.scale - left)}px)`,
+    }),
   };
+}
+
+function prepareTutuGlow(image, light, night, createCanvas) {
+  const [x, y, width, height] = light.rect;
+  const [cx, cy, rx, ry] = light.dome;
+  const canvas = createCanvas();
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
+  const pixels = ctx.getImageData(0, 0, width, height);
+  for (let py = 0; py < height; py++)
+    for (let px = 0; px < width; px++) {
+      const i = (py * width + px) * 4;
+      const [r, g, b] = pixels.data.slice(i, i + 3);
+      const distance = Math.hypot((x + px - cx) / rx, (y + py - cy) / ry);
+      const mask =
+        clamp((b - 140) / 45, 0, 1) *
+        clamp((45 - Math.abs(r - g)) / 18, 0, 1) *
+        clamp((1.08 - distance) * 8, 0, 1);
+      const shade = 0.85 + ((r + g + b) / (3 * 255)) * 0.15;
+      pixels.data.set(
+        [
+          255 * shade,
+          (night ? 223 : 243) * shade,
+          (night ? 150 : 205) * shade,
+          mask * (night ? 230 : 195),
+        ],
+        i,
+      );
+    }
+  ctx.putImageData(pixels, 0, 0);
+  ctx.globalCompositeOperation = "destination-over";
+  const halo = ctx.createRadialGradient(
+    cx - x,
+    cy - y,
+    1,
+    cx - x,
+    cy - y,
+    rx * 2.2,
+  );
+  halo.addColorStop(0, `rgba(255,203,112,${night ? 0.48 : 0.2})`);
+  halo.addColorStop(0.45, `rgba(255,190,94,${night ? 0.18 : 0.07})`);
+  halo.addColorStop(1, "rgba(255,190,94,0)");
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, width, height);
+  return canvas;
 }
 
 export function unlitPixel(r, g, b, night) {
@@ -183,6 +242,13 @@ export function prepareLightPatches(
 ) {
   return new Map(
     SCENE_LIGHTS.map((light) => {
+      if (light.dome)
+        return [
+          light.id,
+          [false, true].map((night) =>
+            prepareTutuGlow(day, light, night, createCanvas),
+          ),
+        ];
       const patches = [day, night].map((image, mode) => {
         const [x, y, width, height] = light.rect;
         const canvas = createCanvas();
@@ -225,24 +291,24 @@ export function prepareLightPatches(
               );
             } else {
               const rgb = pixels.data.slice(i, i + 3);
-              const distance = Math.hypot(
-                (px + 0.5 - width / 2) / (width / 2),
-                (py + 0.5 - height / 2) / (height / 2),
-              );
+              const distance = light.bulbs
+                ? Math.min(
+                    ...light.bulbs.map(([cx, cy, rx, ry]) =>
+                      Math.hypot(
+                        (x + px + 0.5 - cx) / rx,
+                        (y + py + 0.5 - cy) / ry,
+                      ),
+                    ),
+                  )
+                : Math.hypot(
+                    (px + 0.5 - width / 2) / (width / 2),
+                    (py + 0.5 - height / 2) / (height / 2),
+                  );
               const rgba = light.ellipse
                 ? unlitLampPixel(...rgb, mode === 1, distance)
                 : unlitPixel(...rgb, mode === 1);
               const edge = light.ellipse
-                ? clamp(
-                    (1 -
-                      Math.hypot(
-                        (px + 0.5 - width / 2) / (width / 2),
-                        (py + 0.5 - height / 2) / (height / 2),
-                      )) *
-                      4,
-                    0,
-                    1,
-                  )
+                ? clamp((1 - distance) * 4, 0, 1)
                 : Math.min(
                     1,
                     px / 2,
@@ -324,20 +390,20 @@ export function createSceneLighting({ stage, patches, announce }) {
     },
     draw(ctx, night) {
       for (const state of switches) {
-        const off = 1 - state.amount;
-        if (off < 0.001) continue;
+        const strength = state.light.dome ? state.amount : 1 - state.amount;
+        if (strength < 0.001) continue;
         const [dayPatch, nightPatch] = patches.get(state.light.id);
         const [x, y] = state.light.rect;
         ctx.save();
         ctx.globalCompositeOperation = "source-over";
-        ctx.globalAlpha = off;
+        ctx.globalAlpha = strength;
         // The day and night patches share a mask; paint one weighted frame.
         if (night <= 0.001) ctx.drawImage(dayPatch, x, y);
         else if (night >= 0.999) ctx.drawImage(nightPatch, x, y);
         else {
-          ctx.globalAlpha = off * (1 - night);
+          ctx.globalAlpha = strength * (1 - night);
           ctx.drawImage(dayPatch, x, y);
-          ctx.globalAlpha = off * night;
+          ctx.globalAlpha = strength * night;
           ctx.drawImage(nightPatch, x, y);
         }
         ctx.restore();
