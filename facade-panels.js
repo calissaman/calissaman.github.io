@@ -100,7 +100,11 @@ export function panelProjection(quad) {
 export function drawFacadePanels(
   ctx,
   images,
-  { night = false, createCanvas = () => document.createElement("canvas") } = {},
+  {
+    night = false,
+    pixelRatio = 1,
+    createCanvas = () => document.createElement("canvas"),
+  } = {},
 ) {
   const textures = new Map();
   for (const [house, image] of Object.entries(images)) {
@@ -120,15 +124,18 @@ export function drawFacadePanels(
     const width = Math.ceil(Math.max(...panel.quad.map((p) => p[0]))) - x;
     const height = Math.ceil(Math.max(...panel.quad.map((p) => p[1]))) - y;
     const canvas = createCanvas();
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = width * pixelRatio;
+    canvas.height = height * pixelRatio;
     const paint = canvas.getContext("2d"),
-      pixels = paint.createImageData(width, height);
+      pixels = paint.createImageData(canvas.width, canvas.height);
     const project = panelProjection(panel.quad);
     const light = night ? [0.66, 0.58, 0.49] : [0.98, 0.97, 0.94];
-    for (let py = 0; py < height; py++)
-      for (let px = 0; px < width; px++) {
-        const [u, v] = project(x + px + 0.5, y + py + 0.5);
+    for (let py = 0; py < canvas.height; py++)
+      for (let px = 0; px < canvas.width; px++) {
+        const [u, v] = project(
+          x + (px + 0.5) / pixelRatio,
+          y + (py + 0.5) / pixelRatio,
+        );
         if (u < 0 || u > 1 || v < 0 || v > 1) continue;
         // Mirror the same half-pattern; both members of a pair share one texture.
         const sx = Math.min(u, 1 - u) * 511,
@@ -137,7 +144,7 @@ export function drawFacadePanels(
           iy = Math.floor(sy),
           fx = sx - ix,
           fy = sy - iy;
-        const i = (py * width + px) * 4;
+        const i = (py * canvas.width + px) * 4;
         for (let k = 0; k < 3; k++) {
           const top =
             texture[(iy * 512 + ix) * 4 + k] * (1 - fx) +
@@ -162,7 +169,7 @@ export function drawFacadePanels(
       ctx.closePath();
       ctx.clip();
     }
-    ctx.drawImage(canvas, x, y);
+    ctx.drawImage(canvas, x, y, width, height);
     ctx.restore();
   }
 }

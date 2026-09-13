@@ -1,3 +1,4 @@
+import { drawPinkVineJoin } from "./pink-facade.js?v=20260914-77";
 import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
 import { drawMorningGloryVine } from "./morning-glory.js?v=20260914-75";
 
@@ -67,7 +68,7 @@ function paintRegion(
 export async function prepareBistroScene(
   original,
   patch,
-  { shared, pillar, vine, night = false } = {},
+  { shared, pillar, vine, pinkVineJoin, night = false } = {},
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -83,6 +84,7 @@ export async function prepareBistroScene(
       paintRegion(ctx, shared, rect, createCanvas, { cropped: true, night });
   drawBluePillar(ctx, pillar);
   drawMorningGloryVine(ctx, vine);
+  drawPinkVineJoin(ctx, pinkVineJoin);
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);

@@ -30,14 +30,14 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-60";
-import { prepareFacadeScene } from "./scene-facade.js?v=20260914-76";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260914-77";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
-import { prepareBistroScene } from "./bistro-scene.js?v=20260914-75";
+import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
   createDaylightEffects,
   daylightAt,
 } from "./daylight-effects.js?v=20260913-69";
-import { createSceneDetails } from "./scene-details.js?v=20260914-76";
+import { createSceneDetails } from "./scene-details.js?v=20260914-77";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -126,7 +126,7 @@ export async function createScene({
       "wall-lamp-day-removed.png",
       "wall-lamp-night-removed.png",
       "panel-green-symmetric.png",
-      "panel-cream-symmetric.png",
+      "panel-pink-rosette.png",
       "panel-blue-orange.png",
       "canopy-day-v2.png",
       "canopy-night-v2.png",
@@ -145,9 +145,13 @@ export async function createScene({
       "blue-shutter-night-matched.png",
       "blue-window-trim-day.png",
       "blue-window-trim-night.png",
+      "pink-window-trim-day.png",
+      "pink-window-trim-night.png",
+      "pink-vine-join-day.png",
+      "pink-vine-join-night.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -187,6 +191,10 @@ export async function createScene({
     blueShutterNight,
     blueTrimDay,
     blueTrimNight,
+    pinkTrimDay,
+    pinkTrimNight,
+    pinkVineJoinDay,
+    pinkVineJoinNight,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
@@ -209,6 +217,7 @@ export async function createScene({
           planter: planterDay,
           blueShutter: blueShutterDay,
           blueTrim: blueTrimDay,
+          pinkTrim: pinkTrimDay,
         }),
         prepareFacadeScene(night, {
           floral: facadeNightPatch,
@@ -217,6 +226,7 @@ export async function createScene({
           planter: planterNight,
           blueShutter: blueShutterNight,
           blueTrim: blueTrimNight,
+          pinkTrim: pinkTrimNight,
           night: true,
         }),
       ]);
@@ -231,11 +241,13 @@ export async function createScene({
           shared: bistroRoom,
           pillar: pillarDay,
           vine: vineDay,
+          pinkVineJoin: pinkVineJoinDay,
         }),
         prepareBistroScene(night, bistroNightPatch, {
           shared: bistroRoom,
           pillar: pillarNight,
           vine: vineNight,
+          pinkVineJoin: pinkVineJoinNight,
           night: true,
         }),
       ]);
@@ -391,6 +403,9 @@ export async function createScene({
     vines: [vineDay, vineNight],
     blueShutters: [blueShutterDay, blueShutterNight],
     blueTrim: [blueTrimDay, blueTrimNight],
+    pinkTrim: [pinkTrimDay, pinkTrimNight],
+    pinkPanel: panelCream,
+    pinkVineJoins: [pinkVineJoinDay, pinkVineJoinNight],
   });
   const lightPatches = prepareLightPatches({
     day: dayOn,

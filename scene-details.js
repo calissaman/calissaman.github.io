@@ -1,13 +1,18 @@
+import { drawFacadePanels } from "./facade-panels.js?v=20260914-77";
+import {
+  drawPinkWindowTrim,
+  drawPinkVineJoin,
+} from "./pink-facade.js?v=20260914-77";
 import {
   BISTRO_ROOM_RECT,
   prepareBistroDetails,
-} from "./bistro-scene.js?v=20260914-75";
+} from "./bistro-scene.js?v=20260914-77";
 import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
 import { drawMorningGloryVine } from "./morning-glory.js?v=20260914-75";
 import {
   drawMatchingBlueShutter,
   drawBlueWindowTrim,
-} from "./scene-facade.js?v=20260914-76";
+} from "./scene-facade.js?v=20260914-77";
 
 const RECT = { x: 410, y: 0, width: 860, height: 832 };
 const OUTLINE = [
@@ -32,6 +37,9 @@ export function createSceneDetails({
   vines = [],
   blueShutters = [],
   blueTrim = [],
+  pinkTrim = [],
+  pinkPanel,
+  pinkVineJoins = [],
 }) {
   if (!day || !night) return { resize() {}, draw() {} };
   const canvas = document.createElement("canvas");
@@ -41,6 +49,18 @@ export function createSceneDetails({
   const ctx = canvas.getContext("2d");
   const bistroImages = bistro
     ? [prepareBistroDetails(bistro), prepareBistroDetails(bistro, true)]
+    : [];
+  const pinkPanels = pinkPanel
+    ? [false, true].map((night) => {
+        const panel = document.createElement("canvas");
+        panel.width = 600;
+        panel.height = 210;
+        const paint = panel.getContext("2d");
+        paint.scale(3, 3);
+        paint.translate(-685, -400);
+        drawFacadePanels(paint, { cream: pinkPanel }, { night, pixelRatio: 3 });
+        return panel;
+      })
     : [];
   let geometry = "",
     lastTone = -1,
@@ -93,9 +113,21 @@ export function createSceneDetails({
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawBluePillar(ctx, image);
       }
+      for (const [i, image] of pinkTrim.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawPinkWindowTrim(ctx, image);
+      }
+      for (const [i, image] of pinkPanels.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        ctx.drawImage(image, 685, 400, 200, 70);
+      }
       for (const [i, image] of vines.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawMorningGloryVine(ctx, image);
+      }
+      for (const [i, image] of pinkVineJoins.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawPinkVineJoin(ctx, image);
       }
       for (const [i, image] of blueTrim.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;

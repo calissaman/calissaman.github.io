@@ -1,0 +1,3 @@
+Use case: lighting-weather.
+Image 1 is the EDIT TARGET with the correct continuous floral band behind the fresh green vine. Image 2 is ONLY the nighttime lighting reference.
+Relight image 1 to match image 2's warm, darker nighttime masonry, softer shadowed green leaves and darker blue column. Preserve image 1's exact crop, every leaf, vein, stem, tendril, flower pattern, white floral ceramic ground, pink borders, ivory moldings and perspective. Retain the repaired continuous flower-and-leaf band; do not restore any geometric pebble mosaic or vertical seam from image 2. Do not change any shapes or alignments. No text or added objects. Same full 10:9 crop.

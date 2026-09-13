@@ -1,7 +1,8 @@
+import { drawPinkWindowTrim } from "./pink-facade.js?v=20260914-77";
 import {
   drawFacadePanels,
   FACADE_PANELS,
-} from "./facade-panels.js?v=20260913-62";
+} from "./facade-panels.js?v=20260914-77";
 import { drawMatchingYellowShutters } from "./yellow-windows.js?v=20260913-65";
 
 export function drawBlueWindowTrim(ctx, image) {
@@ -168,7 +169,16 @@ export function traceGreenWindows(ctx) {
 
 export async function prepareFacadeScene(
   original,
-  { floral, wallLamp, panels, planter, blueShutter, blueTrim, night = false },
+  {
+    floral,
+    wallLamp,
+    panels,
+    planter,
+    blueShutter,
+    blueTrim,
+    pinkTrim,
+    night = false,
+  },
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -196,6 +206,7 @@ export async function prepareFacadeScene(
     ctx.drawImage(wallLamp, WALL_LAMP_RECT.x, WALL_LAMP_RECT.y);
   }
   drawBlueWindowTrim(ctx, blueTrim);
+  drawPinkWindowTrim(ctx, pinkTrim);
   if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });
   drawMatchingYellowShutters(ctx);
   drawMatchingBlueShutter(ctx, blueShutter);
