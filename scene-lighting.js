@@ -20,11 +20,13 @@ export const SCENE_LIGHTS = [
     id: "cream-upper-left",
     name: "left cream upstairs window light",
     rect: [690, 260, 77, 147],
+    target: [694, 222, 69, 30],
   },
   {
     id: "cream-upper-right",
     name: "right cream upstairs window light",
     rect: [806, 244, 78, 151],
+    target: [810, 204, 69, 32],
   },
   {
     id: "blue-upper-left",
@@ -68,6 +70,7 @@ export const SCENE_LIGHTS = [
     id: "cream-window",
     name: "cream ground-floor window light",
     rect: [703, 578, 72, 101],
+    target: [703, 521, 72, 32],
   },
   {
     id: "blue-breeze-block",
@@ -308,6 +311,9 @@ export function createSceneLighting({ stage, patches, announce }) {
       switches.forEach((state) => {
         state.amount += (Number(state.on) - state.amount) * easing;
       });
+    },
+    amountFor(id) {
+      return switches.find((state) => state.light.id === id).amount;
     },
     get bistroLight() {
       const cafe = switches.filter((state) => state.light.bistro);

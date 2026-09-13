@@ -20,7 +20,9 @@ import {
 import {
   createSceneLighting,
   prepareLightPatches,
-} from "./scene-lighting.js?v=20260913-60";
+  SCENE_LIGHTS,
+} from "./scene-lighting.js?v=20260913-64";
+import { createYellowWindows } from "./yellow-windows.js?v=20260913-64";
 import { createFlowers } from "./scene-flowers.js?v=20260913-63";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
@@ -125,9 +127,10 @@ export async function createScene({
       "canopy-day.png",
       "canopy-night.png",
       "angsana-flower.png",
+      "yellow-window-interior.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -153,6 +156,7 @@ export async function createScene({
     canopyDay,
     canopyNight,
     angsanaFlower,
+    yellowInterior,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
@@ -329,20 +333,33 @@ export async function createScene({
     range = hero.querySelector("#environment-time"),
     mode = hero.querySelector(".time-mode"),
     status = hero.querySelector(".scene-status");
+  const lightPatches = prepareLightPatches({
+    day: dayOn,
+    night: nightOn,
+    dayOff: day,
+    nightOff: night,
+  });
   const lighting = createSceneLighting({
     stage,
-    patches: prepareLightPatches({
-      day: dayOn,
-      night: nightOn,
-      dayOff: day,
-      nightOff: night,
-    }),
+    patches: lightPatches,
     announce(message) {
       status.textContent = message;
     },
   });
   lighting.update(environmentTime);
   lighting.step(1);
+  const yellowWindows = createYellowWindows({
+    stage,
+    day: dayOn,
+    night: nightOn,
+    interior: yellowInterior,
+    lightPatches,
+    lights: SCENE_LIGHTS,
+    getLightAmount: (id) => lighting.amountFor(id),
+    announce: (message) => {
+      status.textContent = message;
+    },
+  });
   const windows = createWindows({
     stage,
     closedShutters,
@@ -526,6 +543,7 @@ export async function createScene({
     }
     windows.resize(layout);
     lighting.resize(layout);
+    yellowWindows.resize(layout);
     gardenVisitor.resize(layout);
     draw();
   }
@@ -641,6 +659,7 @@ export async function createScene({
         waterField: waterSurface.frame,
       });
     lighting.draw(ctx, displayNight);
+    yellowWindows.draw(ctx, displayNight);
     windows.draw(ctx, displayNight);
     drawTableSetting(ctx, tableAssets, {
       night: displayNight,
@@ -691,6 +710,7 @@ export async function createScene({
     windows.step(easing);
     gardenVisitor.step(dt, reduced);
     lighting.step(easing);
+    yellowWindows.step(easing, reduced);
     if (now - lastClock > 1000) {
       syncTime();
       lastClock = now;
