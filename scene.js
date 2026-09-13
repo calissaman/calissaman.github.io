@@ -37,7 +37,8 @@ import {
 import {
   drawTableSetting,
   prepareTableImage,
-} from "./scene-table.js?v=20260912-32";
+  prepareDinnerPatch,
+} from "./scene-table.js?v=20260913-46";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -67,22 +68,36 @@ export async function createScene({
     },
     () => {},
   );
-  const tableAssets = { kopiCup: null, nightTable: null };
+  const tableAssets = {
+    kopiCup: null,
+    nightTable: null,
+    dayTable: null,
+    unlitTable: null,
+  };
   for (const [key, file] of [
     ["kopiCup", "kopi-cup.png"],
-    ["nightTable", "night-table.png"],
+    ["nightTable", "dinner-night-patch.jpg"],
+    ["dayTable", "dinner-day-patch.jpg"],
   ]) {
-    loadImage(`assets/scene/${file}?v=20260912-32`).then(
+    loadImage(
+      `assets/scene/${file}?v=${key === "kopiCup" ? "20260912-32" : "20260913-46"}`,
+    ).then(
       (image) => {
-        tableAssets[key] = prepareTableImage(image);
+        tableAssets[key] = prepareTableImage(
+          key === "kopiCup" ? image : prepareDinnerPatch(image),
+        );
+        if (key === "dayTable")
+          tableAssets.unlitTable = prepareTableImage(
+            prepareDinnerPatch(image, { unlit: true }),
+          );
       },
       () => {},
     );
   }
   const images = await Promise.allSettled(
     [
-      "day-v11.jpg",
-      "night-v11.jpg",
+      "day-v12.png",
+      "night-v12.png",
       "trumpet-front-v3.png",
       "trumpet-side-v3.png",
       "bud.png",
@@ -92,7 +107,7 @@ export async function createScene({
       "merlion-plush.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260913-40" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : "20260912-27"}`,
       ),
     ),
   );
@@ -577,6 +592,8 @@ export async function createScene({
     windows.draw(ctx, displayNight);
     gardenVisitor.draw(ctx, displayNight);
     drawTableSetting(ctx, tableAssets, {
+      night: displayNight,
+      bistroLight: lights[0],
       minutes: environmentTime,
       time: sim.time,
       reduced,

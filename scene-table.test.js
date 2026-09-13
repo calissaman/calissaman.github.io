@@ -11,6 +11,8 @@ import {
 const assets = {
   kopiCup: { id: "coffee", width: 400, height: 320 },
   nightTable: { id: "night", width: 700, height: 250 },
+  dayTable: { id: "dayDinner", width: 160, height: 56 },
+  unlitTable: { id: "unlitDinner", width: 160, height: 56 },
 };
 
 function normalizationFixture(image, alphas = [253]) {
@@ -197,6 +199,41 @@ test("solid objects stay opaque despite inherited alpha and restore the shared d
     assert.equal(ctx.strokeStyle, "#123456");
     assert.equal(ctx.lineWidth, 7);
     assert.equal(ctx.lineCap, "butt");
+  }
+});
+
+test("dinner follows the scene lighting without fading or doubling the dishes", () => {
+  for (const [night, expected] of [
+    [0, "dayDinner"],
+    [0.49, "dayDinner"],
+    [0.5, "night"],
+    [1, "night"],
+  ]) {
+    const ctx = recorder();
+    drawTableSetting(ctx, assets, { minutes: 1080, time: 0, night });
+    assert.equal(ctx.sprites.length, 1);
+    assert.equal(ctx.sprites[0].image.id, expected);
+    assert.equal(ctx.sprites[0].alpha, 1);
+    assert.equal(ctx.sprites[0].composite, "source-over");
+  }
+});
+
+test("turning off the cafe lights darkens dinner at night without hiding the dishes", () => {
+  for (const [night, bistroLight, expected] of [
+    [1, 0, "unlitDinner"],
+    [1, 1, "night"],
+    [0, 0, "dayDinner"],
+  ]) {
+    const ctx = recorder();
+    drawTableSetting(ctx, assets, {
+      minutes: 1200,
+      time: 0,
+      night,
+      bistroLight,
+    });
+    assert.equal(ctx.sprites.length, 1);
+    assert.equal(ctx.sprites[0].image.id, expected);
+    assert.equal(ctx.sprites[0].alpha, 1);
   }
 });
 

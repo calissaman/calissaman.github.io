@@ -5,10 +5,49 @@ export const KOPI_CUPS = Object.freeze([
 
 export const NIGHT_TABLE_RECT = Object.freeze({
   x: 1008,
-  y: 670,
-  width: 118,
-  height: 48,
+  y: 662,
+  width: 160,
+  height: 56,
 });
+
+export function prepareDinnerPatch(image, { unlit = false } = {}) {
+  const rect = NIGHT_TABLE_RECT;
+  const canvas = document.createElement("canvas");
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(
+    image,
+    rect.x,
+    rect.y,
+    rect.width,
+    rect.height,
+    0,
+    0,
+    rect.width,
+    rect.height,
+  );
+  if (unlit) {
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = "rgb(22% 29% 37%)";
+    ctx.fillRect(0, 0, rect.width, rect.height);
+  }
+  ctx.globalCompositeOperation = "destination-in";
+  for (const [x0, y0, x1, y1] of [
+    [0, 0, rect.width, 0],
+    [0, 0, 0, rect.height],
+  ]) {
+    const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+    const fade = 3 / (x1 || y1);
+    gradient.addColorStop(0, "transparent");
+    gradient.addColorStop(fade, "white");
+    gradient.addColorStop(1 - fade, "white");
+    gradient.addColorStop(1, "transparent");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, rect.width, rect.height);
+  }
+  return canvas;
+}
 
 const preparedImages = new WeakMap();
 
@@ -80,14 +119,20 @@ function drawSteam(ctx, time, reduced) {
 export function drawTableSetting(
   ctx,
   assets,
-  { minutes, time, reduced = false },
+  { minutes, time, reduced = false, night = 1, bistroLight = 1 },
 ) {
   const setting = tableSettingAt(minutes);
+  const dinner =
+    night < 0.5
+      ? assets.dayTable
+      : bistroLight < 0.5
+        ? assets.unlitTable
+        : assets.nightTable;
   const source =
     setting === "coffee"
       ? assets.kopiCup
       : setting === "night"
-        ? assets.nightTable
+        ? dinner || assets.nightTable
         : null;
   if (!source) return;
   const image = prepareTableImage(source);
