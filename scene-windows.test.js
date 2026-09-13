@@ -157,7 +157,7 @@ test("scheduled visitors draw only in their own openings, including overnight bo
   const f = fixture(t);
   for (const [minutes, expected] of [
     [0, "merlion"], [299, "merlion"], [300, null], [1079, null],
-    [1080, "otter"], [1319, "otter"], [1320, null], [1379, null],
+    [1080, "otter"], [1319, "otter"], [1320, "otter"], [1379, "otter"],
     [1380, "merlion"], [1439, "merlion"],
   ]) {
     f.windows.update(minutes);

@@ -113,7 +113,12 @@ void main(){
  gl_FragColor=vec4(color,1.);
 }`;
 
-export function createRenderer(canvas, day, night) {
+export function createRenderer(
+  canvas,
+  day,
+  night,
+  { dayOn = day, nightOn = night } = {},
+) {
   const gl = canvas.getContext("webgl", {
     alpha: false,
     antialias: false,
@@ -147,9 +152,13 @@ export function createRenderer(canvas, day, night) {
   const pos = gl.getAttribLocation(program, "position");
   gl.enableVertexAttribArray(pos);
   gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const unlitImages = [day, night];
+  const sceneTextures = [];
+  let streetState = false;
   [day, night].forEach((img, i) => {
     gl.activeTexture(gl.TEXTURE0 + i);
     const t = gl.createTexture();
+    sceneTextures.push(t);
     gl.bindTexture(gl.TEXTURE_2D, t);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -193,8 +202,25 @@ export function createRenderer(canvas, day, night) {
       night,
       reduced,
       lights,
+      streetLights = false,
       waterField,
     }) {
+      if (streetLights !== streetState) {
+        const images = streetLights ? [dayOn, nightOn] : unlitImages;
+        images.forEach((image, i) => {
+          gl.activeTexture(gl.TEXTURE0 + i);
+          gl.bindTexture(gl.TEXTURE_2D, sceneTextures[i]);
+          gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGB,
+            gl.RGB,
+            gl.UNSIGNED_BYTE,
+            image,
+          );
+        });
+        streetState = streetLights;
+      }
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(locations.size, width, height);
       gl.uniform3f(locations.layout, layout.x, layout.y, layout.scale);

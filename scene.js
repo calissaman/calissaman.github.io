@@ -1,4 +1,8 @@
 import {
+  prepareStreetScene,
+  streetLightsAt,
+} from "./street-scene.js?v=20260913-43";
+import {
   nightAt,
   bloomAt,
   minutesInZone,
@@ -15,7 +19,7 @@ import {
 import {
   createRenderer,
   drawWaterFallback,
-} from "./scene-renderer.js?v=20260912-29";
+} from "./scene-renderer.js?v=20260913-43";
 import { createFlowers } from "./scene-flowers.js?v=20260913-35";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
@@ -93,8 +97,8 @@ export async function createScene({
     ),
   );
   const [
-    day,
-    night,
+    originalDay,
+    originalNight,
     flowerFront,
     flowerSide,
     bud,
@@ -105,6 +109,32 @@ export async function createScene({
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
+  let day = originalDay,
+    night = originalNight;
+  let dayOn = originalDay,
+    nightOn = originalNight;
+  if (day && night) {
+    try {
+      const [dayPatch, nightPatch] = await Promise.all([
+        loadImage("assets/scene/street-day-patch.jpg?v=20260913-43"),
+        loadImage("assets/scene/street-night-patch.jpg?v=20260913-43"),
+      ]);
+      [day, night, dayOn, nightOn] = await Promise.all([
+        prepareStreetScene(originalDay, dayPatch, { lit: false, night: false }),
+        prepareStreetScene(originalNight, nightPatch, {
+          lit: false,
+          night: true,
+        }),
+        prepareStreetScene(originalDay, dayPatch, { lit: true, night: false }),
+        prepareStreetScene(originalNight, nightPatch, {
+          lit: true,
+          night: true,
+        }),
+      ]);
+    } catch (error) {
+      console.warn("Street artwork patches could not load.", error);
+    }
+  }
   const flower = flowerFront || flowerSide;
   const sprites = [
     {
@@ -152,7 +182,7 @@ export async function createScene({
   }
   let renderer;
   try {
-    renderer = createRenderer(canvas, day, night);
+    renderer = createRenderer(canvas, day, night, { dayOn, nightOn });
   } catch (error) {
     console.warn("Using static scene fallback.", error);
   }
@@ -505,6 +535,10 @@ export async function createScene({
       ripples: sim.ripples,
       rippleCursor: sim.rippleCursor,
     });
+    const streetLights = streetLightsAt(environmentTime);
+    const streetDay = streetLights ? dayOn : day;
+    const streetNight = streetLights ? nightOn : night;
+    stage.dataset.streetLights = streetLights ? "on" : "off";
     if (renderer)
       renderer.render({
         width,
@@ -514,9 +548,13 @@ export async function createScene({
         night: displayNight,
         reduced,
         lights,
+        streetLights,
         waterField: waterSurface.frame,
       });
     if (!renderer) {
+      if (fallback.src !== streetDay.src) fallback.src = streetDay.src;
+      if (nightFallback.src !== streetNight.src)
+        nightFallback.src = streetNight.src;
       nightFallback.style.opacity = String(displayNight);
       stage.style.background = `rgb(${Math.round(79 - displayNight * 75)},${Math.round(163 - displayNight * 140)},${Math.round(212 - displayNight * 164)})`;
     }
@@ -526,8 +564,8 @@ export async function createScene({
     ctx.scale(layout.scale, layout.scale);
     if (!renderer)
       drawWaterFallback(ctx, {
-        day,
-        nightImage: night,
+        day: streetDay,
+        nightImage: streetNight,
         layout,
         width,
         height,
@@ -645,7 +683,7 @@ export async function createScene({
   });
   canvas.addEventListener("webglcontextrestored", () => {
     try {
-      renderer = createRenderer(canvas, day, night);
+      renderer = createRenderer(canvas, day, night, { dayOn, nightOn });
     } catch (error) {
       renderer = null;
       console.warn(error);
