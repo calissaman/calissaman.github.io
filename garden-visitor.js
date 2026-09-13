@@ -1,6 +1,6 @@
-const SPRITE_X = 1090;
-const SPRITE_TOP = 650;
-const SPRITE_WIDTH = 108;
+const SPRITE_X = 1108.9;
+const SPRITE_TOP = 706.7;
+const SPRITE_WIDTH = 70.2;
 const STEP_OUT = 140;
 const DURATION = 0.6;
 
@@ -109,7 +109,7 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
         x + SPRITE_WIDTH * 0.6,
         y + spriteHeight * 0.977,
         SPRITE_WIDTH * 0.31,
-        3,
+        1.95,
         0,
         0,
         Math.PI * 2,

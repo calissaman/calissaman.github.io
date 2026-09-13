@@ -153,13 +153,13 @@ test("activation steps out quietly in about 0.6 seconds, and a second activation
   assert.equal(f.button.getAttribute("aria-pressed"), "true");
   assert.match(f.button.getAttribute("aria-label"), /^Hide/);
   assert.equal(draw(f.visitor).length, 0);
-  let previousY = 664;
-  let previousX = 1230;
+  let previousY = 720.7;
+  let previousX = 1248.9;
   for (let i = 0; i < 6; i++) {
     f.visitor.step(0.1, false);
     const sprite = draw(f.visitor)[0];
     assert.ok(
-      sprite.y <= previousY && sprite.y >= 650,
+      sprite.y <= previousY && sprite.y >= 706.7,
       "step must be monotonic without overshoot or bounce",
     );
     assert.equal(
@@ -167,11 +167,11 @@ test("activation steps out quietly in about 0.6 seconds, and a second activation
       1,
       "reveal should move opaque fur, not fade it in",
     );
-    assert.ok(sprite.x <= previousX && sprite.x >= 1090);
+    assert.ok(sprite.x <= previousX && sprite.x >= 1108.9);
     previousX = sprite.x;
     previousY = sprite.y;
   }
-  assert.ok(Math.abs(previousY - 650) < 1e-9);
+  assert.ok(Math.abs(previousY - 706.7) < 1e-9);
   f.button.click();
   assert.equal(f.button.getAttribute("aria-pressed"), "false");
   f.visitor.step(0.6, false);
@@ -186,15 +186,15 @@ test("reduced motion settles reveal and conceal at dt zero, including mid-transi
   f.visitor.setImage(fakeImage());
   f.button.click();
   f.visitor.step(0.15, false);
-  assert.ok(draw(f.visitor)[0].y > 650);
+  assert.ok(draw(f.visitor)[0].y > 706.7);
   f.visitor.step(0, true);
-  assert.equal(draw(f.visitor)[0].y, 650);
+  assert.equal(draw(f.visitor)[0].y, 706.7);
   f.button.click();
   f.visitor.step(0, true);
   assert.equal(draw(f.visitor).length, 0);
   f.button.click();
   f.visitor.step(0, true);
-  assert.equal(draw(f.visitor)[0].y, 650);
+  assert.equal(draw(f.visitor)[0].y, 706.7);
 });
 
 test("rapid reversal is continuous and a zero-delta resume leaves the current position intact", (t) => {
@@ -244,7 +244,7 @@ test("day/night and resize retain reveal, while target bounds include the head a
     ) < 1e-9,
   );
   assert.ok(
-    parseFloat(top) <= 650 * layout.scale + layout.y,
+    parseFloat(top) <= 706.7 * layout.scale + layout.y,
     "the revealed head must remain clickable",
   );
   assert.equal(
@@ -254,16 +254,18 @@ test("day/night and resize retain reveal, while target bounds include the head a
   );
 });
 
-test("the complete raccoon fits inside the reveal without cropping its face or feet", (t) => {
+test("the raccoon is 35% smaller with its full face and feet inside the reveal", (t) => {
   const f = fixture(t);
   f.visitor.setImage(fakeImage());
   f.button.click();
   f.visitor.step(0, true);
   const sprite = draw(f.visitor)[0];
-  assert.equal(sprite.x, 1090);
-  assert.equal(sprite.y, 650);
-  assert.equal(sprite.width, 108);
-  assert.equal(sprite.height, 162);
+  assert.equal(sprite.x, 1108.9);
+  assert.equal(sprite.y, 706.7);
+  assert.ok(Math.abs(sprite.width - 108 * 0.65) < 1e-9);
+  assert.ok(Math.abs(sprite.height - 162 * 0.65) < 1e-9);
+  assert.equal(sprite.y + sprite.height, 812, "feet stay on the same ground");
+  assert.equal(sprite.x + sprite.width / 2, 1144, "the body stays centred");
   assert.equal(sprite.composite, "source-over");
   const xs = sprite.clip.map(([x]) => x);
   const ys = sprite.clip.map(([, y]) => y);
@@ -271,7 +273,7 @@ test("the complete raccoon fits inside the reveal without cropping its face or f
   assert.ok(sprite.x + sprite.width <= Math.max(...xs));
   assert.ok(sprite.y >= Math.min(...ys));
   assert.ok(sprite.y + sprite.height <= Math.max(...ys));
-  assert.equal(sprite.width / sprite.height, 1024 / 1536);
+  assert.ok(Math.abs(sprite.width / sprite.height - 1024 / 1536) < 1e-9);
 });
 
 test("null resets safely and never leaves a clickable missing visitor", (t) => {

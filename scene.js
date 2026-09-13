@@ -27,7 +27,7 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-51";
-import { createGardenVisitor } from "./garden-visitor.js?v=20260913-52";
+import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
@@ -303,7 +303,7 @@ export async function createScene({
       status.textContent = message;
     },
   });
-  loadImage("assets/scene/blonde-raccoon-full.png?v=20260913-52").then(
+  loadImage("assets/scene/blonde-raccoon-cream.png?v=20260913-57").then(
     (image) => {
       gardenVisitor.setImage(image);
       draw();
