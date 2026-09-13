@@ -39,7 +39,7 @@ import {
   drawTableSetting,
   prepareTableImage,
   prepareDinnerSprite,
-} from "./scene-table.js?v=20260913-55";
+} from "./scene-table.js?v=20260913-56";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
