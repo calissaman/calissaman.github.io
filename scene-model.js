@@ -54,7 +54,7 @@ export function formatMinutes(minutes) {
   return `${h % 12 || 12}:${String(Math.floor(minutes) % 60).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`;
 }
 export function windowVisitorAt(minutes) {
-  if (minutes >= 18 * 60 && minutes < 22 * 60) return "otter";
+  if (minutes >= 18 * 60 && minutes < 23 * 60) return "otter";
   if (minutes >= 23 * 60 || minutes < 5 * 60) return "merlion";
   return null;
 }

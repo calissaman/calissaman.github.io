@@ -1,4 +1,4 @@
-import { windowVisitorAt } from "./scene-model.js?v=20260912-29";
+import { windowVisitorAt } from "./scene-model.js?v=20260913-42";
 
 export function prepareMerlionImage(
   image,

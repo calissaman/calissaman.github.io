@@ -22,7 +22,7 @@ import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
 import {
   createWindows,
   prepareMerlionImage,
-} from "./scene-windows.js?v=20260913-38";
+} from "./scene-windows.js?v=20260913-42";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-34";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";

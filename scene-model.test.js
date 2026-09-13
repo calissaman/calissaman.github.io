@@ -29,8 +29,8 @@ test("the blue window visitor follows the evening and overnight schedules", () =
     [1079, null],
     [1080, "otter"],
     [1319, "otter"],
-    [1320, null],
-    [1379, null],
+    [1320, "otter"],
+    [1379, "otter"],
     [1380, "merlion"],
     [1439, "merlion"],
   ])
