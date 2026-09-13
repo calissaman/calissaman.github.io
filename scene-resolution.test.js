@@ -22,15 +22,21 @@ function viewport(width = 623, height = 734, dpr = 2) {
   };
 }
 
-test("starts at native density up to DPR 2 and a six-million-pixel budget", () => {
+test("uses native DPR 3 on phones while retaining desktop density and the six-million-pixel budget", () => {
   assert.equal(viewport().ratio, 2);
-  assert.equal(viewport(390, 844, 3).ratio, 2);
+  const phone = viewport(390, 844, 3);
+  assert.equal(phone.ratio, 3);
+  assert.deepEqual([390 * phone.ratio, 844 * phone.ratio], [1170, 2532]);
+  assert.equal(viewport(390, 844, 4).ratio, 3);
+  assert.equal(viewport(1440, 900, 2).ratio, 2);
   assert.equal(viewport(1440, 900, 1).ratio, 1);
-  for (const [width, height] of [
-    [1920, 1080],
-    [6000, 4000],
+  for (const [width, height, dpr] of [
+    [768, 1024, 3],
+    [1920, 1080, 2],
+    [1920, 1080, 3],
+    [6000, 4000, 3],
   ]) {
-    const { ratio } = viewport(width, height, 2);
+    const { ratio } = viewport(width, height, dpr);
     assert.ok(width * height * ratio ** 2 <= 6_000_000 + 1e-6);
     assert.equal(ratio, Math.sqrt(6_000_000 / (width * height)));
   }
@@ -55,6 +61,15 @@ test("sustained slow cadence lowers one step and healthy cadence restores it", (
   assert.equal(run.frames(2200, 34), 1.75);
   assert.equal(run.frames(1700, 34), 1.75);
   assert.equal(run.frames(9500, 16), 2);
+});
+
+test("DPR 3 retains warmup and adapts gradually back to native density", () => {
+  const run = viewport(390, 844, 3);
+  assert.equal(run.frames(1800, 34), 3);
+  run.frames(2200, 16);
+  assert.equal(run.frames(2200, 34), 2.75);
+  assert.equal(run.frames(1700, 34), 2.75);
+  assert.equal(run.frames(9500, 16), 3);
 });
 
 test("continued load respects the retina floor and can recover every step", () => {
@@ -102,7 +117,7 @@ test("viewport and DPR changes recompute the ceiling and restart warmup", () => 
   );
   assert.equal(
     run.resolution.resize({ width: 714, height: 734, dpr: 3 }, now),
-    2,
+    3,
   );
   const budgeted = run.resolution.resize(
     { width: 1920, height: 1080, dpr: 2 },

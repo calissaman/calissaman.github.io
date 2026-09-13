@@ -25,7 +25,7 @@ import {
 } from "./scene-windows.js?v=20260913-38";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-34";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
-import { createSceneResolution } from "./scene-resolution.js?v=20260912-22";
+import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
   morningGloryAt,
   drawMorningGlory,
@@ -77,8 +77,8 @@ export async function createScene({
   }
   const images = await Promise.allSettled(
     [
-      "day-v10.jpg",
-      "night-v10.jpg",
+      "day-v11.jpg",
+      "night-v11.jpg",
       "trumpet-front-v3.png",
       "trumpet-side-v3.png",
       "bud.png",
@@ -88,7 +88,7 @@ export async function createScene({
       "merlion-plush.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260913-36" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index < 2 ? "20260913-40" : "20260912-27"}`,
       ),
     ),
   );

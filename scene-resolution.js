@@ -25,7 +25,7 @@ export function createSceneResolution() {
         dimensions = next;
         ceiling = Math.min(
           dpr,
-          2,
+          3,
           Math.sqrt(6_000_000 / Math.max(1, width * height)),
         );
         floor = Math.min(ceiling, dpr > 1 ? 1.25 : 1);
