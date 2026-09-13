@@ -1,7 +1,8 @@
 import {
   BISTRO_ROOM_RECT,
   prepareBistroDetails,
-} from "./bistro-scene.js?v=20260913-68";
+} from "./bistro-scene.js?v=20260914-74";
+import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
 
 const RECT = { x: 410, y: 0, width: 860, height: 832 };
 const OUTLINE = [
@@ -17,7 +18,13 @@ const OUTLINE = [
   [425, 781],
 ];
 
-export function createSceneDetails({ stage, day, night, bistro }) {
+export function createSceneDetails({
+  stage,
+  day,
+  night,
+  bistro,
+  pillars = [],
+}) {
   if (!day || !night) return { resize() {}, draw() {} };
   const canvas = document.createElement("canvas");
   canvas.className = "scene-details";
@@ -73,6 +80,10 @@ export function createSceneDetails({ stage, day, night, bistro }) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         const { x, y, width, height } = BISTRO_ROOM_RECT;
         ctx.drawImage(image, x, y, width, height);
+      }
+      for (const [i, image] of pillars.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawBluePillar(ctx, image);
       }
       if (portrait) {
         ctx.globalAlpha = 1;

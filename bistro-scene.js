@@ -1,3 +1,5 @@
+import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
+
 export const BISTRO_EDIT_REGIONS = Object.freeze([
   { x: 842, y: 639, width: 127, height: 176 },
   { x: 1030, y: 555, width: 171, height: 148 },
@@ -64,7 +66,7 @@ function paintRegion(
 export async function prepareBistroScene(
   original,
   patch,
-  { shared, night = false } = {},
+  { shared, pillar, night = false } = {},
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -78,6 +80,7 @@ export async function prepareBistroScene(
   if (shared)
     for (const rect of BISTRO_SHARED_REGIONS)
       paintRegion(ctx, shared, rect, createCanvas, { cropped: true, night });
+  drawBluePillar(ctx, pillar);
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);
