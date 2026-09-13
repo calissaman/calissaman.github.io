@@ -119,14 +119,15 @@ function recorder() {
   };
 }
 
-test("selected hours switch atomically between coffee, an empty table and night drinks", () => {
+test("daytime keeps both kopi cups until the table switches to night drinks", () => {
   for (const [minutes, setting, count] of [
     [0, "night", 1],
     [359.99, "night", 1],
     [360, "coffee", 2],
     [719.99, "coffee", 2],
-    [720, "empty", 0],
-    [1079.99, "empty", 0],
+    [720, "coffee", 2],
+    [900, "coffee", 2],
+    [1079.99, "coffee", 2],
     [1080, "night", 1],
     [1439.99, "night", 1],
   ]) {
@@ -185,7 +186,7 @@ test("prepared images are reused across both cups, repeated frames and already p
 });
 
 test("solid objects stay opaque despite inherited alpha and restore the shared drawing state", () => {
-  for (const minutes of [360, 660, 1080, 1439]) {
+  for (const minutes of [360, 660, 720, 900, 1079, 1080, 1439]) {
     const ctx = recorder();
     drawTableSetting(ctx, assets, { minutes, time: 2 });
     for (const sprite of ctx.sprites) {
@@ -273,13 +274,13 @@ test("the two coffee cups and single night arrangement retain their source propo
   );
 });
 
-test("morning steam rises quietly with simulation time and is static in reduced motion", () => {
+test("afternoon steam rises quietly with simulation time and is static in reduced motion", () => {
   const a = recorder(),
     b = recorder(),
     quietA = recorder(),
     quietB = recorder();
-  drawTableSetting(a, assets, { minutes: 480, time: 1.2 });
-  drawTableSetting(b, assets, { minutes: 480, time: 2.2 });
+  drawTableSetting(a, assets, { minutes: 900, time: 1.2 });
+  drawTableSetting(b, assets, { minutes: 900, time: 2.2 });
   assert.deepEqual(
     a.sprites,
     b.sprites,
@@ -292,8 +293,8 @@ test("morning steam rises quietly with simulation time and is static in reduced 
     assert.ok(cup.steamY - finalY >= 18 && cup.steamY - finalY <= 30);
     assert.ok(stroke.alpha > 0 && stroke.alpha <= 0.25);
   }
-  drawTableSetting(quietA, assets, { minutes: 480, time: 0, reduced: true });
-  drawTableSetting(quietB, assets, { minutes: 480, time: 200, reduced: true });
+  drawTableSetting(quietA, assets, { minutes: 900, time: 0, reduced: true });
+  drawTableSetting(quietB, assets, { minutes: 900, time: 200, reduced: true });
   assert.deepEqual(quietA.strokes, quietB.strokes);
   assert.deepEqual(quietA.sprites, quietB.sprites);
   assert.ok(
@@ -301,20 +302,19 @@ test("morning steam rises quietly with simulation time and is static in reduced 
   );
 });
 
-test("an empty setting or missing optional sprite never draws the other setting", () => {
+test("a missing optional sprite never draws the other setting", () => {
   const untouched = new Proxy(
     {},
     {
       get() {
-        throw new Error("empty setting touched the canvas");
+        throw new Error("missing sprite touched the canvas");
       },
     },
   );
-  drawTableSetting(untouched, assets, { minutes: 900, time: 0 });
   drawTableSetting(
     untouched,
     { kopiCup: null, nightTable: assets.nightTable },
-    { minutes: 480, time: 0 },
+    { minutes: 900, time: 0 },
   );
   drawTableSetting(
     untouched,

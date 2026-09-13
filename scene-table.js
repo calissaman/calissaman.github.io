@@ -74,8 +74,7 @@ export function prepareTableImage(
 
 export function tableSettingAt(minutes) {
   const time = ((minutes % 1440) + 1440) % 1440;
-  if (time >= 360 && time < 720) return "coffee";
-  if (time >= 720 && time < 1080) return "empty";
+  if (time >= 360 && time < 1080) return "coffee";
   return "night";
 }
 
@@ -129,11 +128,7 @@ export function drawTableSetting(
         ? assets.unlitTable
         : assets.nightTable;
   const source =
-    setting === "coffee"
-      ? assets.kopiCup
-      : setting === "night"
-        ? dinner || assets.nightTable
-        : null;
+    setting === "coffee" ? assets.kopiCup : dinner || assets.nightTable;
   if (!source) return;
   const image = prepareTableImage(source);
   ctx.save();
