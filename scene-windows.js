@@ -44,7 +44,7 @@ export function createWindows({
       side: "left",
       className: "blue-window-hotspot",
       image: otter,
-      rect: [963, 206, 88, 175],
+      rect: [973, 326, 79, 58],
       opening: [
         [1007, 233],
         [1035, 224],
@@ -62,7 +62,7 @@ export function createWindows({
       side: "right",
       className: "merlion-window-hotspot",
       image: merlion,
-      rect: [1094, 209, 87, 153],
+      rect: [1099, 307, 80, 58],
       opening: [
         [1100, 222],
         [1128, 218],

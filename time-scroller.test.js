@@ -50,6 +50,7 @@ class Element {
     return this.children.get(selector) || [];
   }
   after() {}
+  prepend() {}
   before() {}
   focus() {
     document.activeElement = this;
@@ -158,7 +159,7 @@ function fixture(t, reduced = false) {
   const range = new Element("environment-time");
   range.value = "720";
   panel.children.set("#environment-time", range);
-  panel.children.set(".time-panel-heading", new Element());
+  panel.children.set(".time-toolbar", new Element());
   panel.children.set(".city-clocks", new Element());
   const changes = [];
   const api = setupTimeScroller({

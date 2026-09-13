@@ -20,7 +20,7 @@ function clockParts(minutes) {
 
 export function setupTimeScroller({ panel, onTimeChange }) {
   const range = panel.querySelector("#environment-time");
-  const heading = panel.querySelector(".time-panel-heading");
+  const toolbar = panel.querySelector(".time-toolbar");
   const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
   const names = {
     singapore: "Singapore",
@@ -46,7 +46,7 @@ export function setupTimeScroller({ panel, onTimeChange }) {
   choices.innerHTML = `
     <button type="button" data-time-view="breeze" aria-pressed="true">Breeze blocks</button>
     <button type="button" data-time-view="slider" aria-pressed="false">Tile slider</button>`;
-  heading.after(choices);
+  toolbar.prepend(choices);
 
   const view = document.createElement("div");
   const railId = `${panel.id || "time-panel"}-breeze`;

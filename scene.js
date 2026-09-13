@@ -1,7 +1,4 @@
-import {
-  prepareStreetScene,
-  streetLightsAt,
-} from "./street-scene.js?v=20260913-43";
+import { prepareStreetScene } from "./street-scene.js?v=20260913-43";
 import {
   nightAt,
   bloomAt,
@@ -19,15 +16,19 @@ import {
 import {
   createRenderer,
   drawWaterFallback,
-} from "./scene-renderer.js?v=20260913-43";
+} from "./scene-renderer.js?v=20260913-60";
+import {
+  createSceneLighting,
+  prepareLightPatches,
+} from "./scene-lighting.js?v=20260913-60";
 import { createFlowers } from "./scene-flowers.js?v=20260913-49";
 import { setupAudio } from "./audio.js?v=20260912-6";
-import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
+import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
   createWindows,
   prepareMerlionImage,
-} from "./scene-windows.js?v=20260913-59";
-import { prepareFacadeScene } from "./scene-facade.js?v=20260913-59";
+} from "./scene-windows.js?v=20260913-60";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260913-62";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
@@ -111,9 +112,12 @@ export async function createScene({
       "facade-night-floral.png",
       "wall-lamp-day-removed.png",
       "wall-lamp-night-removed.png",
+      "panel-green-symmetric.png",
+      "panel-cream-symmetric.png",
+      "panel-blue-symmetric.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -133,9 +137,13 @@ export async function createScene({
     facadeNightPatch,
     wallLampDayPatch,
     wallLampNightPatch,
+    panelGreen,
+    panelCream,
+    panelBlue,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
+  const panels = { green: panelGreen, cream: panelCream, blue: panelBlue };
   let day = originalDay,
     night = originalNight;
   if (day && night) {
@@ -144,10 +152,13 @@ export async function createScene({
         prepareFacadeScene(day, {
           floral: facadeDayPatch,
           wallLamp: wallLampDayPatch,
+          panels,
         }),
         prepareFacadeScene(night, {
           floral: facadeNightPatch,
           wallLamp: wallLampNightPatch,
+          panels,
+          night: true,
         }),
       ]);
     } catch (error) {
@@ -304,8 +315,6 @@ export async function createScene({
   let displayedTheme = "",
     lastClock = 0,
     nextFlower = 16;
-  const lightTargets = [1, 1],
-    lights = [1, 1];
   const clockToggle = hero.querySelector(".clock-toggle"),
     clockValue = hero.querySelector(".clock-value"),
     clockCity = hero.querySelector(".clock-city"),
@@ -313,6 +322,20 @@ export async function createScene({
     range = hero.querySelector("#environment-time"),
     mode = hero.querySelector(".time-mode"),
     status = hero.querySelector(".scene-status");
+  const lighting = createSceneLighting({
+    stage,
+    patches: prepareLightPatches({
+      day: dayOn,
+      night: nightOn,
+      dayOff: day,
+      nightOff: night,
+    }),
+    announce(message) {
+      status.textContent = message;
+    },
+  });
+  lighting.update(environmentTime);
+  lighting.step(1);
   const windows = createWindows({
     stage,
     closedShutters,
@@ -382,6 +405,7 @@ export async function createScene({
       sfMinutes: paired.san_francisco,
     });
     windows.update(environmentTime);
+    lighting.update(environmentTime);
     const theme = targetNight > 0.45 ? "dark" : "light";
     if (displayedTheme !== theme) {
       displayedTheme = theme;
@@ -443,11 +467,7 @@ export async function createScene({
       );
     syncTime();
   });
-  const hotspots = [
-    { selector: ".branch-hotspot", rect: [325, 28, 260, 120] },
-    { selector: ".light-hotspot", rect: [1015, 550, 180, 240] },
-    { selector: ".skyline-hotspot", rect: [135, 255, 265, 190] },
-  ];
+  const hotspots = [{ selector: ".branch-hotspot", rect: [325, 28, 260, 120] }];
   function resizeCanvasBuffers() {
     const bufferWidth = Math.round(width * pixelRatio);
     const bufferHeight = Math.round(height * pixelRatio);
@@ -496,6 +516,7 @@ export async function createScene({
       });
     }
     windows.resize(layout);
+    lighting.resize(layout);
     gardenVisitor.resize(layout);
     draw();
   }
@@ -548,38 +569,6 @@ export async function createScene({
       "Flower interaction is unavailable because the flower image could not load.";
     branchButton.setAttribute("aria-label", branchButton.title);
   }
-  const lightButtons = [".light-hotspot", ".skyline-hotspot"].map((selector) =>
-    hero.querySelector(selector),
-  );
-  function syncLightControls() {
-    lightButtons.forEach((button, i) => {
-      const name = i ? "Skyline" : "Bistro";
-      button.disabled = !renderer;
-      if (renderer) {
-        button.setAttribute("aria-pressed", String(Boolean(lightTargets[i])));
-        button.setAttribute(
-          "aria-label",
-          `Turn ${lightTargets[i] ? "off" : "on"} the ${name.toLowerCase()} lights`,
-        );
-        button.title = `${name} lights`;
-      } else {
-        button.removeAttribute("aria-pressed");
-        button.title = `${name} lighting controls are unavailable in image mode.`;
-        button.setAttribute("aria-label", button.title);
-      }
-    });
-  }
-  lightButtons.forEach((button, i) =>
-    button.addEventListener("click", () => {
-      lightTargets[i] = 1 - lightTargets[i];
-      syncLightControls();
-      status.textContent = `${i ? "Skyline" : "Bistro"} lights ${lightTargets[i] ? "on" : "off"}.`;
-    }),
-  );
-  syncLightControls();
-  if (!renderer)
-    status.textContent =
-      "Lighting controls are unavailable in image mode. Time, water, sound, and music are available.";
   function draw() {
     if (!layout) return;
     waterSurface.update({
@@ -588,10 +577,9 @@ export async function createScene({
       ripples: sim.ripples,
       rippleCursor: sim.rippleCursor,
     });
-    const streetLights = streetLightsAt(environmentTime);
-    const streetDay = streetLights ? dayOn : day;
-    const streetNight = streetLights ? nightOn : night;
-    stage.dataset.streetLights = streetLights ? "on" : "off";
+    const streetDay = dayOn;
+    const streetNight = nightOn;
+    stage.dataset.streetLights = lighting.streetLights ? "on" : "off";
     if (renderer)
       renderer.render({
         width,
@@ -600,8 +588,7 @@ export async function createScene({
         time: sim.time,
         night: displayNight,
         reduced,
-        lights,
-        streetLights,
+        streetLights: true,
         waterField: waterSurface.frame,
       });
     if (!renderer) {
@@ -627,10 +614,11 @@ export async function createScene({
         reduced,
         waterField: waterSurface.frame,
       });
+    lighting.draw(ctx, displayNight);
     windows.draw(ctx, displayNight);
     drawTableSetting(ctx, tableAssets, {
       night: displayNight,
-      bistroLight: lights[0],
+      bistroLight: lighting.bistroLight,
       minutes: environmentTime,
       time: sim.time,
       reduced,
@@ -674,7 +662,7 @@ export async function createScene({
         (targetMorningGlory - displayMorningGlory) * easing;
     windows.step(easing);
     gardenVisitor.step(dt, reduced);
-    lights.forEach((v, i) => (lights[i] += (lightTargets[i] - v) * easing));
+    lighting.step(easing);
     if (now - lastClock > 1000) {
       syncTime();
       lastClock = now;
@@ -732,9 +720,8 @@ export async function createScene({
     e.preventDefault();
     renderer = null;
     canvas.classList.remove("is-ready");
-    syncLightControls();
     status.textContent =
-      "Lighting controls are unavailable in image mode. Time, water, sound, and music are available.";
+      "Using image mode. Lights, windows, flowers and time remain interactive.";
   });
   canvas.addEventListener("webglcontextrestored", () => {
     try {
@@ -744,7 +731,6 @@ export async function createScene({
       console.warn(error);
     }
     canvas.classList.toggle("is-ready", Boolean(renderer));
-    syncLightControls();
     if (renderer)
       status.textContent = "Interactive lighting controls are available again.";
     resume();

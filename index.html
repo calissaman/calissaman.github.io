@@ -18,8 +18,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260913-53" />
-    <link rel="stylesheet" href="time-scroller.css?v=20260913-53" />
+    <link rel="stylesheet" href="styles.css?v=20260913-61" />
+    <link rel="stylesheet" href="time-scroller.css?v=20260913-61" />
     <link rel="icon" type="image/png" href="assets/site-monogram.png" />
     <link
       rel="preload"
@@ -89,20 +89,6 @@
               aria-label="Release a trumpet flower from the branch"
               title="Release a flower"
             ></button>
-            <button
-              class="scene-hotspot light-hotspot"
-              type="button"
-              aria-label="Turn off the bistro lights"
-              aria-pressed="true"
-              title="Bistro lights"
-            ></button>
-            <button
-              class="scene-hotspot skyline-hotspot"
-              type="button"
-              aria-label="Turn off the skyline lights"
-              aria-pressed="true"
-              title="Skyline lights"
-            ></button>
           </div>
           <div class="scene-clock">
             <button
@@ -115,13 +101,19 @@
               <span class="clock-value">12:00 pm</span>
               <span class="clock-hint">Explore the day</span>
             </button>
-            <button type="button" class="time-close" aria-controls="time-panel">
-              <span aria-hidden="true">×</span>
-              Exit time slider
-            </button>
             <div class="time-panel" id="time-panel" hidden>
               <div class="time-panel-heading">
                 <span>Time of day</span>
+              </div>
+              <div class="time-toolbar">
+                <button
+                  type="button"
+                  class="time-close"
+                  aria-controls="time-panel"
+                >
+                  <span aria-hidden="true">×</span>
+                  Exit time slider
+                </button>
               </div>
               <div
                 class="city-options"
@@ -761,6 +753,6 @@
       </footer>
     </div>
 
-    <script type="module" src="app.js?v=20260913-59"></script>
+    <script type="module" src="app.js?v=20260913-62"></script>
   </body>
 </html>

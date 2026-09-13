@@ -53,8 +53,7 @@ precision highp float;
 precision mediump float;
 #endif
 varying vec2 uv;uniform sampler2D dayImage;uniform sampler2D nightImage;
-uniform vec2 size;uniform vec3 layout;uniform float clock;uniform float night;uniform float motion;uniform float portrait;uniform vec2 lights;uniform sampler2D waterField;uniform vec4 waterDomain;
-float box(vec2 p,vec4 r){return smoothstep(r.x-.005,r.x,p.x)*(1.-smoothstep(r.z,r.z+.005,p.x))*smoothstep(r.y-.005,r.y,p.y)*(1.-smoothstep(r.w,r.w+.005,p.y));}
+uniform vec2 size;uniform vec3 layout;uniform float clock;uniform float night;uniform float motion;uniform float portrait;uniform sampler2D waterField;uniform vec4 waterDomain;
 float mirror(float value){return 1.-abs(mod(value,2.)-1.);}
 vec2 reflectionPoint(vec2 p){
  float depth=p.y-${WATER_REFLECTION.blendStart / SCENE.height};
@@ -83,9 +82,6 @@ void main(){
  q+=rippleOffset;
  vec3 day=texture2D(dayImage,clamp(q,0.,1.)).rgb;
  vec3 dark=texture2D(nightImage,clamp(q,0.,1.)).rgb;
- float cafe=box(p,vec4(.66,.535,.78,.78));float skyline=box(p,vec4(.09,.25,.264,.435));
- dark=mix(dark,day*vec3(.22,.29,.37),cafe*(1.-lights.x));dark=mix(dark,day*vec3(.18,.26,.38),skyline*(1.-lights.y));
- dark*=1.-water*(1.-lights.x)*box(p,vec4(.65,.82,.78,1.))*.22;
  vec3 color=mix(day,dark,night);
  // Portrait keeps the facade at its original aspect ratio, in a continuous sky/water surround.
  vec3 sky=mix(vec3(.31,.64,.83),vec3(.015,.09,.19),night);
@@ -189,7 +185,6 @@ export function createRenderer(
       "night",
       "motion",
       "portrait",
-      "lights",
       "waterDomain",
     ].map((k) => [k, gl.getUniformLocation(program, k)]),
   );
@@ -201,7 +196,6 @@ export function createRenderer(
       time,
       night,
       reduced,
-      lights,
       streetLights = false,
       waterField,
     }) {
@@ -228,7 +222,6 @@ export function createRenderer(
       gl.uniform1f(locations.night, night);
       gl.uniform1f(locations.motion, reduced ? 0.08 : 1);
       gl.uniform1f(locations.portrait, layout.portrait ? 1 : 0);
-      gl.uniform2f(locations.lights, ...lights);
       gl.activeTexture(gl.TEXTURE2);
       gl.bindTexture(gl.TEXTURE_2D, fieldTexture);
       if (

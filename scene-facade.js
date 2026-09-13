@@ -1,3 +1,4 @@
+import { drawFacadePanels } from "./facade-panels.js?v=20260913-62";
 export const FACADE_RECT = Object.freeze({
   x: 425,
   y: 185,
@@ -69,7 +70,7 @@ export function traceGreenWindows(ctx) {
 
 export async function prepareFacadeScene(
   original,
-  { floral, wallLamp },
+  { floral, wallLamp, panels, night = false },
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -96,6 +97,7 @@ export async function prepareFacadeScene(
   if (wallLamp) {
     ctx.drawImage(wallLamp, WALL_LAMP_RECT.x, WALL_LAMP_RECT.y);
   }
+  if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);
