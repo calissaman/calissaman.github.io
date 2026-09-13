@@ -26,7 +26,8 @@ import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
 import {
   createWindows,
   prepareMerlionImage,
-} from "./scene-windows.js?v=20260913-51";
+} from "./scene-windows.js?v=20260913-58";
+import { prepareFloralFacade } from "./scene-facade.js?v=20260913-58";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
@@ -106,9 +107,11 @@ export async function createScene({
       "merlion-plush.png",
       "bistro-day-patch.png",
       "bistro-night-patch.png",
+      "facade-day-floral.png",
+      "facade-night-floral.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -124,11 +127,23 @@ export async function createScene({
     merlion,
     bistroDayPatch,
     bistroNightPatch,
+    facadeDayPatch,
+    facadeNightPatch,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
   let day = originalDay,
     night = originalNight;
+  if (day && night && facadeDayPatch && facadeNightPatch) {
+    try {
+      [day, night] = await Promise.all([
+        prepareFloralFacade(day, facadeDayPatch),
+        prepareFloralFacade(night, facadeNightPatch),
+      ]);
+    } catch (error) {
+      console.warn("Floral facade artwork could not load.", error);
+    }
+  }
   if (day && night && bistroDayPatch && bistroNightPatch) {
     try {
       [day, night] = await Promise.all([

@@ -1,4 +1,5 @@
 import { windowVisitorAt } from "./scene-model.js?v=20260913-42";
+import { traceGreenWindows } from "./scene-facade.js?v=20260913-58";
 
 export function prepareMerlionImage(
   image,
@@ -165,11 +166,7 @@ export function createWindows({
       if (closedShutters && closedAmount > 0.001) {
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(442, 306);
-        ctx.lineTo(638, 273);
-        ctx.lineTo(640, 413);
-        ctx.lineTo(447, 434);
-        ctx.closePath();
+        traceGreenWindows(ctx);
         ctx.clip();
         ctx.globalAlpha = closedAmount;
         ctx.filter = `brightness(${1 - night * 0.6})`;
