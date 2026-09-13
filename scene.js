@@ -1,4 +1,4 @@
-import { prepareStreetScene } from "./street-scene.js?v=20260913-43";
+import { prepareStreetScene } from "./street-scene.js?v=20260914-72";
 import {
   nightAt,
   bloomAt,
@@ -215,24 +215,28 @@ export async function createScene({
     nightOn = night;
   if (day && night) {
     try {
-      const [dayPatch, nightPatch] = await Promise.all([
+      const [dayPatch, nightPatch, nightRailings] = await Promise.all([
         loadImage("assets/scene/street-day-patch.jpg?v=20260913-43"),
         loadImage("assets/scene/street-night-patch.jpg?v=20260913-43"),
+        loadImage("assets/scene/street-night-no-railings.png?v=20260914-72"),
       ]);
       [day, night, dayOn, nightOn] = await Promise.all([
         prepareStreetScene(day, dayPatch, { lit: false, night: false }),
         prepareStreetScene(night, nightPatch, {
           lit: false,
           night: true,
+          railings: nightRailings,
         }),
         prepareStreetScene(day, dayPatch, { lit: true, night: false }),
         prepareStreetScene(night, nightPatch, {
           lit: true,
           night: true,
+          railings: nightRailings,
         }),
       ]);
     } catch (error) {
       console.warn("Street artwork patches could not load.", error);
+      day = night = null;
     }
   }
   const flower = flowerFront || flowerSide;
@@ -256,9 +260,6 @@ export async function createScene({
   if (!day || !night) {
     const message =
       "Scene images could not load. Sound, music, and the rest of the site are available.";
-    const available = day || night;
-    if (available) fallback.src = available.src;
-    else fallback.hidden = true;
     hero
       .querySelectorAll(
         ".scene-hotspot,.clock-toggle,.time-panel button,.time-panel input",

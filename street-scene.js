@@ -4,8 +4,14 @@ export function streetLightsAt(minutes) {
 
 // Every edit stays left of the shophouses (which begin around x=425).
 export const STREET_EDIT_LIMIT = 400;
+export const RAILING_CLEANUP_RECT = [138, 684, 198, 70];
+export const RAILING_PATCH_RECT = [110, 665, 280, 100];
 
-export async function prepareStreetScene(original, patch, { lit, night }) {
+export async function prepareStreetScene(
+  original,
+  patch,
+  { lit, night, railings },
+) {
   const canvas = document.createElement("canvas");
   canvas.width = 1536;
   canvas.height = 1024;
@@ -15,7 +21,7 @@ export async function prepareStreetScene(original, patch, { lit, night }) {
   const paint = mask.getContext("2d");
   paint.fillStyle = "white";
   paint.filter = "blur(2px)";
-  paint.fillRect(148, 695, 177, 51);
+  paint.fillRect(...RAILING_CLEANUP_RECT);
   if (!lit) {
     paint.fillRect(139, 613, 218, 141);
     paint.beginPath();
@@ -39,6 +45,10 @@ export async function prepareStreetScene(original, patch, { lit, night }) {
   paint.filter = "none";
   paint.globalCompositeOperation = "source-in";
   paint.drawImage(patch, 0, 0, 1536, 1024);
+  if (railings) {
+    paint.globalCompositeOperation = "source-atop";
+    paint.drawImage(railings, ...RAILING_PATCH_RECT);
+  }
   const ctx = canvas.getContext("2d");
   ctx.drawImage(original, 0, 0);
   ctx.save();
