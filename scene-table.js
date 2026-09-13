@@ -1,6 +1,6 @@
 export const KOPI_CUPS = Object.freeze([
-  { x: 1030, baseY: 716, width: 38, steamY: 693 },
-  { x: 1097, baseY: 716, width: 40, steamY: 692 },
+  { x: 1045, baseY: 713, width: 31, steamY: 692.5 },
+  { x: 1105, baseY: 713.8, width: 32, steamY: 692.8 },
 ]);
 
 export const NIGHT_TABLE_RECT = Object.freeze({
@@ -180,6 +180,19 @@ export function drawTableSetting(
   if (setting === "coffee") {
     for (const cup of KOPI_CUPS) {
       const height = (cup.width * image.height) / image.width;
+      ctx.globalAlpha = 0.24;
+      ctx.fillStyle = "#3a2017";
+      ctx.beginPath();
+      ctx.ellipse(
+        cup.x,
+        cup.baseY - 0.6,
+        cup.width * 0.43,
+        0.9,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
       ctx.globalAlpha = 1;
       ctx.drawImage(
         image,

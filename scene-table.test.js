@@ -75,6 +75,7 @@ function recorder() {
     "filter",
     "globalCompositeOperation",
     "strokeStyle",
+    "fillStyle",
     "lineWidth",
     "lineCap",
   ];
@@ -85,6 +86,7 @@ function recorder() {
     filter: "blur(4px)",
     globalCompositeOperation: "multiply",
     strokeStyle: "#123456",
+    fillStyle: "#654321",
     lineWidth: 7,
     lineCap: "butt",
     save() {
@@ -108,6 +110,10 @@ function recorder() {
     beginPath() {
       path = [];
     },
+    ellipse(...points) {
+      path.push(points);
+    },
+    fill() {},
     moveTo(...point) {
       path.push(point);
     },
@@ -199,6 +205,7 @@ test("solid objects stay opaque despite inherited alpha and restore the shared d
     assert.equal(ctx.filter, "blur(4px)");
     assert.equal(ctx.globalCompositeOperation, "multiply");
     assert.equal(ctx.strokeStyle, "#123456");
+    assert.equal(ctx.fillStyle, "#654321");
     assert.equal(ctx.lineWidth, 7);
     assert.equal(ctx.lineCap, "butt");
   }

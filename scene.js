@@ -38,7 +38,7 @@ import {
   drawTableSetting,
   prepareTableImage,
   prepareDinnerPatch,
-} from "./scene-table.js?v=20260913-51";
+} from "./scene-table.js?v=20260913-54";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -75,12 +75,12 @@ export async function createScene({
     unlitTable: null,
   };
   for (const [key, file] of [
-    ["kopiCup", "kopi-cup.png"],
+    ["kopiCup", "kopi-cup-level.png"],
     ["nightTable", "dinner-night-patch.jpg"],
     ["dayTable", "dinner-day-patch.jpg"],
   ]) {
     loadImage(
-      `assets/scene/${file}?v=${key === "kopiCup" ? "20260912-32" : "20260913-46"}`,
+      `assets/scene/${file}?v=${key === "kopiCup" ? "20260913-54" : "20260913-46"}`,
     ).then(
       (image) => {
         tableAssets[key] = prepareTableImage(
