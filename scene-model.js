@@ -168,13 +168,13 @@ function resetPetal(petal) {
   });
 }
 
-export function createSimulation() {
+export function createSimulation({ maxFlowers = SCENE.maxFlowers } = {}) {
   return {
     time: 0,
     nextWaterFlowerAt: 4,
     flowerCursor: 0,
     rippleCursor: 0,
-    flowers: Array.from({ length: SCENE.maxFlowers }, (_, id) => ({
+    flowers: Array.from({ length: maxFlowers }, (_, id) => ({
       id,
       active: false,
       x: 0,
@@ -210,9 +210,12 @@ export function addFlower(sim, x, y, falling = false) {
   if (!f) return null;
   Object.assign(f, {
     active: true,
+    startsAt: sim.time,
+    path: null,
+    sizeScale: 1,
     x,
     y,
-    vx: 3 + f.id * 0.6,
+    vx: 3 + (f.id % 7) * 0.6,
     vy: falling ? 18 : 0,
     angle: f.id * 0.7,
     falling,
@@ -259,9 +262,7 @@ export function maintainWaterFlowers(sim, minimum = 4) {
     )
       continue;
     const distance = Math.min(
-      ...occupied.map((f) =>
-        Math.hypot(f.x - candidate.x, f.y - candidate.y),
-      ),
+      ...occupied.map((f) => Math.hypot(f.x - candidate.x, f.y - candidate.y)),
     );
     if (distance > clearance) {
       position = candidate;
@@ -277,11 +278,11 @@ export function maintainWaterFlowers(sim, minimum = 4) {
 export function flowerSize(sim, f) {
   if (f.breaking) return f.fragmentSize;
   const settled = f.falling ? 0 : smooth(0, 1.2, sim.time - f.landedAt);
-  return 42 + settled * (4 + (f.y - 850) * 0.07);
+  return (42 + settled * (4 + (f.y - 850) * 0.07)) * (f.sizeScale ?? 1);
 }
 
 export function breakFlower(sim, f, reduced = false) {
-  if (!f.active || f.breaking) return false;
+  if (!f.active || f.breaking || sim.time < f.startsAt) return false;
   if (!f.falling) addRipple(sim, f.x, f.y);
   sim.nextWaterFlowerAt = Math.max(sim.nextWaterFlowerAt, sim.time + 6);
   f.fragmentSize = flowerSize(sim, f);
@@ -365,12 +366,30 @@ export function stepSimulation(sim, seconds, reduced = false) {
     }
   }
   for (const f of sim.flowers) {
-    if (!f.active) continue;
+    if (!f.active || sim.time < f.startsAt) continue;
     if (f.breaking) {
       stepPetals(sim, f, dt, reduced);
       continue;
     }
     if (f.dragged) continue;
+    if (f.falling && f.path) {
+      const p = f.path;
+      const t = reduced ? 1 : clamp((sim.time - f.startsAt) / p.duration, 0, 1);
+      f.x =
+        p.start.x +
+        (p.end.x - p.start.x) * t +
+        Math.sin(t * Math.PI) * Math.sin(t * 8 + p.phase) * p.sway;
+      f.y = p.start.y + (p.end.y - p.start.y) * Math.pow(t, 1.28);
+      f.angle = p.angle + t * 0.7;
+      if (t === 1) {
+        f.falling = false;
+        f.landedAt = sim.time;
+        f.vy = 0;
+        f.path = null;
+        addRipple(sim, f.x, f.y);
+      }
+      continue;
+    }
     if (f.falling) {
       f.vy = Math.min(f.vy + dt * 18, 65);
       f.x += Math.sin(sim.time * 0.8 + f.id) * dt * 9;
@@ -384,7 +403,7 @@ export function stepSimulation(sim, seconds, reduced = false) {
         addRipple(sim, f.x, f.y);
       }
     } else if (!reduced) {
-      f.vx += (3 + f.id * 0.6 - f.vx) * dt * 0.6;
+      f.vx += (3 + (f.id % 7) * 0.6 - f.vx) * dt * 0.6;
       f.vy *= Math.exp(-dt * 1.5);
       f.x += dt * (f.vx + Math.sin(sim.time * 0.18 + f.id) * 2);
       f.y += dt * (f.vy + Math.sin(sim.time * 0.15 + f.id) * 0.8);

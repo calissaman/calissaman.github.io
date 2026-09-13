@@ -12,7 +12,7 @@ import {
   addFlower,
   stepSimulation,
   maintainWaterFlowers,
-} from "./scene-model.js?v=20260912-29";
+} from "./scene-model.js?v=20260913-63";
 import {
   createRenderer,
   drawWaterFallback,
@@ -21,7 +21,7 @@ import {
   createSceneLighting,
   prepareLightPatches,
 } from "./scene-lighting.js?v=20260913-60";
-import { createFlowers } from "./scene-flowers.js?v=20260913-49";
+import { createFlowers } from "./scene-flowers.js?v=20260913-63";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
@@ -42,6 +42,13 @@ import {
   prepareTableImage,
   prepareDinnerSprite,
 } from "./scene-table.js?v=20260913-56";
+
+import {
+  createTreeBlooms,
+  TREE_FLOWER_CAPACITY,
+  TREE_HOTSPOTS,
+} from "./tree-blooms.js?v=20260913-63";
+import { prepareTreeScene } from "./tree-art.js?v=20260913-63";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -115,9 +122,12 @@ export async function createScene({
       "panel-green-symmetric.png",
       "panel-cream-symmetric.png",
       "panel-blue-symmetric.png",
+      "canopy-day.png",
+      "canopy-night.png",
+      "angsana-flower.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -140,12 +150,21 @@ export async function createScene({
     panelGreen,
     panelCream,
     panelBlue,
+    canopyDay,
+    canopyNight,
+    angsanaFlower,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
   const panels = { green: panelGreen, cream: panelCream, blue: panelBlue };
   let day = originalDay,
     night = originalNight;
+  if (day && night && canopyDay && canopyNight) {
+    [day, night] = await Promise.all([
+      prepareTreeScene(day, canopyDay),
+      prepareTreeScene(night, canopyNight),
+    ]);
+  }
   if (day && night) {
     try {
       [day, night] = await Promise.all([
@@ -267,21 +286,11 @@ export async function createScene({
     budContext.fillStyle = "rgba(91,119,39,.68)";
     budContext.fillRect(0, 0, bud.width, bud.height);
   }
-  const sim = createSimulation();
+  const sim = createSimulation({ maxFlowers: TREE_FLOWER_CAPACITY });
   const waterSurface = createWaterSurface();
   let down = null;
   const resolution = createSceneResolution();
   const media = matchMedia("(prefers-reduced-motion: reduce)");
-  const branchOrigins = [
-    [410, 92],
-    [475, 62],
-    [530, 38],
-  ];
-  function releaseFlower() {
-    const [x, y] =
-      branchOrigins[Math.floor(Math.random() * branchOrigins.length)];
-    return addFlower(sim, x, y, true);
-  }
   if (flower) {
     [
       [555, 920],
@@ -289,7 +298,6 @@ export async function createScene({
       [930, 980],
       [1105, 951],
     ].forEach(([x, y]) => addFlower(sim, x, y));
-    if (!media.matches) releaseFlower();
   }
   let reduced = media.matches,
     visible = true,
@@ -313,8 +321,7 @@ export async function createScene({
     targetMorningGlory = morningGloryAt(environmentTime),
     displayMorningGlory = targetMorningGlory;
   let displayedTheme = "",
-    lastClock = 0,
-    nextFlower = 16;
+    lastClock = 0;
   const clockToggle = hero.querySelector(".clock-toggle"),
     clockValue = hero.querySelector(".clock-value"),
     clockCity = hero.querySelector(".clock-city"),
@@ -467,7 +474,7 @@ export async function createScene({
       );
     syncTime();
   });
-  const hotspots = [{ selector: ".branch-hotspot", rect: [325, 28, 260, 120] }];
+  const hotspots = TREE_HOTSPOTS;
   function resizeCanvasBuffers() {
     const bufferWidth = Math.round(width * pixelRatio);
     const bufferHeight = Math.round(height * pixelRatio);
@@ -506,9 +513,11 @@ export async function createScene({
     }
     for (const {
       selector,
+      clip,
       rect: [x, y, w, h],
     } of hotspots) {
       Object.assign(hero.querySelector(selector).style, {
+        clipPath: clip,
         left: `${layout.x + x * layout.scale}px`,
         top: `${layout.y + y * layout.scale}px`,
         width: `${w * layout.scale}px`,
@@ -555,19 +564,36 @@ export async function createScene({
       status.textContent = message;
     },
   });
-  const branchButton = hero.querySelector(".branch-hotspot");
-  if (flower)
-    branchButton.addEventListener("click", () => {
-      const f = releaseFlower();
-      status.textContent = f
-        ? "A trumpet flower drifts toward the water."
-        : "Seven flowers are already on their way or floating.";
+  const treeBlooms = createTreeBlooms(sim, {
+    enabled: { trumpet: Boolean(flower), angsana: Boolean(angsanaFlower) },
+    getBounds: () => ({
+      left: -layout.x / layout.scale,
+      right: (width - layout.x) / layout.scale,
+    }),
+  });
+  for (const { kind, selector } of TREE_HOTSPOTS) {
+    const button = hero.querySelector(selector);
+    const name = kind === "trumpet" ? "trumpet" : "angsana";
+    button.dataset.remaining = String(treeBlooms.remaining(kind));
+    if (!(kind === "trumpet" ? flower : angsanaFlower)) {
+      button.disabled = true;
+      button.title = `${name} flower image could not load.`;
+      button.setAttribute("aria-label", button.title);
+      continue;
+    }
+    button.addEventListener("click", () => {
+      const result = treeBlooms.release(kind, { reduced });
+      button.dataset.remaining = String(result.remaining);
+      button.disabled = result.remaining === 0;
+      button.setAttribute(
+        "aria-label",
+        `Release ${name} flowers. ${result.remaining} clicks remaining.`,
+      );
+      status.textContent =
+        kind === "trumpet"
+          ? `${result.count} trumpet ${result.count === 1 ? "flower drifts" : "flowers drift"} toward the water. ${result.remaining} clicks remaining.`
+          : `An angsana bloom falls onto the ground. ${result.remaining} clicks remaining.`;
     });
-  else {
-    branchButton.disabled = true;
-    branchButton.title =
-      "Flower interaction is unavailable because the flower image could not load.";
-    branchButton.setAttribute("aria-label", branchButton.title);
   }
   function draw() {
     if (!layout) return;
@@ -626,6 +652,7 @@ export async function createScene({
     gardenVisitor.draw(ctx, displayNight);
     drawMorningGlory(ctx, morningGlory, displayMorningGlory, displayNight);
     flowers.draw(ctx, displayNight);
+    treeBlooms.draw(ctx, angsanaFlower, displayNight);
     for (const [x, y, angle] of [
       [701, 690, -0.24],
       [744, 681, 0.18],
@@ -652,6 +679,7 @@ export async function createScene({
     const dt = last ? (now - last) / 1000 : 0;
     last = now;
     stepSimulation(sim, dt, reduced);
+    treeBlooms.step(reduced);
     if (flower) maintainWaterFlowers(sim);
     const easing = 1 - Math.exp(-Math.min(dt, 0.05) * (reduced ? 16 : 4));
     displayNight += (targetNight - displayNight) * easing;
@@ -666,10 +694,6 @@ export async function createScene({
     if (now - lastClock > 1000) {
       syncTime();
       lastClock = now;
-    }
-    if (flower && !reduced && sim.time > nextFlower) {
-      releaseFlower();
-      nextFlower = sim.time + 20 + Math.random() * 10;
     }
     const nextRatio = resolution.sample(now);
     if (nextRatio !== pixelRatio) {

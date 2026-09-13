@@ -20,7 +20,7 @@ function preparationCanvas(stats) {
   const canvas = {
     getContext() {
       return {
-        drawImage(source) { image = source; },
+        drawImage(source) { image = source; canvas.pixels = source.pixels; },
         getImageData(x, y, width, height) {
           stats.reads++;
           assert.deepEqual([x, y, width, height], [0, 0, image.naturalWidth, image.naturalHeight]);
@@ -135,7 +135,7 @@ test("both sprite views are prepared once and reused across successive frames", 
     f.flowers.draw(ctx, frame % 2);
     assert.ok(ctx.draws.every(draw => prepared.has(draw.image)));
   }
-  assert.deepEqual(f.stats, { allocations: 2, reads: 2, writes: 2 });
+  assert.deepEqual(f.stats, { allocations: 4, reads: 2, writes: 2 });
   f.images.forEach((image, i) => assert.deepEqual(image.pixels, original[i]));
 });
 

@@ -4,7 +4,7 @@ import {
   addRipple,
   breakFlower,
   flowerSize,
-} from "./scene-model.js?v=20260912-29";
+} from "./scene-model.js?v=20260913-63";
 
 export function prepareFlowerImage(
   image,
@@ -32,10 +32,16 @@ export function createFlowers({
   isReduced,
   announce,
 }) {
-  const preparedSprites = sprites.map((sprite) => ({
-    ...sprite,
-    image: prepareFlowerImage(sprite.image),
-  }));
+  const preparedSprites = sprites.map((sprite) => {
+    const opaque = prepareFlowerImage(sprite.image);
+    const image = document.createElement("canvas");
+    image.width = opaque.width;
+    image.height = opaque.height;
+    const ctx = image.getContext("2d");
+    ctx.filter = "contrast(1.12) saturate(1.2)";
+    ctx.drawImage(opaque, 0, 0);
+    return { ...sprite, image };
+  });
   const cancelGestures = [];
   const buttons = sim.flowers.map((flower) => {
     const button = document.createElement("button");
@@ -150,7 +156,8 @@ export function createFlowers({
       const layout = getLayout();
       for (const flower of sim.flowers) {
         const button = buttons[flower.id];
-        const state = !flower.active
+        const appeared = flower.active && !(sim.time < flower.startsAt);
+        const state = !appeared
           ? "inactive"
           : flower.breaking
             ? "petals"
@@ -164,14 +171,14 @@ export function createFlowers({
             `${flower.falling ? "Falling" : "Floating"} trumpet flower ${flower.id + 1}. Click to separate its petals.${flower.falling ? "" : " Drag or use arrow keys to move."}`,
           );
         }
-        button.hidden = !flower.active || flower.breaking;
-        if (!flower.active) continue;
+        button.hidden = !appeared || flower.breaking;
+        if (!appeared) continue;
         const sprite = preparedSprites[flower.variant % preparedSprites.length];
         if (button.dataset.view !== sprite.view)
           button.dataset.view = sprite.view;
         ctx.save();
         ctx.globalCompositeOperation = "source-over";
-        ctx.filter = "contrast(1.12) saturate(1.2)";
+        ctx.filter = "none";
         if (flower.breaking) {
           const size = flower.fragmentSize;
           for (const petal of flower.petals) {
