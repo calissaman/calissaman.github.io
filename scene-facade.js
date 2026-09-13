@@ -79,10 +79,10 @@ export function drawMatchingBlueShutter(ctx, image) {
 }
 
 export const FACADE_RECT = Object.freeze({
-  x: 425,
+  x: 420,
   y: 185,
-  width: 248,
-  height: 313,
+  width: 280,
+  height: 600,
 });
 
 export const WALL_LAMP_RECT = Object.freeze({
@@ -130,31 +130,30 @@ export const GREEN_WINDOW_OPENINGS = Object.freeze([
 export const FACADE_OUTLINE = Object.freeze([
   [433, 226],
   [660, 185],
-  [668, 482],
-  [445, 498],
+  [668, 481],
+  [668, 780],
+  [422, 780],
+  [421, 750],
+  [429, 710],
+  [432, 686],
+  [433, 575],
+  [441, 520],
   [430, 479],
 ]);
 
-const GRILLES = [
-  [
-    [475, 282],
-    [483, 274],
-    [498, 269],
-    [515, 271],
-    [526, 280],
-    [532, 297],
-    [475, 307],
-  ],
-  [
-    [568, 269],
-    [578, 260],
-    [594, 254],
-    [610, 255],
-    [623, 263],
-    [631, 279],
-    [568, 290],
-  ],
-];
+export const EMERALD_ROOF_OUTLINE = Object.freeze([
+  [461, 487],
+  [632, 470],
+  [647, 473],
+  [638, 503],
+  [632, 518],
+  [633, 526],
+  [482, 538],
+  [481, 525],
+  [432, 518],
+  [428, 515],
+  [457, 497],
+]);
 
 function trace(ctx, points) {
   points.forEach(([x, y], index) =>
@@ -167,6 +166,58 @@ export function traceGreenWindows(ctx) {
   GREEN_WINDOW_OPENINGS.forEach((points) => trace(ctx, points));
 }
 
+const whiteFacadeLayers = new WeakMap();
+
+export function drawWhiteFacade(ctx, image, cleanSill) {
+  if (!image) return;
+  ctx.save();
+  ctx.beginPath();
+  trace(ctx, FACADE_OUTLINE);
+  ctx.clip();
+  for (const hole of [
+    ...FACADE_PANELS.filter((panel) => panel.house === "green").map(
+      (panel) => panel.quad,
+    ),
+    EMERALD_ROOF_OUTLINE,
+  ]) {
+    ctx.beginPath();
+    ctx.rect(420, 185, 280, 600);
+    trace(ctx, hole);
+    ctx.clip("evenodd");
+  }
+  const { x, y, width, height } = FACADE_RECT;
+  let layer = whiteFacadeLayers.get(image);
+  if (!layer) {
+    layer = document.createElement("canvas");
+    layer.width = image.naturalWidth || image.width;
+    layer.height = image.naturalHeight || image.height;
+    const paint = layer.getContext("2d");
+    const scale = layer.width / width;
+    paint.scale(scale, layer.height / height);
+    paint.translate(-x, -y);
+    paint.beginPath();
+    trace(paint, FACADE_OUTLINE);
+    paint.fillStyle = "white";
+    paint.fill();
+    paint.globalCompositeOperation = "destination-out";
+    paint.filter = `blur(${2 * scale}px)`;
+    paint.lineWidth = 12;
+    paint.stroke();
+    paint.filter = "none";
+    paint.globalCompositeOperation = "source-in";
+    paint.drawImage(image, x, y, width, height);
+    whiteFacadeLayers.set(image, layer);
+  }
+  ctx.drawImage(layer, x, y, width, height);
+  if (cleanSill) {
+    ctx.beginPath();
+    ctx.ellipse(507.5, 480.5, 4.8, 3.5, -0.1, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(cleanSill, 490, 470, 50, 18);
+  }
+  ctx.restore();
+}
+
 export async function prepareFacadeScene(
   original,
   {
@@ -177,6 +228,7 @@ export async function prepareFacadeScene(
     blueShutter,
     blueTrim,
     pinkTrim,
+    whiteSill,
     night = false,
   },
   createCanvas = () => document.createElement("canvas"),
@@ -186,25 +238,10 @@ export async function prepareFacadeScene(
   canvas.height = 1024;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(original, 0, 0);
-  if (floral) {
-    ctx.save();
-    ctx.beginPath();
-    trace(ctx, FACADE_OUTLINE);
-    ctx.clip();
-    ctx.beginPath();
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    traceGreenWindows(ctx);
-    ctx.clip("evenodd");
-    ctx.beginPath();
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    GRILLES.forEach((points) => trace(ctx, points));
-    ctx.clip("evenodd");
-    ctx.drawImage(floral, FACADE_RECT.x, FACADE_RECT.y);
-    ctx.restore();
-  }
   if (wallLamp) {
     ctx.drawImage(wallLamp, WALL_LAMP_RECT.x, WALL_LAMP_RECT.y);
   }
+  drawWhiteFacade(ctx, floral, whiteSill);
   drawBlueWindowTrim(ctx, blueTrim);
   drawPinkWindowTrim(ctx, pinkTrim);
   if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });

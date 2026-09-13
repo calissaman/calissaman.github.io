@@ -1,0 +1,3 @@
+Use case: precise-object-edit.
+Remove the tan/brown stain near the center-left of this close-up, on the pale white-grey wall strip between the red tile border and the emerald green roof. Replace the entire stain with perfectly clean plaster matching the smooth neutral white-grey lighting immediately to either side. There must be no tan mark, dark patch or mottling left.
+Change nothing else: preserve the diagonal red border, turquoise tile edge, green roof edge and all perspective and colors exactly. This is a tiny nighttime plaster cleanup, not a redesign. Return the same complete close-up in the same wide aspect ratio.
