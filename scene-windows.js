@@ -196,7 +196,14 @@ export function createWindows({
           ctx.fillRect(1100, 218, 30, 139);
         }
         const height = (window.width * window.crop[3]) / window.crop[2];
-        const concealed = height * 0.58 * (1 - window.revealAmount);
+        const hiddenTravel =
+          window.visitor === "otter"
+            ? height +
+              Math.max(...window.opening.map(([, y]) => y)) -
+              window.baseline +
+              1
+            : height * 0.58;
+        const concealed = hiddenTravel * (1 - window.revealAmount);
         ctx.globalAlpha = window.visitor === "merlion" ? 1 : 0.88;
         ctx.filter =
           window.visitor === "merlion"

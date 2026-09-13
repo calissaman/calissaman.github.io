@@ -137,6 +137,29 @@ test("the Merlion remains opaque through concealed, partial and full reveal", (t
   }
 });
 
+test("the otter starts fully below the sill and rises only after its window is clicked", (t) => {
+  const f = fixture(t);
+  const otter = f.button("blue-window-hotspot");
+  f.windows.update(22 * 60);
+  const hidden = draw(f.windows).draws[0];
+  assert.ok(hidden.y > Math.max(...hidden.clip.map(([, y]) => y)), "no part of the hidden sprite may cross the sill");
+  assert.equal(otter.getAttribute("aria-pressed"), "false");
+  otter.click();
+  f.windows.step(0.5);
+  const partial = draw(f.windows).draws[0];
+  f.windows.step(1);
+  const revealed = draw(f.windows).draws[0];
+  assert.ok(hidden.y > partial.y && partial.y > revealed.y);
+  assert.equal(otter.getAttribute("aria-pressed"), "true");
+  otter.click();
+  f.windows.step(1);
+  assert.equal(otter.getAttribute("aria-pressed"), "false");
+  assert.deepEqual(draw(f.windows).draws[0], hidden);
+  f.windows.update(12 * 60);
+  f.windows.update(22 * 60);
+  assert.deepEqual(draw(f.windows).draws[0], hidden, "returning to evening must not reveal the otter");
+});
+
 test("the green shutters, otter and neighboring Merlion each have their own native target", (t) => {
   const f = fixture(t);
   const green = f.button("green-window-hotspot");

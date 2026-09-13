@@ -4,6 +4,7 @@ import {
   KOPI_CUPS,
   NIGHT_TABLE_RECT,
   prepareTableImage,
+  prepareDinnerFrame,
   tableSettingAt,
   drawTableSetting,
 } from "./scene-table.js";
@@ -203,11 +204,43 @@ test("solid objects stay opaque despite inherited alpha and restore the shared d
   }
 });
 
-test("dinner follows the scene lighting without fading or doubling the dishes", () => {
+test("dinner matches the room throughout daylight and light-switch transitions", () => {
+  const layers = [];
+  const canvas = {
+    id: "litDinner",
+    getContext() {
+      return {
+        clearRect() { layers.length = 0; },
+        drawImage(image) {
+          layers.push({ id: image.id, weight: this.globalAlpha, composite: this.globalCompositeOperation });
+        },
+      };
+    },
+  };
+  for (const night of [0.1, 0.49, 0.5, 0.75, 1]) {
+    for (const bistroLight of [0.1, 0.49, 0.5, 0.75, 0.9]) {
+      const frame = prepareDinnerFrame(assets, night, bistroLight, () => canvas);
+      assert.equal(frame, canvas);
+      assert.ok(layers.every(layer => layer.composite === "lighter"));
+      assert.ok(Math.abs(layers.reduce((alpha, layer) => alpha + layer.weight, 0) - 1) < 1e-12,
+        "the mixed artwork stays opaque instead of showing the empty table beneath it");
+      const weights = Object.fromEntries(layers.map(layer => [layer.id, layer.weight]));
+      assert.equal(weights.dayDinner || 0, 1 - night);
+      assert.equal(weights.night, night * bistroLight);
+      assert.equal(weights.unlitDinner, night * (1 - bistroLight));
+      const ctx = recorder();
+      drawTableSetting(ctx, assets, { minutes: 1200, time: 0, night, bistroLight });
+      assert.equal(ctx.sprites.length, 1);
+      assert.equal(ctx.sprites[0].image, frame);
+      assert.equal(ctx.sprites[0].alpha, 1);
+      assert.equal(ctx.sprites[0].composite, "source-over");
+    }
+  }
+});
+
+test("fully lit day and night settings use the original artwork", () => {
   for (const [night, expected] of [
     [0, "dayDinner"],
-    [0.49, "dayDinner"],
-    [0.5, "night"],
     [1, "night"],
   ]) {
     const ctx = recorder();

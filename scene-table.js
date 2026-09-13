@@ -4,9 +4,9 @@ export const KOPI_CUPS = Object.freeze([
 ]);
 
 export const NIGHT_TABLE_RECT = Object.freeze({
-  x: 1008,
+  x: 1016,
   y: 662,
-  width: 160,
+  width: 152,
   height: 56,
 });
 
@@ -78,6 +78,54 @@ export function tableSettingAt(minutes) {
   return "night";
 }
 
+const dinnerFrames = new WeakMap();
+
+export function prepareDinnerFrame(
+  assets,
+  night,
+  bistroLight,
+  createCanvas = () => document.createElement("canvas"),
+) {
+  const dayImage = assets.dayTable || assets.nightTable;
+  const nightImage = assets.nightTable || dayImage;
+  const unlitImage = assets.unlitTable || nightImage;
+  if (!dayImage) return null;
+  const sources = [dayImage, nightImage, unlitImage];
+  const weights = [1 - night, night * bistroLight, night * (1 - bistroLight)];
+  const full = weights.indexOf(1);
+  if (full !== -1) return prepareTableImage(sources[full]);
+  let frame = dinnerFrames.get(assets);
+  if (!frame) {
+    const canvas = createCanvas();
+    canvas.width = NIGHT_TABLE_RECT.width;
+    canvas.height = NIGHT_TABLE_RECT.height;
+    frame = { canvas, sources: [], weights: [] };
+    dinnerFrames.set(assets, frame);
+  }
+  if (
+    sources.every((image, i) => image === frame.sources[i]) &&
+    weights.every((weight, i) => weight === frame.weights[i])
+  )
+    return frame.canvas;
+  const ctx = frame.canvas.getContext("2d");
+  ctx.clearRect(0, 0, frame.canvas.width, frame.canvas.height);
+  ctx.globalCompositeOperation = "lighter";
+  sources.forEach((image, i) => {
+    if (weights[i] === 0) return;
+    ctx.globalAlpha = weights[i];
+    ctx.drawImage(
+      prepareTableImage(image),
+      0,
+      0,
+      frame.canvas.width,
+      frame.canvas.height,
+    );
+  });
+  frame.sources = sources;
+  frame.weights = weights;
+  return frame.canvas;
+}
+
 function drawSteam(ctx, time, reduced) {
   ctx.strokeStyle = "#fff3df";
   ctx.lineWidth = 1;
@@ -121,16 +169,11 @@ export function drawTableSetting(
   { minutes, time, reduced = false, night = 1, bistroLight = 1 },
 ) {
   const setting = tableSettingAt(minutes);
-  const dinner =
-    night < 0.5
-      ? assets.dayTable
-      : bistroLight < 0.5
-        ? assets.unlitTable
-        : assets.nightTable;
-  const source =
-    setting === "coffee" ? assets.kopiCup : dinner || assets.nightTable;
-  if (!source) return;
-  const image = prepareTableImage(source);
+  const image =
+    setting === "coffee"
+      ? assets.kopiCup && prepareTableImage(assets.kopiCup)
+      : prepareDinnerFrame(assets, night, bistroLight);
+  if (!image) return;
   ctx.save();
   ctx.filter = "none";
   ctx.globalCompositeOperation = "source-over";
