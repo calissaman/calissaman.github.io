@@ -560,6 +560,7 @@ p {
 }
 .hero-copy {
   max-width: 830px;
+  margin-inline: auto;
 }
 .hero h1 {
   font-size: clamp(42px, 5.7vw, 74px);
@@ -570,7 +571,7 @@ p {
 .hero p {
   font-size: 18px;
   line-height: 1.8;
-  max-width: 62ch;
+  max-width: none;
   color: var(--muted);
 }
 .flow-section {
@@ -875,7 +876,8 @@ p {
 }
 .book-review {
   padding: 44px 0 0;
-  margin-left: 260px;
+  max-width: 830px;
+  margin-inline: auto;
   min-height: 285px;
 }
 .book-review h3 {
@@ -971,9 +973,6 @@ p {
   .section-heading {
     grid-template-columns: 140px 1fr;
     gap: 30px;
-  }
-  .book-review {
-    margin-left: 170px;
   }
   .eval-body {
     grid-template-columns: 140px minmax(0, 1fr);
@@ -1105,9 +1104,6 @@ p {
   }
   .section-heading .kicker {
     margin-bottom: 20px;
-  }
-  .book-review {
-    margin-left: 0;
   }
   .eval-body {
     display: block;
