@@ -111,16 +111,6 @@
   right: 0;
 }
 
-.time-panel[data-view="breeze"] .time-close {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  color: inherit;
-  text-shadow: inherit;
-  font-size: 25px;
-  font-weight: 300;
-}
-
 .time-panel[data-view="breeze"] .city-options {
   order: 0;
   justify-content: center;

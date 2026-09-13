@@ -18,8 +18,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260913-49" />
-    <link rel="stylesheet" href="time-scroller.css?v=20260912-25" />
+    <link rel="stylesheet" href="styles.css?v=20260913-53" />
+    <link rel="stylesheet" href="time-scroller.css?v=20260913-53" />
     <link rel="icon" type="image/png" href="assets/site-monogram.png" />
     <link
       rel="preload"
@@ -115,16 +115,13 @@
               <span class="clock-value">12:00 pm</span>
               <span class="clock-hint">Explore the day</span>
             </button>
+            <button type="button" class="time-close" aria-controls="time-panel">
+              <span aria-hidden="true">×</span>
+              Exit time slider
+            </button>
             <div class="time-panel" id="time-panel" hidden>
               <div class="time-panel-heading">
-                <span>Time of day</span
-                ><button
-                  type="button"
-                  class="time-close"
-                  aria-label="Close time control"
-                >
-                  ×
-                </button>
+                <span>Time of day</span>
               </div>
               <div
                 class="city-options"
