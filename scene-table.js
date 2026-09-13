@@ -4,47 +4,59 @@ export const KOPI_CUPS = Object.freeze([
 ]);
 
 export const NIGHT_TABLE_RECT = Object.freeze({
-  x: 1016,
-  y: 662,
-  width: 152,
-  height: 56,
+  x: 1018,
+  y: 665,
+  width: 122,
+  height: 52,
 });
 
-export function prepareDinnerPatch(image, { unlit = false } = {}) {
+export function prepareDinnerSprite(
+  image,
+  { night = false, unlit = false } = {},
+  createCanvas = () => document.createElement("canvas"),
+) {
   const rect = NIGHT_TABLE_RECT;
-  const canvas = document.createElement("canvas");
+  const canvas = createCanvas();
   canvas.width = rect.width;
   canvas.height = rect.height;
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(
-    image,
-    rect.x,
-    rect.y,
-    rect.width,
-    rect.height,
-    0,
-    0,
-    rect.width,
-    rect.height,
+  const scale = Math.min(
+    (rect.width - 6) / image.width,
+    (rect.height - 6) / image.height,
   );
-  if (unlit) {
-    ctx.globalCompositeOperation = "multiply";
-    ctx.fillStyle = "rgb(22% 29% 37%)";
-    ctx.fillRect(0, 0, rect.width, rect.height);
-  }
-  ctx.globalCompositeOperation = "destination-in";
-  for (const [x0, y0, x1, y1] of [
-    [0, 0, rect.width, 0],
-    [0, 0, 0, rect.height],
+  const width = image.width * scale;
+  const height = image.height * scale;
+  const x = (rect.width - width) / 2;
+  const baseY = rect.height - 3;
+  ctx.fillStyle = "#3a2017";
+  ctx.globalAlpha = 0.22;
+  for (const [center, radius] of [
+    [0.15, 0.1],
+    [0.53, 0.19],
+    [0.9, 0.09],
   ]) {
-    const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
-    const fade = 3 / (x1 || y1);
-    gradient.addColorStop(0, "transparent");
-    gradient.addColorStop(fade, "white");
-    gradient.addColorStop(1 - fade, "white");
-    gradient.addColorStop(1, "transparent");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.beginPath();
+    ctx.ellipse(
+      x + width * center,
+      baseY - 0.5,
+      width * radius,
+      0.8,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.drawImage(image, x, baseY - height, width, height);
+  if (night || unlit) {
+    const light = unlit ? [0.22, 0.29, 0.37] : [0.96, 0.88, 0.76];
+    const pixels = ctx.getImageData(0, 0, rect.width, rect.height);
+    for (let i = 0; i < pixels.data.length; i += 4) {
+      for (let channel = 0; channel < 3; channel++)
+        pixels.data[i + channel] *= light[channel];
+    }
+    ctx.putImageData(pixels, 0, 0);
   }
   return canvas;
 }

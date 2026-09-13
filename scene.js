@@ -28,6 +28,7 @@ import {
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-51";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-52";
+import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -37,8 +38,8 @@ import {
 import {
   drawTableSetting,
   prepareTableImage,
-  prepareDinnerPatch,
-} from "./scene-table.js?v=20260913-54";
+  prepareDinnerSprite,
+} from "./scene-table.js?v=20260913-55";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -76,20 +77,18 @@ export async function createScene({
   };
   for (const [key, file] of [
     ["kopiCup", "kopi-cup-level.png"],
-    ["nightTable", "dinner-night-patch.jpg"],
-    ["dayTable", "dinner-day-patch.jpg"],
+    ["dinner", "tiffin-cocktails.png"],
   ]) {
     loadImage(
-      `assets/scene/${file}?v=${key === "kopiCup" ? "20260913-54" : "20260913-46"}`,
+      `assets/scene/${file}?v=${key === "kopiCup" ? "20260913-54" : "20260913-55"}`,
     ).then(
       (image) => {
-        tableAssets[key] = prepareTableImage(
-          key === "kopiCup" ? image : prepareDinnerPatch(image),
-        );
-        if (key === "dayTable")
-          tableAssets.unlitTable = prepareTableImage(
-            prepareDinnerPatch(image, { unlit: true }),
-          );
+        if (key === "kopiCup") tableAssets.kopiCup = prepareTableImage(image);
+        else {
+          tableAssets.dayTable = prepareDinnerSprite(image);
+          tableAssets.nightTable = prepareDinnerSprite(image, { night: true });
+          tableAssets.unlitTable = prepareDinnerSprite(image, { unlit: true });
+        }
       },
       () => {},
     );
@@ -105,9 +104,11 @@ export async function createScene({
       "green-shutters-closed.jpg",
       "otter-window.png",
       "merlion-plush.png",
+      "bistro-day-patch.png",
+      "bistro-night-patch.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -121,13 +122,25 @@ export async function createScene({
     closedShutters,
     otter,
     merlion,
+    bistroDayPatch,
+    bistroNightPatch,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
   let day = originalDay,
     night = originalNight;
-  let dayOn = originalDay,
-    nightOn = originalNight;
+  if (day && night && bistroDayPatch && bistroNightPatch) {
+    try {
+      [day, night] = await Promise.all([
+        prepareBistroScene(day, bistroDayPatch),
+        prepareBistroScene(night, bistroNightPatch),
+      ]);
+    } catch (error) {
+      console.warn("Bistro artwork patches could not load.", error);
+    }
+  }
+  let dayOn = day,
+    nightOn = night;
   if (day && night) {
     try {
       const [dayPatch, nightPatch] = await Promise.all([
@@ -135,13 +148,13 @@ export async function createScene({
         loadImage("assets/scene/street-night-patch.jpg?v=20260913-43"),
       ]);
       [day, night, dayOn, nightOn] = await Promise.all([
-        prepareStreetScene(originalDay, dayPatch, { lit: false, night: false }),
-        prepareStreetScene(originalNight, nightPatch, {
+        prepareStreetScene(day, dayPatch, { lit: false, night: false }),
+        prepareStreetScene(night, nightPatch, {
           lit: false,
           night: true,
         }),
-        prepareStreetScene(originalDay, dayPatch, { lit: true, night: false }),
-        prepareStreetScene(originalNight, nightPatch, {
+        prepareStreetScene(day, dayPatch, { lit: true, night: false }),
+        prepareStreetScene(night, nightPatch, {
           lit: true,
           night: true,
         }),
