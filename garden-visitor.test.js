@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createGardenVisitor } from "./garden-visitor.js";
 
-function fakeImage({ width = 1024, height = 1024 } = {}) {
+function fakeImage({ width = 1024, height = 1536 } = {}) {
   return {
     id: "raccoon",
     naturalWidth: width,
@@ -89,6 +89,8 @@ function draw(visitor, night = 0) {
       path.push([x, y]);
     },
     closePath() {},
+    ellipse() {},
+    fill() {},
     clip() {
       clip = path;
     },
@@ -144,35 +146,38 @@ test("a native button stays fully hidden and disabled until given a loaded image
   );
 });
 
-test("activation rises quietly in about 0.6 seconds, and a second activation fully conceals it", (t) => {
+test("activation steps out quietly in about 0.6 seconds, and a second activation fully conceals it", (t) => {
   const f = fixture(t);
   f.visitor.setImage(fakeImage());
   f.button.click();
   assert.equal(f.button.getAttribute("aria-pressed"), "true");
   assert.match(f.button.getAttribute("aria-label"), /^Hide/);
   assert.equal(draw(f.visitor).length, 0);
-  let previousY = 745;
+  let previousY = 664;
+  let previousX = 1230;
   for (let i = 0; i < 6; i++) {
     f.visitor.step(0.1, false);
     const sprite = draw(f.visitor)[0];
     assert.ok(
-      sprite.y <= previousY && sprite.y >= 605,
-      "rise must be monotonic without overshoot or bounce",
+      sprite.y <= previousY && sprite.y >= 650,
+      "step must be monotonic without overshoot or bounce",
     );
     assert.equal(
       sprite.alpha,
       1,
       "reveal should move opaque fur, not fade it in",
     );
+    assert.ok(sprite.x <= previousX && sprite.x >= 1090);
+    previousX = sprite.x;
     previousY = sprite.y;
   }
-  assert.ok(Math.abs(previousY - 605) < 1e-9);
+  assert.ok(Math.abs(previousY - 650) < 1e-9);
   f.button.click();
   assert.equal(f.button.getAttribute("aria-pressed"), "false");
   f.visitor.step(0.6, false);
   assert.equal(draw(f.visitor).length, 0);
   assert.equal(f.announcements.length, 2);
-  assert.match(f.announcements[0], /peeks out/);
+  assert.match(f.announcements[0], /steps out/);
   assert.match(f.announcements[1], /settles back/);
 });
 
@@ -181,15 +186,15 @@ test("reduced motion settles reveal and conceal at dt zero, including mid-transi
   f.visitor.setImage(fakeImage());
   f.button.click();
   f.visitor.step(0.15, false);
-  assert.ok(draw(f.visitor)[0].y > 605);
+  assert.ok(draw(f.visitor)[0].y > 650);
   f.visitor.step(0, true);
-  assert.equal(draw(f.visitor)[0].y, 605);
+  assert.equal(draw(f.visitor)[0].y, 650);
   f.button.click();
   f.visitor.step(0, true);
   assert.equal(draw(f.visitor).length, 0);
   f.button.click();
   f.visitor.step(0, true);
-  assert.equal(draw(f.visitor)[0].y, 605);
+  assert.equal(draw(f.visitor)[0].y, 650);
 });
 
 test("rapid reversal is continuous and a zero-delta resume leaves the current position intact", (t) => {
@@ -228,18 +233,18 @@ test("day/night and resize retain reveal, while target bounds include the head a
     Math.abs(
       parseFloat(left) +
         parseFloat(width) / 2 -
-        (1230 * layout.scale + layout.x),
+        ((first.x + first.width / 2) * layout.scale + layout.x),
     ) < 1e-9,
   );
   assert.ok(
     Math.abs(
       parseFloat(top) +
         parseFloat(height) / 2 -
-        (714 * layout.scale + layout.y),
+        ((first.y + first.height / 2) * layout.scale + layout.y),
     ) < 1e-9,
   );
   assert.ok(
-    parseFloat(top) <= 605 * layout.scale + layout.y,
+    parseFloat(top) <= 650 * layout.scale + layout.y,
     "the revealed head must remain clickable",
   );
   assert.equal(
@@ -249,30 +254,24 @@ test("day/night and resize retain reveal, while target bounds include the head a
   );
 });
 
-test("the body is clipped behind hydrangeas while the head keeps the image proportions", (t) => {
+test("the complete raccoon fits inside the reveal without cropping its face or feet", (t) => {
   const f = fixture(t);
-  f.visitor.setImage(fakeImage({ width: 1024, height: 768 }));
+  f.visitor.setImage(fakeImage());
   f.button.click();
   f.visitor.step(0, true);
   const sprite = draw(f.visitor)[0];
-  assert.equal(sprite.x, 1158);
-  assert.equal(sprite.y, 605);
-  assert.equal(sprite.width, 120);
-  assert.equal(sprite.height, 90);
+  assert.equal(sprite.x, 1090);
+  assert.equal(sprite.y, 650);
+  assert.equal(sprite.width, 108);
+  assert.equal(sprite.height, 162);
   assert.equal(sprite.composite, "source-over");
-  assert.ok(
-    sprite.clip.some(([x, y]) => x >= 1220 && x <= 1250 && y < 670),
-    "the main blue mophead must occlude the lower face/chest",
-  );
-  assert.ok(
-    sprite.clip.some(([x, y]) => x < 1190 && y > 710),
-    "the left edge permits a natural peek alongside the flower cluster",
-  );
-  assert.ok(
-    sprite.clip.every(
-      ([x, y]) => x >= 1140 && x <= 1275 && y >= 590 && y <= 738,
-    ),
-  );
+  const xs = sprite.clip.map(([x]) => x);
+  const ys = sprite.clip.map(([, y]) => y);
+  assert.ok(sprite.x >= Math.min(...xs));
+  assert.ok(sprite.x + sprite.width <= Math.max(...xs));
+  assert.ok(sprite.y >= Math.min(...ys));
+  assert.ok(sprite.y + sprite.height <= Math.max(...ys));
+  assert.equal(sprite.width / sprite.height, 1024 / 1536);
 });
 
 test("null resets safely and never leaves a clickable missing visitor", (t) => {
@@ -301,41 +300,33 @@ test("null resets safely and never leaves a clickable missing visitor", (t) => {
   );
 });
 
-test("the chest remains visible until it reaches a flower, with the body extending behind the plant", (t) => {
+test("the click target follows the full raccoon and returns to the hydrangeas when hidden", (t) => {
   const f = fixture(t);
   f.visitor.setImage(fakeImage());
-  f.button.click();
-  f.visitor.step(0, true);
-  const sprite = draw(f.visitor)[0];
-  function insideClip(x, y) {
-    let inside = false;
-    for (
-      let i = 0, j = sprite.clip.length - 1;
-      i < sprite.clip.length;
-      j = i++
-    ) {
-      const [xi, yi] = sprite.clip[i];
-      const [xj, yj] = sprite.clip[j];
-      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi)
-        inside = !inside;
-    }
-    return inside;
+  for (const layout of [
+    { scale: 1, x: 0, y: 0 },
+    { scale: 390 / 1030, x: -136, y: 264 },
+  ]) {
+    f.visitor.resize(layout);
+    const hiddenLeft = parseFloat(f.button.style.left);
+    f.button.click();
+    f.visitor.step(0, true);
+    const sprite = draw(f.visitor)[0];
+    const { left, top, width, height } = f.button.style;
+    assert.ok(parseFloat(left) < hiddenLeft);
+    assert.ok(parseFloat(left) <= layout.x + sprite.x * layout.scale + 1e-9);
+    assert.ok(parseFloat(top) <= layout.y + sprite.y * layout.scale + 1e-9);
+    assert.ok(
+      parseFloat(left) + parseFloat(width) >=
+        layout.x + (sprite.x + sprite.width) * layout.scale - 1e-9,
+    );
+    assert.ok(
+      parseFloat(top) + parseFloat(height) >=
+        layout.y + (sprite.y + sprite.height) * layout.scale - 1e-9,
+    );
+    f.button.click();
+    f.visitor.step(0, true);
+    assert.equal(parseFloat(f.button.style.left), hiddenLeft);
+    assert.deepEqual(draw(f.visitor), []);
   }
-  assert.ok(
-    insideClip(1212, 683),
-    "the mask must not cut a wedge through the chest",
-  );
-  assert.ok(
-    insideClip(1200, 707),
-    "the lower body must continue to the left flower cluster",
-  );
-  assert.equal(
-    insideClip(1240, 695),
-    false,
-    "the large blue flower stays in front of the body",
-  );
-  assert.ok(
-    sprite.y + sprite.height >= 725,
-    "the sprite must extend into the foliage instead of ending above it",
-  );
 });

@@ -1,7 +1,7 @@
-const SPRITE_X = 1158;
-const SPRITE_TOP = 605;
-const SPRITE_WIDTH = 120;
-const RISE = 140;
+const SPRITE_X = 1090;
+const SPRITE_TOP = 650;
+const SPRITE_WIDTH = 108;
+const STEP_OUT = 140;
 const DURATION = 0.6;
 
 export function createGardenVisitor({ stage, announce = () => {} }) {
@@ -22,6 +22,25 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
   let revealed = false;
   let amount = 0;
   let quiet = false;
+  let layout = null;
+
+  function placeButton() {
+    if (!layout) return;
+    const spriteHeight = image
+      ? (SPRITE_WIDTH * image.naturalHeight) / image.naturalWidth
+      : SPRITE_WIDTH * 1.5;
+    const [x, y, w, h] = revealed
+      ? [SPRITE_X, SPRITE_TOP, SPRITE_WIDTH, spriteHeight]
+      : [1178, 660, 118, 168];
+    const width = Math.max(44, w * layout.scale);
+    const height = Math.max(44, h * layout.scale);
+    Object.assign(button.style, {
+      left: `${layout.x + (x + w / 2) * layout.scale - width / 2}px`,
+      top: `${layout.y + (y + h / 2) * layout.scale - height / 2}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    });
+  }
 
   function updateLabel() {
     button.setAttribute("aria-pressed", String(revealed));
@@ -36,8 +55,9 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
     revealed = !revealed;
     if (quiet) amount = Number(revealed);
     updateLabel();
+    placeButton();
     announce(
-      `The blonde raccoon ${revealed ? "peeks out from behind" : "settles back behind"} the hydrangeas.`,
+      `The blonde raccoon ${revealed ? "steps out from behind" : "settles back behind"} the hydrangeas.`,
     );
   });
 
@@ -48,16 +68,11 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
       revealed = false;
       amount = 0;
       updateLabel();
+      placeButton();
     },
-    resize(layout) {
-      const width = Math.max(44, 160 * layout.scale);
-      const height = Math.max(44, 228 * layout.scale);
-      Object.assign(button.style, {
-        left: `${layout.x + 1230 * layout.scale - width / 2}px`,
-        top: `${layout.y + 714 * layout.scale - height / 2}px`,
-        width: `${width}px`,
-        height: `${height}px`,
-      });
+    resize(nextLayout) {
+      layout = nextLayout;
+      placeButton();
     },
     step(dt, reduced) {
       quiet = Boolean(reduced);
@@ -77,37 +92,33 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
       const height = image.naturalHeight;
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(1140, 590);
-      ctx.lineTo(1275, 590);
-      ctx.lineTo(1275, 677);
-      ctx.lineTo(1260, 674);
-      ctx.lineTo(1252, 667);
-      ctx.lineTo(1243, 665);
-      ctx.lineTo(1236, 668);
-      ctx.lineTo(1232, 673);
-      ctx.lineTo(1225, 676);
-      ctx.lineTo(1221, 681);
-      ctx.lineTo(1216, 687);
-      ctx.lineTo(1212, 696);
-      ctx.lineTo(1208, 704);
-      ctx.lineTo(1206, 712);
-      ctx.lineTo(1196, 716);
-      ctx.lineTo(1190, 724);
-      ctx.lineTo(1184, 732);
-      ctx.lineTo(1177, 738);
-      ctx.lineTo(1140, 738);
+      ctx.moveTo(1040, 628);
+      ctx.lineTo(1198, 628);
+      ctx.lineTo(1198, 840);
+      ctx.lineTo(1040, 840);
       ctx.closePath();
       ctx.clip();
+      const x = SPRITE_X + STEP_OUT * (1 - eased);
+      const y = SPRITE_TOP + 14 * (1 - eased);
+      const spriteHeight = (SPRITE_WIDTH * height) / width;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 0.18 * eased;
+      ctx.fillStyle = "#14271f";
+      ctx.beginPath();
+      ctx.ellipse(
+        x + SPRITE_WIDTH * 0.6,
+        y + spriteHeight * 0.977,
+        SPRITE_WIDTH * 0.31,
+        3,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
       ctx.filter = `brightness(${0.96 - Math.max(0, Math.min(1, night)) * 0.18})`;
-      ctx.drawImage(
-        image,
-        SPRITE_X,
-        SPRITE_TOP + RISE * (1 - eased),
-        SPRITE_WIDTH,
-        (SPRITE_WIDTH * height) / width,
-      );
+      ctx.drawImage(image, x, y, SPRITE_WIDTH, spriteHeight);
       ctx.restore();
     },
   };

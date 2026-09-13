@@ -27,7 +27,7 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-51";
-import { createGardenVisitor } from "./garden-visitor.js?v=20260913-47";
+import { createGardenVisitor } from "./garden-visitor.js?v=20260913-52";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -290,7 +290,7 @@ export async function createScene({
       status.textContent = message;
     },
   });
-  loadImage("assets/scene/blonde-raccoon.png?v=20260913-34").then(
+  loadImage("assets/scene/blonde-raccoon-full.png?v=20260913-52").then(
     (image) => {
       gardenVisitor.setImage(image);
       draw();
@@ -590,7 +590,6 @@ export async function createScene({
         waterField: waterSurface.frame,
       });
     windows.draw(ctx, displayNight);
-    gardenVisitor.draw(ctx, displayNight);
     drawTableSetting(ctx, tableAssets, {
       night: displayNight,
       bistroLight: lights[0],
@@ -598,6 +597,7 @@ export async function createScene({
       time: sim.time,
       reduced,
     });
+    gardenVisitor.draw(ctx, displayNight);
     drawMorningGlory(ctx, morningGlory, displayMorningGlory, displayNight);
     flowers.draw(ctx, displayNight);
     for (const [x, y, angle] of [
