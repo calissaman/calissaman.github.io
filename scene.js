@@ -32,18 +32,18 @@ import {
 } from "./scene-windows.js?v=20260913-60";
 import { prepareFacadeScene } from "./scene-facade.js?v=20260914-73";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
-import { prepareBistroScene } from "./bistro-scene.js?v=20260914-74";
+import { prepareBistroScene } from "./bistro-scene.js?v=20260914-75";
 import {
   createDaylightEffects,
   daylightAt,
 } from "./daylight-effects.js?v=20260913-69";
-import { createSceneDetails } from "./scene-details.js?v=20260914-74";
+import { createSceneDetails } from "./scene-details.js?v=20260914-75";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
   morningGloryAt,
   drawMorningGlory,
-} from "./morning-glory.js?v=20260912-31";
+} from "./morning-glory.js?v=20260914-75";
 import {
   drawTableSetting,
   prepareTableImage,
@@ -139,9 +139,11 @@ export async function createScene({
       "planter-night-clean.png",
       "pillar-day-blue.png",
       "pillar-night-blue.png",
+      "morning-glory-vine-day.png",
+      "morning-glory-vine-night.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -175,6 +177,8 @@ export async function createScene({
     planterNight,
     pillarDay,
     pillarNight,
+    vineDay,
+    vineNight,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
@@ -214,10 +218,12 @@ export async function createScene({
         prepareBistroScene(day, bistroDayPatch, {
           shared: bistroRoom,
           pillar: pillarDay,
+          vine: vineDay,
         }),
         prepareBistroScene(night, bistroNightPatch, {
           shared: bistroRoom,
           pillar: pillarNight,
+          vine: vineNight,
           night: true,
         }),
       ]);
@@ -370,6 +376,7 @@ export async function createScene({
     night: nightOn,
     bistro: bistroRoom,
     pillars: [pillarDay, pillarNight],
+    vines: [vineDay, vineNight],
   });
   const lightPatches = prepareLightPatches({
     day: dayOn,

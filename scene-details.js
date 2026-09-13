@@ -1,8 +1,9 @@
 import {
   BISTRO_ROOM_RECT,
   prepareBistroDetails,
-} from "./bistro-scene.js?v=20260914-74";
+} from "./bistro-scene.js?v=20260914-75";
 import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
+import { drawMorningGloryVine } from "./morning-glory.js?v=20260914-75";
 
 const RECT = { x: 410, y: 0, width: 860, height: 832 };
 const OUTLINE = [
@@ -24,6 +25,7 @@ export function createSceneDetails({
   night,
   bistro,
   pillars = [],
+  vines = [],
 }) {
   if (!day || !night) return { resize() {}, draw() {} };
   const canvas = document.createElement("canvas");
@@ -84,6 +86,10 @@ export function createSceneDetails({
       for (const [i, image] of pillars.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawBluePillar(ctx, image);
+      }
+      for (const [i, image] of vines.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawMorningGloryVine(ctx, image);
       }
       if (portrait) {
         ctx.globalAlpha = 1;

@@ -1,4 +1,5 @@
 import { drawBluePillar } from "./pillar-art.js?v=20260914-74";
+import { drawMorningGloryVine } from "./morning-glory.js?v=20260914-75";
 
 export const BISTRO_EDIT_REGIONS = Object.freeze([
   { x: 842, y: 639, width: 127, height: 176 },
@@ -66,7 +67,7 @@ function paintRegion(
 export async function prepareBistroScene(
   original,
   patch,
-  { shared, pillar, night = false } = {},
+  { shared, pillar, vine, night = false } = {},
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -81,6 +82,7 @@ export async function prepareBistroScene(
     for (const rect of BISTRO_SHARED_REGIONS)
       paintRegion(ctx, shared, rect, createCanvas, { cropped: true, night });
   drawBluePillar(ctx, pillar);
+  drawMorningGloryVine(ctx, vine);
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);
