@@ -237,6 +237,7 @@ p {
 }
 .scene-objects {
   pointer-events: none;
+  z-index: 2;
 }
 .shophouse-hero::after {
   content: "";

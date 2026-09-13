@@ -96,7 +96,7 @@ function recorder() {
     arc() {},
     closePath() {},
     clip() {},
-    drawImage(image) { draws.push({ image, alpha: this.globalAlpha }); },
+    drawImage(image) { draws.push({ image, alpha: this.globalAlpha, filter: this.filter }); },
   };
 }
 
@@ -183,5 +183,20 @@ test("clicked flowers begin with opaque petals and fade only as the breakup reti
       f.flowers.draw(retired, 0);
       assert.deepEqual(retired.draws, []);
     });
+  }
+});
+
+test("night mode preserves the solid flower's petal colours while falling and floating", (t) => {
+  const f = fixture(t);
+  const flower = addFlower(f.sim, 755, 910);
+  for (const falling of [true, false]) {
+    flower.falling = falling;
+    const day = recorder();
+    const night = recorder();
+    f.flowers.draw(day, 0);
+    f.flowers.draw(night, 1);
+    assert.equal(night.draws.at(-1).filter, day.draws.at(-1).filter);
+    assert.equal(night.draws.at(-1).alpha, 1);
+    assert.equal(day.draws.at(-1).alpha, 1);
   }
 });

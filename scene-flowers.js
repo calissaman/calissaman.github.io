@@ -171,7 +171,7 @@ export function createFlowers({
           button.dataset.view = sprite.view;
         ctx.save();
         ctx.globalCompositeOperation = "source-over";
-        ctx.filter = `brightness(${1 - night * 0.12}) contrast(1.12) saturate(1.12)`;
+        ctx.filter = "contrast(1.12) saturate(1.2)";
         if (flower.breaking) {
           const size = flower.fragmentSize;
           for (const petal of flower.petals) {
