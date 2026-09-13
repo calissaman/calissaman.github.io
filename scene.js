@@ -20,7 +20,7 @@ import {
   createRenderer,
   drawWaterFallback,
 } from "./scene-renderer.js?v=20260913-43";
-import { createFlowers } from "./scene-flowers.js?v=20260913-35";
+import { createFlowers } from "./scene-flowers.js?v=20260913-45";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
 import {

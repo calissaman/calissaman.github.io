@@ -171,7 +171,7 @@ export function createFlowers({
           button.dataset.view = sprite.view;
         ctx.save();
         ctx.globalCompositeOperation = "source-over";
-        ctx.filter = `brightness(${1 - night * 0.3})`;
+        ctx.filter = `brightness(${1 - night * 0.12}) contrast(1.12) saturate(1.12)`;
         if (flower.breaking) {
           const size = flower.fragmentSize;
           for (const petal of flower.petals) {
@@ -211,6 +211,9 @@ export function createFlowers({
             ctx.restore();
           }
           ctx.globalAlpha = 1;
+          ctx.shadowColor = night > 0.5 ? "#03101999" : "#40223566";
+          ctx.shadowBlur = 2;
+          ctx.shadowOffsetY = 1;
           paintFlower(ctx, size, sprite);
           button.style.transform = `translate(${layout.x + flower.x * layout.scale - 22}px,${layout.y + flower.y * layout.scale - 22}px)`;
         }
