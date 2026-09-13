@@ -14,6 +14,26 @@ export const WALL_LAMP_RECT = Object.freeze({
   height: 52,
 });
 
+const PLANTER_CROP = [680, 736, 80, 60];
+
+function drawCleanPlanter(ctx, image, createCanvas) {
+  const mask = createCanvas();
+  mask.width = 26;
+  mask.height = 25;
+  const paint = mask.getContext("2d");
+  paint.scale(13, 12.5);
+  const fade = paint.createRadialGradient(1, 1, 0.62, 1, 1, 1);
+  fade.addColorStop(0, "white");
+  fade.addColorStop(1, "transparent");
+  paint.fillStyle = fade;
+  paint.fillRect(0, 0, 2, 2);
+  paint.setTransform(1, 0, 0, 1, 0, 0);
+  paint.globalCompositeOperation = "source-in";
+  const [x, y, width, height] = PLANTER_CROP;
+  paint.drawImage(image, x - 708, y - 750, width, height);
+  ctx.drawImage(mask, 708, 750);
+}
+
 export const GREEN_WINDOW_OPENINGS = Object.freeze([
   [
     [444, 307],
@@ -71,7 +91,7 @@ export function traceGreenWindows(ctx) {
 
 export async function prepareFacadeScene(
   original,
-  { floral, wallLamp, panels, night = false },
+  { floral, wallLamp, panels, planter, night = false },
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -100,6 +120,7 @@ export async function prepareFacadeScene(
   }
   if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });
   drawMatchingYellowShutters(ctx);
+  if (planter) drawCleanPlanter(ctx, planter, createCanvas);
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);

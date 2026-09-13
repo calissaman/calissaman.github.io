@@ -30,7 +30,7 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-60";
-import { prepareFacadeScene } from "./scene-facade.js?v=20260913-65";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260914-73";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-68";
 import {
@@ -135,9 +135,11 @@ export async function createScene({
       "bistro-room-consistent.png",
       "park-frangipani-day.png",
       "park-frangipani-night.png",
+      "planter-day-clean.png",
+      "planter-night-clean.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -167,6 +169,8 @@ export async function createScene({
     bistroRoom,
     parkDay,
     parkNight,
+    planterDay,
+    planterNight,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
@@ -186,11 +190,13 @@ export async function createScene({
           floral: facadeDayPatch,
           wallLamp: wallLampDayPatch,
           panels,
+          planter: planterDay,
         }),
         prepareFacadeScene(night, {
           floral: facadeNightPatch,
           wallLamp: wallLampNightPatch,
           panels,
+          planter: planterNight,
           night: true,
         }),
       ]);
