@@ -1,7 +1,7 @@
-const SPRITE_X = 1181;
-const SPRITE_TOP = 625;
-const SPRITE_WIDTH = 80;
-const RISE = 90;
+const SPRITE_X = 1158;
+const SPRITE_TOP = 605;
+const SPRITE_WIDTH = 120;
+const RISE = 140;
 const DURATION = 0.6;
 
 export function createGardenVisitor({ stage, announce = () => {} }) {
@@ -50,11 +50,11 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
       updateLabel();
     },
     resize(layout) {
-      const width = Math.max(44, 130 * layout.scale);
-      const height = Math.max(44, 202 * layout.scale);
+      const width = Math.max(44, 160 * layout.scale);
+      const height = Math.max(44, 228 * layout.scale);
       Object.assign(button.style, {
-        left: `${layout.x + 1245 * layout.scale - width / 2}px`,
-        top: `${layout.y + 726 * layout.scale - height / 2}px`,
+        left: `${layout.x + 1230 * layout.scale - width / 2}px`,
+        top: `${layout.y + 714 * layout.scale - height / 2}px`,
         width: `${width}px`,
         height: `${height}px`,
       });
@@ -77,18 +77,25 @@ export function createGardenVisitor({ stage, announce = () => {} }) {
       const height = image.naturalHeight;
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(1174, 610);
-      ctx.lineTo(1268, 610);
-      ctx.lineTo(1268, 677);
-      ctx.lineTo(1254, 674);
-      ctx.lineTo(1242, 667);
-      ctx.lineTo(1227, 668);
-      ctx.lineTo(1214, 674);
-      ctx.lineTo(1207, 687);
-      ctx.lineTo(1205, 699);
-      ctx.lineTo(1194, 704);
-      ctx.lineTo(1186, 714);
-      ctx.lineTo(1174, 718);
+      ctx.moveTo(1140, 590);
+      ctx.lineTo(1275, 590);
+      ctx.lineTo(1275, 677);
+      ctx.lineTo(1260, 674);
+      ctx.lineTo(1252, 667);
+      ctx.lineTo(1243, 665);
+      ctx.lineTo(1236, 668);
+      ctx.lineTo(1232, 673);
+      ctx.lineTo(1225, 676);
+      ctx.lineTo(1221, 681);
+      ctx.lineTo(1216, 687);
+      ctx.lineTo(1212, 696);
+      ctx.lineTo(1208, 704);
+      ctx.lineTo(1206, 712);
+      ctx.lineTo(1196, 716);
+      ctx.lineTo(1190, 724);
+      ctx.lineTo(1184, 732);
+      ctx.lineTo(1177, 738);
+      ctx.lineTo(1140, 738);
       ctx.closePath();
       ctx.clip();
       ctx.globalAlpha = 1;
