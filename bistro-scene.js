@@ -20,12 +20,14 @@ function paintRegion(
   image,
   rect,
   createCanvas,
-  { cropped = false, night = false } = {},
+  { cropped = false, night = false, resolution = 1 } = {},
 ) {
   const local = createCanvas();
-  local.width = rect.width;
-  local.height = rect.height;
+  local.width = Math.round(rect.width * resolution);
+  local.height = Math.round(rect.height * resolution);
   const paint = local.getContext("2d");
+  paint.scale(resolution, resolution);
+  paint.imageSmoothingQuality = "high";
   const scale = cropped
     ? (image.naturalWidth || image.width) / BISTRO_ROOM_RECT.width
     : 1;
@@ -56,7 +58,7 @@ function paintRegion(
     paint.fillStyle = gradient;
     paint.fillRect(0, 0, rect.width, rect.height);
   }
-  ctx.drawImage(local, rect.x, rect.y);
+  ctx.drawImage(local, rect.x, rect.y, rect.width, rect.height);
 }
 
 export async function prepareBistroScene(
@@ -81,4 +83,26 @@ export async function prepareBistroScene(
   image.src = URL.createObjectURL(blob);
   await image.decode();
   return image;
+}
+
+export function prepareBistroDetails(
+  shared,
+  night = false,
+  createCanvas = () => document.createElement("canvas"),
+) {
+  const resolution =
+    (shared.naturalWidth || shared.width) / BISTRO_ROOM_RECT.width;
+  const canvas = createCanvas();
+  canvas.width = Math.round(BISTRO_ROOM_RECT.width * resolution);
+  canvas.height = Math.round(BISTRO_ROOM_RECT.height * resolution);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(resolution, resolution);
+  ctx.translate(-BISTRO_ROOM_RECT.x, -BISTRO_ROOM_RECT.y);
+  for (const rect of BISTRO_SHARED_REGIONS)
+    paintRegion(ctx, shared, rect, createCanvas, {
+      cropped: true,
+      night,
+      resolution,
+    });
+  return canvas;
 }

@@ -18,7 +18,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260913-67" />
+    <link rel="stylesheet" href="styles.css?v=20260913-68" />
     <link rel="stylesheet" href="time-scroller.css?v=20260913-61" />
     <link rel="icon" type="image/png" href="assets/site-monogram.png" />
     <link
@@ -74,6 +74,28 @@
           class="shophouse-hero"
           aria-label="Singapore after rain, an interactive shophouse scene"
         >
+          <svg
+            width="0"
+            height="0"
+            aria-hidden="true"
+            focusable="false"
+            style="position: absolute"
+          >
+            <defs>
+              <filter
+                id="scene-detail-sharpen"
+                color-interpolation-filters="sRGB"
+              >
+                <feConvolveMatrix
+                  order="3"
+                  kernelMatrix="0 -.08 0 -.08 1.32 -.08 0 -.08 0"
+                  divisor="1"
+                  preserveAlpha="true"
+                  edgeMode="duplicate"
+                />
+              </filter>
+            </defs>
+          </svg>
           <div class="scene-stage">
             <img
               class="scene-fallback"
@@ -759,6 +781,6 @@
       </footer>
     </div>
 
-    <script type="module" src="app.js?v=20260913-67"></script>
+    <script type="module" src="app.js?v=20260913-68"></script>
   </body>
 </html>

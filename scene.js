@@ -32,7 +32,8 @@ import {
 } from "./scene-windows.js?v=20260913-60";
 import { prepareFacadeScene } from "./scene-facade.js?v=20260913-65";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
-import { prepareBistroScene } from "./bistro-scene.js?v=20260913-66";
+import { prepareBistroScene } from "./bistro-scene.js?v=20260913-68";
+import { createSceneDetails } from "./scene-details.js?v=20260913-68";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -337,6 +338,12 @@ export async function createScene({
     range = hero.querySelector("#environment-time"),
     mode = hero.querySelector(".time-mode"),
     status = hero.querySelector(".scene-status");
+  const details = createSceneDetails({
+    stage,
+    day: dayOn,
+    night: nightOn,
+    bistro: bistroRoom,
+  });
   const lightPatches = prepareLightPatches({
     day: dayOn,
     night: nightOn,
@@ -513,6 +520,7 @@ export async function createScene({
     width = stage.clientWidth;
     height = stage.clientHeight;
     layout = sceneLayout(width, height);
+    details.resize(layout, window.devicePixelRatio || 1);
     if (geometryChanged) waterSurface.resize({ width, height, layout });
     pixelRatio = resolution.resize(
       { width, height, dpr: window.devicePixelRatio || 1 },
@@ -663,6 +671,7 @@ export async function createScene({
         reduced,
         waterField: waterSurface.frame,
       });
+    details.draw(displayNight);
     lighting.draw(ctx, displayNight);
     yellowWindows.draw(ctx, displayNight);
     windows.draw(ctx, displayNight);

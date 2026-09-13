@@ -1,0 +1,89 @@
+import {
+  BISTRO_ROOM_RECT,
+  prepareBistroDetails,
+} from "./bistro-scene.js?v=20260913-68";
+
+const RECT = { x: 410, y: 0, width: 860, height: 832 };
+const OUTLINE = [
+  [425, 204],
+  [675, 144],
+  [675, 129],
+  [902, 73],
+  [914, 48],
+  [1005, 27],
+  [1005, 0],
+  [1260, 0],
+  [1260, 824],
+  [425, 781],
+];
+
+export function createSceneDetails({ stage, day, night, bistro }) {
+  if (!day || !night) return { resize() {}, draw() {} };
+  const canvas = document.createElement("canvas");
+  canvas.className = "scene-details";
+  canvas.setAttribute("aria-hidden", "true");
+  stage.append(canvas);
+  const ctx = canvas.getContext("2d");
+  const bistroImages = bistro
+    ? [prepareBistroDetails(bistro), prepareBistroDetails(bistro, true)]
+    : [];
+  let geometry = "",
+    lastTone = -1,
+    portrait = false;
+
+  return {
+    resize(layout, dpr) {
+      const width = RECT.width * layout.scale;
+      const height = RECT.height * layout.scale;
+      const density = Math.min(dpr, 3, Math.sqrt(3_000_000 / (width * height)));
+      const next = `${width}/${height}/${density}/${layout.portrait}`;
+      Object.assign(canvas.style, {
+        left: `${layout.x + RECT.x * layout.scale}px`,
+        top: `${layout.y}px`,
+        width: `${width}px`,
+        height: `${height}px`,
+      });
+      if (next === geometry) return;
+      geometry = next;
+      canvas.width = Math.round(width * density);
+      canvas.height = Math.round(height * density);
+      portrait = layout.portrait;
+      lastTone = -1;
+    },
+    draw(amount) {
+      const tone = Math.round(amount * 255);
+      if (!geometry || tone === lastTone) return;
+      lastTone = tone;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.scale(canvas.width / RECT.width, canvas.height / RECT.height);
+      ctx.translate(-RECT.x, -RECT.y);
+      ctx.imageSmoothingQuality = "high";
+      ctx.beginPath();
+      OUTLINE.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath();
+      ctx.clip();
+      for (const [i, source] of [day, night].entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        if (!ctx.globalAlpha) continue;
+        ctx.drawImage(source, 0, 0, 1536, 1024);
+      }
+      for (const [i, image] of bistroImages.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        const { x, y, width, height } = BISTRO_ROOM_RECT;
+        ctx.drawImage(image, x, y, width, height);
+      }
+      if (portrait) {
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "destination-in";
+        const fade = ctx.createLinearGradient(0, 0, 0, 113);
+        fade.addColorStop(0, "transparent");
+        fade.addColorStop(1, "white");
+        ctx.fillStyle = fade;
+        ctx.fillRect(RECT.x, RECT.y, RECT.width, RECT.height);
+      }
+      ctx.restore();
+    },
+  };
+}
