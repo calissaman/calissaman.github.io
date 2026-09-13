@@ -4,7 +4,7 @@ import {
   addRipple,
   breakFlower,
   flowerSize,
-} from "./scene-model.js?v=20260913-63";
+} from "./scene-model.js?v=20260913-67";
 
 export function prepareFlowerImage(
   image,
@@ -43,7 +43,8 @@ export function createFlowers({
     return { ...sprite, image };
   });
   const cancelGestures = [];
-  const buttons = sim.flowers.map((flower) => {
+  const buttons = [];
+  function createButton(flower) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "floating-flower";
@@ -130,7 +131,7 @@ export function createFlowers({
       addRipple(sim, flower.x, flower.y);
     });
     return button;
-  });
+  }
 
   function paintFlower(ctx, size, sprite) {
     const [x, y, width, height] = sprite.crop;
@@ -155,7 +156,7 @@ export function createFlowers({
     draw(ctx, night) {
       const layout = getLayout();
       for (const flower of sim.flowers) {
-        const button = buttons[flower.id];
+        const button = (buttons[flower.id] ??= createButton(flower));
         const appeared = flower.active && !(sim.time < flower.startsAt);
         const state = !appeared
           ? "inactive"

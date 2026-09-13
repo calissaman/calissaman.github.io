@@ -1,7 +1,6 @@
 export const SCENE = Object.freeze({
   width: 1536,
   height: 1024,
-  maxFlowers: 7,
   maxRipples: 12,
 });
 export const WATER = Object.freeze({
@@ -168,31 +167,13 @@ function resetPetal(petal) {
   });
 }
 
-export function createSimulation({ maxFlowers = SCENE.maxFlowers } = {}) {
+export function createSimulation() {
   return {
     time: 0,
     nextWaterFlowerAt: 4,
     flowerCursor: 0,
     rippleCursor: 0,
-    flowers: Array.from({ length: maxFlowers }, (_, id) => ({
-      id,
-      active: false,
-      x: 0,
-      y: 0,
-      vx: 0,
-      vy: 0,
-      angle: 0,
-      falling: false,
-      landedAt: null,
-      appearedAt: -2,
-      variant: 0,
-      dragged: false,
-      breaking: false,
-      fragmentSize: 0,
-      breakReduced: false,
-      petalRippleAdded: false,
-      petals: PETAL_DIRECTIONS.map((_, index) => resetPetal({ index })),
-    })),
+    flowers: [],
     ripples: Array.from({ length: SCENE.maxRipples }, () => ({
       active: false,
       x: 0,
@@ -206,8 +187,14 @@ export function addRipple(sim, x, y) {
   Object.assign(r, { active: true, x, y, age: 0 });
 }
 export function addFlower(sim, x, y, falling = false) {
-  const f = sim.flowers.find((f) => !f.active);
-  if (!f) return null;
+  let f = sim.flowers.find((f) => !f.active);
+  if (!f) {
+    f = {
+      id: sim.flowers.length,
+      petals: PETAL_DIRECTIONS.map((_, index) => resetPetal({ index })),
+    };
+    sim.flowers.push(f);
+  }
   Object.assign(f, {
     active: true,
     startsAt: sim.time,
@@ -238,8 +225,7 @@ export function maintainWaterFlowers(sim, minimum = 4) {
   const floating = sim.flowers.filter(
     (f) => f.active && !f.falling && !f.breaking,
   );
-  if (floating.length >= minimum || !sim.flowers.some((f) => !f.active))
-    return null;
+  if (floating.length >= minimum) return null;
   // Retired breakup origins remain useful until their pooled slots are reused.
   const occupied = sim.flowers.filter(
     (f) => f.breaking || (f.active && !f.falling),

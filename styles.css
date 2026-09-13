@@ -258,6 +258,10 @@ p {
   z-index: 3;
   cursor: pointer;
 }
+.branch-hotspot,
+.angsana-hotspot {
+  z-index: 4;
+}
 .scene-hotspot:focus-visible {
   background: #fff8d920;
   outline-color: #fff6d6;

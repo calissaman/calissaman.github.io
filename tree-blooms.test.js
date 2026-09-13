@@ -6,10 +6,10 @@ import {
   inWater,
   addFlower,
 } from "./scene-model.js";
-import { createTreeBlooms, TREE_FLOWER_CAPACITY } from "./tree-blooms.js";
+import { createTreeBlooms } from "./tree-blooms.js";
 
 function setup(random = () => 0.5, options = {}) {
-  const sim = createSimulation({ maxFlowers: TREE_FLOWER_CAPACITY });
+  const sim = createSimulation();
   return { sim, trees: createTreeBlooms(sim, { random, ...options }) };
 }
 function advance(sim, trees, seconds, reduced = false) {
@@ -35,6 +35,21 @@ test("each tree accepts 88 clicks independently, even during a rapid three-bloom
   for (let i = 0; i < 88; i++) assert.equal(trees.release("angsana").count, 1);
   assert.equal(trees.yellow.length, 88);
   assert.equal(trees.release("angsana").accepted, false);
+});
+
+test("existing blooms never block clicks or automatic falls", () => {
+  const { sim, trees } = setup(() => 0.999);
+  for (let i = 0; i < 400; i++) addFlower(sim, 700, 940);
+  for (let i = 0; i < 88; i++) {
+    assert.equal(trees.release("trumpet").count, 3);
+    assert.equal(trees.release("angsana").count, 1);
+  }
+  sim.time = 19;
+  trees.step();
+  assert.equal(sim.flowers.filter((f) => f.active).length, 667);
+  assert.equal(trees.yellow.length, 89);
+  assert.equal(trees.remaining("trumpet"), 0);
+  assert.equal(trees.remaining("angsana"), 0);
 });
 
 test("trumpet groups vary between one, two, and three; angsana always releases one", () => {

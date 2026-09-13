@@ -12,7 +12,7 @@ import {
   addFlower,
   stepSimulation,
   maintainWaterFlowers,
-} from "./scene-model.js?v=20260913-63";
+} from "./scene-model.js?v=20260913-67";
 import {
   createRenderer,
   drawWaterFallback,
@@ -23,7 +23,7 @@ import {
   SCENE_LIGHTS,
 } from "./scene-lighting.js?v=20260913-66";
 import { createYellowWindows } from "./yellow-windows.js?v=20260913-65";
-import { createFlowers } from "./scene-flowers.js?v=20260913-63";
+import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
@@ -47,9 +47,8 @@ import {
 
 import {
   createTreeBlooms,
-  TREE_FLOWER_CAPACITY,
   TREE_HOTSPOTS,
-} from "./tree-blooms.js?v=20260913-63";
+} from "./tree-blooms.js?v=20260913-67";
 import { prepareTreeScene } from "./tree-art.js?v=20260913-63";
 
 function loadImage(src) {
@@ -109,7 +108,7 @@ export async function createScene({
       "day-v12.png",
       "night-v12.png",
       "trumpet-front-v3.png",
-      "trumpet-side-v3.png",
+      "trumpet-side-v4.png",
       "bud.png",
       "bloom.png",
       "green-shutters-closed.jpg",
@@ -124,14 +123,14 @@ export async function createScene({
       "panel-green-symmetric.png",
       "panel-cream-symmetric.png",
       "panel-blue-symmetric.png",
-      "canopy-day.png",
-      "canopy-night.png",
+      "canopy-day-v2.png",
+      "canopy-night-v2.png",
       "angsana-flower.png",
       "yellow-window-interior.png",
       "bistro-room-consistent.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -239,8 +238,8 @@ export async function createScene({
     {
       image: flowerSide,
       view: "side",
-      crop: [34, 28, 456, 456],
-      origin: [309 / 456, 210 / 456],
+      crop: [0, 0, 512, 512],
+      origin: [0.57, 0.5],
       edges: [-2.7, -1.1, 0.2, 1.3, 2.9, Math.PI * 2 - 2.7],
     },
   ].filter((sprite) => sprite.image);
@@ -295,7 +294,7 @@ export async function createScene({
     budContext.fillStyle = "rgba(91,119,39,.68)";
     budContext.fillRect(0, 0, bud.width, bud.height);
   }
-  const sim = createSimulation({ maxFlowers: TREE_FLOWER_CAPACITY });
+  const sim = createSimulation();
   const waterSurface = createWaterSurface();
   let down = null;
   const resolution = createSceneResolution();
@@ -608,6 +607,7 @@ export async function createScene({
       const result = treeBlooms.release(kind, { reduced });
       button.dataset.remaining = String(result.remaining);
       button.disabled = result.remaining === 0;
+      button.style.pointerEvents = result.remaining === 0 ? "none" : "";
       button.setAttribute(
         "aria-label",
         `Release ${name} flowers. ${result.remaining} clicks remaining.`,

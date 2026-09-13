@@ -10,7 +10,9 @@ function imageFixture(id, alphas = [0, 128, 252, 253]) {
     naturalHeight: 1,
     width: alphas.length * 10,
     height: 10,
-    pixels: new Uint8ClampedArray(alphas.flatMap(alpha => [17, 82, 190, alpha])),
+    pixels: new Uint8ClampedArray(
+      alphas.flatMap((alpha) => [17, 82, 190, alpha]),
+    ),
   };
 }
 
@@ -20,10 +22,16 @@ function preparationCanvas(stats) {
   const canvas = {
     getContext() {
       return {
-        drawImage(source) { image = source; canvas.pixels = source.pixels; },
+        drawImage(source) {
+          image = source;
+          canvas.pixels = source.pixels;
+        },
         getImageData(x, y, width, height) {
           stats.reads++;
-          assert.deepEqual([x, y, width, height], [0, 0, image.naturalWidth, image.naturalHeight]);
+          assert.deepEqual(
+            [x, y, width, height],
+            [0, 0, image.naturalWidth, image.naturalHeight],
+          );
           return { data: image.pixels.slice() };
         },
         putImageData(pixels, x, y) {
@@ -51,8 +59,12 @@ function fixture(t, reduced = false) {
         style: {},
         dataset: {},
         setAttribute() {},
-        addEventListener(name, listener) { listeners.set(name, listener); },
-        click() { listeners.get("click")({ detail: 0 }); },
+        addEventListener(name, listener) {
+          listeners.set(name, listener);
+        },
+        click() {
+          listeners.get("click")({ detail: 0 });
+        },
       };
     },
   };
@@ -63,16 +75,20 @@ function fixture(t, reduced = false) {
   const sim = createSimulation();
   const images = [imageFixture("front"), imageFixture("side")];
   const flowers = createFlowers({
-    stage: { append(button) { buttons.push(button); } },
+    stage: {
+      append(button) {
+        buttons.push(button);
+      },
+    },
     sim,
-    sprites: images.map(image => ({
+    sprites: images.map((image) => ({
       image,
       view: image.id,
       crop: [0, 0, image.naturalWidth, image.naturalHeight],
       origin: [0.5, 0.5],
-      edges: Array.from({ length: 6 }, (_, i) => i * Math.PI * 2 / 5),
+      edges: Array.from({ length: 6 }, (_, i) => (i * Math.PI * 2) / 5),
     })),
-    sourcePoint: event => ({ x: event.clientX, y: event.clientY }),
+    sourcePoint: (event) => ({ x: event.clientX, y: event.clientY }),
     getLayout: () => ({ x: 0, y: 0, scale: 1 }),
     isReduced: () => reduced,
     announce() {},
@@ -81,13 +97,18 @@ function fixture(t, reduced = false) {
 }
 
 function recorder() {
-  const draws = [], saved = [];
+  const draws = [],
+    saved = [];
   return {
     draws,
     globalAlpha: 0.37,
     filter: "none",
-    save() { saved.push({ globalAlpha: this.globalAlpha, filter: this.filter }); },
-    restore() { Object.assign(this, saved.pop()); },
+    save() {
+      saved.push({ globalAlpha: this.globalAlpha, filter: this.filter });
+    },
+    restore() {
+      Object.assign(this, saved.pop());
+    },
     translate() {},
     rotate() {},
     scale() {},
@@ -96,7 +117,9 @@ function recorder() {
     arc() {},
     closePath() {},
     clip() {},
-    drawImage(image) { draws.push({ image, alpha: this.globalAlpha, filter: this.filter }); },
+    drawImage(image) {
+      draws.push({ image, alpha: this.globalAlpha, filter: this.filter });
+    },
   };
 }
 
@@ -118,12 +141,12 @@ test("preparation makes body pixels opaque while preserving source data, RGB and
 
 test("both sprite views are prepared once and reused across successive frames", (t) => {
   const f = fixture(t);
-  const original = f.images.map(image => image.pixels.slice());
+  const original = f.images.map((image) => image.pixels.slice());
   addFlower(f.sim, 755, 910);
   addFlower(f.sim, 935, 976);
   const first = recorder();
   f.flowers.draw(first, 0);
-  const prepared = new Set(first.draws.map(draw => draw.image));
+  const prepared = new Set(first.draws.map((draw) => draw.image));
   assert.equal(prepared.size, 2);
   for (const image of prepared) {
     assert.ok(!f.images.includes(image));
@@ -133,10 +156,28 @@ test("both sprite views are prepared once and reused across successive frames", 
     stepSimulation(f.sim, 1 / 60);
     const ctx = recorder();
     f.flowers.draw(ctx, frame % 2);
-    assert.ok(ctx.draws.every(draw => prepared.has(draw.image)));
+    assert.ok(ctx.draws.every((draw) => prepared.has(draw.image)));
   }
   assert.deepEqual(f.stats, { allocations: 4, reads: 2, writes: 2 });
   f.images.forEach((image, i) => assert.deepEqual(image.pixels, original[i]));
+});
+
+test("flowers added after the renderer starts get working controls beyond the old pool size", (t) => {
+  const f = fixture(t);
+  assert.equal(f.buttons.length, 0);
+  for (let i = 0; i < 300; i++) addFlower(f.sim, 700, 920);
+  f.flowers.draw(recorder(), 0);
+  assert.equal(f.buttons.length, 300);
+  assert.ok(f.buttons.every((button) => !button.hidden));
+  f.buttons[299].click();
+  assert.equal(f.sim.flowers[299].breaking, true);
+  const firstButton = f.buttons[0];
+  f.sim.flowers[0].active = false;
+  const reused = addFlower(f.sim, 650, 930);
+  f.flowers.draw(recorder(), 0);
+  assert.equal(reused.id, 0);
+  assert.equal(f.buttons.length, 300);
+  assert.equal(f.buttons[0], firstButton);
 });
 
 test("whole flowers remain opaque at birth and maturity, falling or floating, day or night", (t) => {
@@ -150,8 +191,15 @@ test("whole flowers remain opaque at birth and maturity, falling or floating, da
       for (const night of [0, 1]) {
         const ctx = recorder();
         f.flowers.draw(ctx, night);
-        assert.deepEqual(ctx.draws.map(draw => draw.alpha), falling ? [1] : [0.16, 1]);
-        assert.equal(ctx.globalAlpha, 0.37, "drawing must restore the caller's alpha");
+        assert.deepEqual(
+          ctx.draws.map((draw) => draw.alpha),
+          falling ? [1] : [0.16, 1],
+        );
+        assert.equal(
+          ctx.globalAlpha,
+          0.37,
+          "drawing must restore the caller's alpha",
+        );
         assert.equal(ctx.filter, "none");
       }
     }
@@ -165,20 +213,28 @@ test("clicked flowers begin with opaque petals and fade only as the breakup reti
       f.sim.time = 10;
       const flower = addFlower(f.sim, 755, 910);
       flower.appearedAt = f.sim.time;
+      f.flowers.draw(recorder(), 0);
       f.buttons[flower.id].click();
       assert.equal(f.buttons[flower.id].hidden, true);
       const initial = recorder();
       f.flowers.draw(initial, 0);
-      assert.deepEqual(initial.draws.map(draw => draw.alpha), [1, 1, 1, 1, 1]);
+      assert.deepEqual(
+        initial.draws.map((draw) => draw.alpha),
+        [1, 1, 1, 1, 1],
+      );
       const halfLifetime = reduced ? 0.5 : 2.5;
-      for (let i = 0; i < halfLifetime * 60; i++) stepSimulation(f.sim, 1 / 60, reduced);
+      for (let i = 0; i < halfLifetime * 60; i++)
+        stepSimulation(f.sim, 1 / 60, reduced);
       for (const night of [0, 1]) {
         const midway = recorder();
         f.flowers.draw(midway, night);
         assert.equal(midway.draws.length, 5);
-        assert.ok(midway.draws.every(draw => Math.abs(draw.alpha - 0.5) < 1e-9));
+        assert.ok(
+          midway.draws.every((draw) => Math.abs(draw.alpha - 0.5) < 1e-9),
+        );
       }
-      for (let i = 0; i < (halfLifetime + 0.1) * 60; i++) stepSimulation(f.sim, 1 / 60, reduced);
+      for (let i = 0; i < (halfLifetime + 0.1) * 60; i++)
+        stepSimulation(f.sim, 1 / 60, reduced);
       const retired = recorder();
       f.flowers.draw(retired, 0);
       assert.deepEqual(retired.draws, []);

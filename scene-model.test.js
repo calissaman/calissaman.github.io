@@ -97,16 +97,16 @@ test("time exploration cannot move a dragged flower or change ripple age", () =>
   assert.equal(f.y, 900);
   assert.equal(sim.ripples[0].age, 0.04);
 });
-test("falling flowers reserve capacity and expired objects are reused", () => {
+test("flower storage grows without overwriting active blooms and reuses retired objects", () => {
   const sim = createSimulation();
-  for (let i = 0; i < 7; i++)
+  for (let i = 0; i < 400; i++)
     assert.ok(addFlower(sim, 450 + i * 50, 100, true));
-  assert.equal(addFlower(sim, 700, 950), null);
-  for (let i = 0; i < 1200; i++) stepSimulation(sim, 1 / 60);
-  assert.ok(sim.flowers.filter((f) => f.active).length <= 7);
+  assert.ok(addFlower(sim, 700, 950));
+  assert.equal(sim.flowers.filter((f) => f.active).length, 401);
   const retired = sim.flowers[0];
   retired.active = false;
   assert.equal(addFlower(sim, 800, 900), retired);
+  assert.equal(sim.flowers.length, 401);
 });
 test("long stalls are bounded and reduced motion retains manual ripples", () => {
   const sim = createSimulation();
@@ -233,8 +233,19 @@ test("portrait water taps reach the visible river below the source image", () =>
 test("the extended river spans the viewport while architecture and banks stay excluded", () => {
   for (const x of [-700, 0, 360, 875, 1390, 1536, 2300])
     assert.equal(inWaterSurface(x, 1200), true, `extended river at x=${x}`);
-  for (const [x, y] of [[700, -10], [500, 300], [1050, 750], [270, 900], [400, 1000], [1450, 930]])
-    assert.equal(inWaterSurface(x, y), false, `architecture or bank at ${x},${y}`);
+  for (const [x, y] of [
+    [700, -10],
+    [500, 300],
+    [1050, 750],
+    [270, 900],
+    [400, 1000],
+    [1450, 930],
+  ])
+    assert.equal(
+      inWaterSurface(x, y),
+      false,
+      `architecture or bank at ${x},${y}`,
+    );
 });
 
 test("river taps remain continuous across the bottom edge of the artwork", () => {
@@ -246,10 +257,22 @@ test("river taps remain continuous across the bottom edge of the artwork", () =>
 test("surface interaction leaves source water coverage and flower boundaries unchanged", () => {
   for (let x = 180; x <= 1500; x += 33)
     for (let y = 780; y <= 1024; y += 13)
-      assert.ok(Math.abs(waterCoverage(x, y) - artworkWaterCoverage(x, y)) < 1e-12);
-  for (const [x, y] of [[-1, 950], [1537, 950], [875, -1], [875, 1025], [875, 1400]])
+      assert.ok(
+        Math.abs(waterCoverage(x, y) - artworkWaterCoverage(x, y)) < 1e-12,
+      );
+  for (const [x, y] of [
+    [-1, 950],
+    [1537, 950],
+    [875, -1],
+    [875, 1025],
+    [875, 1400],
+  ])
     assert.equal(waterCoverage(x, y), 0, `outside source ${x},${y}`);
-  for (const point of [{ x: -700, y: 1200 }, { x: 875, y: 1500 }, { x: 2300, y: 1200 }]) {
+  for (const point of [
+    { x: -700, y: 1200 },
+    { x: 875, y: 1500 },
+    { x: 2300, y: 1200 },
+  ]) {
     assert.equal(inWaterSurface(point.x, point.y), true);
     assert.equal(inWater(point.x, point.y), false);
     const bounded = constrainToWater(point, 25);
@@ -329,7 +352,9 @@ function advanceSimulation(sim, seconds, reduced = false) {
 
 test("breaking captures the displayed flower with one ripple and no duplicate petals", () => {
   const sim = createSimulation();
-  assert.equal(breakFlower(sim, sim.flowers[0]), false);
+  const inactive = addFlower(sim, 700, 900);
+  inactive.active = false;
+  assert.equal(breakFlower(sim, inactive), false);
   assert.equal(sim.rippleCursor, 0);
   const flower = addFlower(sim, 700, 900);
   flower.angle = 0.7;
@@ -402,14 +427,14 @@ test("falling petals land in water with one ripple and finish within twenty seco
   assert.ok(flower.petals.every((p) => !p.active && p.opacity === 0));
 });
 
-test("breakup retains the seven-flower cap and reused slots reset their petals", () => {
+test("breakup never blocks new flowers and reused slots reset their petals", () => {
   const sim = createSimulation();
   const flowers = Array.from({ length: 7 }, () => addFlower(sim, 700, 920));
   const petals = [...flowers[0].petals];
   flowers.forEach((f) => breakFlower(sim, f));
-  assert.equal(addFlower(sim, 700, 920), null);
+  assert.ok(addFlower(sim, 700, 920));
   advanceSimulation(sim, 4);
-  assert.equal(addFlower(sim, 700, 920), null);
+  assert.ok(addFlower(sim, 700, 920));
   advanceSimulation(sim, 1.2);
   assert.equal(breakFlower(sim, flowers[0]), false);
   const reused = addFlower(sim, 500, 100, true);
@@ -519,9 +544,7 @@ test("whole water flowers recover after click bursts in normal and reduced motio
         if (sim.time < clickedAt + 6) assert.equal(replacement, null);
         if (replacement) {
           assert.ok(inWater(replacement.x, replacement.y));
-          assert.ok(
-            artworkWaterCoverage(replacement.x, replacement.y) > 0.99,
-          );
+          assert.ok(artworkWaterCoverage(replacement.x, replacement.y) > 0.99);
           assert.equal(replacement.appearedAt, sim.time);
           if (previousBirth !== null) assert.ok(sim.time - previousBirth >= 4);
           previousBirth = sim.time;
@@ -529,8 +552,7 @@ test("whole water flowers recover after click bursts in normal and reduced motio
         assert.ok(sim.flowers.filter((f) => f.active).length <= 7);
       }
       assert.equal(
-        sim.flowers.filter((f) => f.active && !f.breaking && !f.falling)
-          .length,
+        sim.flowers.filter((f) => f.active && !f.breaking && !f.falling).length,
         4,
       );
     }
@@ -564,20 +586,20 @@ test("replacement flowers stay apart even when retired breakup origins cover eve
   }
 });
 
-test("water maintenance preserves the seven-slot cap while broken falling flowers finish", () => {
+test("water maintenance continues while broken falling flowers finish", () => {
   const sim = createSimulation();
   const flowers = Array.from({ length: 7 }, () =>
     addFlower(sim, 500, 100, true),
   );
   flowers.forEach((f) => breakFlower(sim, f));
   advanceSimulation(sim, 6.1);
-  assert.equal(maintainWaterFlowers(sim), null);
+  assert.ok(maintainWaterFlowers(sim));
   assert.ok(flowers.every((f) => f.active && f.breaking));
-  assert.equal(sim.flowerCursor, 7);
+  assert.equal(sim.flowerCursor, 8);
   advanceSimulation(sim, 14);
   assert.ok(flowers.every((f) => !f.active));
   assert.ok(maintainWaterFlowers(sim));
-  assert.equal(sim.flowers.filter((f) => f.active).length, 1);
+  assert.equal(sim.flowers.filter((f) => f.active).length, 2);
 });
 
 test("flower births alternate variants and only maintained flowers start an appearance fade", () => {

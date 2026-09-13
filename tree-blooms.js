@@ -3,10 +3,9 @@ import {
   addRipple,
   constrainToWater,
   clamp,
-} from "./scene-model.js?v=20260913-63";
+} from "./scene-model.js?v=20260913-67";
 
 export const TREE_CLICK_LIMIT = 88;
-export const TREE_FLOWER_CAPACITY = TREE_CLICK_LIMIT * 3 + 24;
 const TRUMPET_ORIGINS = [
   [68, 225],
   [154, 128],
@@ -26,8 +25,8 @@ export const TREE_HOTSPOTS = [
   {
     kind: "trumpet",
     selector: ".branch-hotspot",
-    rect: [0, 0, 605, 340],
-    clip: "polygon(0 0,100% 0,98% 24%,73% 48%,46% 65%,24% 77%,0 100%)",
+    rect: [0, 0, 610, 480],
+    clip: "polygon(0 0,100% 0,97% 13%,78% 23%,66% 37%,42% 48%,23% 66%,15% 90%,0 100%)",
   },
   {
     kind: "angsana",
@@ -81,7 +80,6 @@ export function createTreeBlooms(
           reduced ? end.y : start.y,
           !reduced,
         );
-        if (!f) continue;
         f.startsAt = startsAt;
         f.sizeScale = range(0.76, 0.94);
         if (reduced) addRipple(sim, end.x, end.y);
@@ -152,12 +150,7 @@ export function createTreeBlooms(
           continue;
         }
         if (sim.time < next[kind]) continue;
-        if (
-          kind === "trumpet"
-            ? sim.flowers.filter((f) => f.active).length < 12
-            : yellow.length < 5
-        )
-          release(kind, { manual: false });
+        release(kind, { manual: false });
         next[kind] =
           sim.time + (kind === "trumpet" ? range(10, 19) : range(25, 42));
       }
