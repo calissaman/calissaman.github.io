@@ -21,7 +21,7 @@ import {
   createSceneLighting,
   prepareLightPatches,
   SCENE_LIGHTS,
-} from "./scene-lighting.js?v=20260913-66";
+} from "./scene-lighting.js?v=20260913-70";
 import { createYellowWindows } from "./yellow-windows.js?v=20260913-65";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import { setupAudio } from "./audio.js?v=20260912-6";
@@ -689,7 +689,7 @@ export async function createScene({
       reduced,
       waterField: waterSurface.frame,
     });
-    lighting.draw(ctx, displayNight);
+    lighting.draw(ctx, displayNight, { time: sim.time, reduced });
     yellowWindows.draw(ctx, displayNight);
     windows.draw(ctx, displayNight);
     drawTableSetting(ctx, tableAssets, {

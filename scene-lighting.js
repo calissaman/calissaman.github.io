@@ -63,6 +63,7 @@ export const SCENE_LIGHTS = [
   {
     id: "green-wall-lamp",
     name: "green shophouse wall lamp",
+    flicker: "lamp",
     rect: [464, 603, 30, 59],
     ellipse: true,
   },
@@ -92,6 +93,7 @@ export const SCENE_LIGHTS = [
   {
     id: "bistro-pendant",
     name: "bistro pendant lamp",
+    flicker: "lamp",
     rect: [1066, 574, 57, 53],
     ellipse: true,
     bistro: true,
@@ -99,6 +101,7 @@ export const SCENE_LIGHTS = [
   {
     id: "tutu-shelf",
     name: "shelf tutu kueh lamp",
+    flicker: "lamp",
     rect: [1147, 598, 35, 33],
     target: [1156, 606, 19, 19],
     dome: [1165, 615, 8, 6],
@@ -107,6 +110,7 @@ export const SCENE_LIGHTS = [
   {
     id: "bistro-candle-left",
     name: "bistro counter candles",
+    flicker: "candle",
     rect: [1138, 660, 34, 31],
     bulbs: [
       [1147, 682, 5, 7],
@@ -119,6 +123,7 @@ export const SCENE_LIGHTS = [
   {
     id: "tutu-counter",
     name: "counter tutu kueh lamp",
+    flicker: "lamp",
     rect: [1163, 659, 38, 34],
     target: [1172, 669, 23, 20],
     dome: [1182.5, 677.7, 9, 6],
@@ -133,10 +138,24 @@ export const SCENE_LIGHTS = [
   ].map(([id, x, y, width, height]) => ({
     id: `street-${id}`,
     name: `${id.replace("-", " ")} street lamp`,
+    flicker: "lamp",
     rect: [x, y, width, height],
     street: true,
   })),
 ];
+
+export function flickerIntensity(light, time, night, reduced) {
+  if (!light.flicker || reduced || night <= 0) return 1;
+  const candle = light.flicker === "candle";
+  const phase = light.rect[0] * 0.17 + light.rect[1] * 0.11;
+  const t = time * (candle ? 3.7 : 0.95);
+  const variation =
+    0.5 +
+    0.25 * Math.sin(t + phase) +
+    0.16 * Math.sin(t * 2.37 + phase * 0.71) +
+    0.09 * Math.sin(t * 4.19 + phase * 1.31);
+  return 1 - clamp(night, 0, 1) * (candle ? 0.28 : 0.14) * variation;
+}
 
 export function lightButtonRect(light, layout) {
   const [x, y, width, height] = light.target || light.rect;
@@ -388,9 +407,11 @@ export function createSceneLighting({ stage, patches, announce }) {
     get streetLights() {
       return switches.some((state) => state.light.street && state.on);
     },
-    draw(ctx, night) {
+    draw(ctx, night, { time, reduced }) {
       for (const state of switches) {
-        const strength = state.light.dome ? state.amount : 1 - state.amount;
+        const amount =
+          state.amount * flickerIntensity(state.light, time, night, reduced);
+        const strength = state.light.dome ? amount : 1 - amount;
         if (strength < 0.001) continue;
         const [dayPatch, nightPatch] = patches.get(state.light.id);
         const [x, y] = state.light.rect;

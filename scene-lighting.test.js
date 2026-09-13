@@ -5,6 +5,7 @@ import {
   SCENE_LIGHTS,
   lightButtonRect,
   unlitPixel,
+  flickerIntensity,
 } from "./scene-lighting.js";
 import { sceneLayout } from "./scene-model.js";
 
@@ -77,6 +78,7 @@ function painted(lighting, night) {
       },
     },
     night,
+    { time: 0, reduced: true },
   );
   return calls;
 }
@@ -208,5 +210,102 @@ test("targets follow the artwork at desktop and mobile sizes", () => {
       );
       assert.ok(parseFloat(rect.width) >= 24 && parseFloat(rect.height) >= 24);
     }
+  }
+});
+
+function lightFrame(lighting, time, night = 1, reduced = false) {
+  const values = new Map();
+  const ctx = {
+    save() {},
+    restore() {},
+    drawImage(image) {
+      values.set(image, this.globalAlpha);
+    },
+  };
+  lighting.draw(ctx, night, { time, reduced });
+  return values;
+}
+
+test("every lamp and candle flickers smoothly with its own timing at night", (t) => {
+  const f = fixture(t);
+  const fixtures = SCENE_LIGHTS.filter((light) => light.flicker);
+  assert.deepEqual(
+    fixtures.map((light) => light.id),
+    [
+      "green-wall-lamp",
+      "bistro-pendant",
+      "tutu-shelf",
+      "bistro-candle-left",
+      "tutu-counter",
+      "street-far-left",
+      "street-left",
+      "street-middle",
+      "street-right",
+    ],
+  );
+  const first = lightFrame(f.lighting, 0);
+  const later = lightFrame(f.lighting, 4);
+  for (const light of fixtures) {
+    assert.notEqual(
+      first.get(light.id + "-night"),
+      later.get(light.id + "-night"),
+    );
+    let movement = 0;
+    for (let time = 0; time < 24; time += 1 / 60) {
+      const value = flickerIntensity(light, time, 1, false);
+      const delta = Math.abs(
+        value - flickerIntensity(light, time + 1 / 60, 1, false),
+      );
+      assert.ok(
+        value >= (light.flicker === "candle" ? 0.72 : 0.86) && value <= 1,
+      );
+      assert.ok(delta < 0.02);
+      movement += delta;
+    }
+    assert.ok(movement > 0.1);
+  }
+  assert.equal(
+    new Set(fixtures.map((light) => flickerIntensity(light, 2, 1, false))).size,
+    fixtures.length,
+  );
+  for (const light of SCENE_LIGHTS.filter((light) => !light.flicker))
+    assert.equal(flickerIntensity(light, 2, 1, false), 1);
+});
+
+test("daytime and reduced-motion lighting stay steady and flicker fades in with night", (t) => {
+  const f = fixture(t);
+  assert.deepEqual(lightFrame(f.lighting, 0, 0), lightFrame(f.lighting, 9, 0));
+  assert.deepEqual(
+    lightFrame(f.lighting, 0, 1, true),
+    lightFrame(f.lighting, 9, 1, true),
+  );
+  const lamp = SCENE_LIGHTS.find((light) => light.id === "bistro-pendant");
+  const full = flickerIntensity(lamp, 2, 1, false);
+  const dusk = flickerIntensity(lamp, 2, 0.5, false);
+  assert.ok(dusk > full && dusk < 1);
+});
+
+test("switching each flickering fixture off removes its animation and switching on restores it", (t) => {
+  const f = fixture(t);
+  for (const light of SCENE_LIGHTS.filter((light) => light.flicker)) {
+    const image = light.id + "-night";
+    f.button(light.id).click();
+    f.lighting.step(1);
+    assert.equal(f.button(light.id).getAttribute("aria-pressed"), "false");
+    assert.equal(
+      lightFrame(f.lighting, 0).get(image),
+      light.dome ? undefined : 1,
+    );
+    assert.equal(
+      lightFrame(f.lighting, 9).get(image),
+      light.dome ? undefined : 1,
+    );
+    f.button(light.id).click();
+    f.lighting.step(1);
+    assert.notEqual(
+      lightFrame(f.lighting, 0).get(image),
+      lightFrame(f.lighting, 9).get(image),
+    );
+    assert.equal(f.lighting.amountFor(light.id), 1);
   }
 });
