@@ -12,6 +12,12 @@ prompt in `yellow-window-interior.prompt.txt`. The original generated image is
 pixels. The renderer shades it for daylight and the selected room-light state.
 All shutter and grille textures come from the existing scene artwork.
 
+Both upstairs windows use the left window's sage-green shutters, louvres, and
+solid lower panels. The facade renderer projects that artwork into the right
+opening before preparing the light masks and animated shutters. Day and night
+each use their original left-window texture. The surrounding facade and the
+left window remain unchanged.
+
 Verification: all 126 tests pass. Browser checks cover all three windows in
 day/night on desktop and mobile, exact restoration after closing, independent
 light switches, animation reversal, and 320-pixel touch targets.

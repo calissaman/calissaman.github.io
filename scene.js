@@ -22,7 +22,7 @@ import {
   prepareLightPatches,
   SCENE_LIGHTS,
 } from "./scene-lighting.js?v=20260913-64";
-import { createYellowWindows } from "./yellow-windows.js?v=20260913-64";
+import { createYellowWindows } from "./yellow-windows.js?v=20260913-65";
 import { createFlowers } from "./scene-flowers.js?v=20260913-63";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
@@ -30,7 +30,7 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-60";
-import { prepareFacadeScene } from "./scene-facade.js?v=20260913-62";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260913-65";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";

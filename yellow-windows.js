@@ -1,3 +1,5 @@
+import { panelProjection } from "./facade-panels.js?v=20260913-62";
+
 export const YELLOW_WINDOWS = [
   {
     id: "upper-left",
@@ -122,6 +124,52 @@ function paintLeaf(ctx, image, source, target) {
     triangle(ctx, image, [s[0], s[1], s[2]], [t[0], t[1], t[2]]);
     triangle(ctx, image, [s[0], s[2], s[3]], [t[0], t[2], t[3]]);
   }
+}
+
+export function drawMatchingYellowShutters(ctx) {
+  const [left, right] = YELLOW_WINDOWS;
+  const bounds = (quad) => {
+    const x = Math.floor(Math.min(...quad.map((p) => p[0]))),
+      y = Math.floor(Math.min(...quad.map((p) => p[1])));
+    return [
+      x,
+      y,
+      Math.ceil(Math.max(...quad.map((p) => p[0]))) - x + 1,
+      Math.ceil(Math.max(...quad.map((p) => p[1]))) - y + 1,
+    ];
+  };
+  const [sx, sy, sw, sh] = bounds(left.quad),
+    [dx, dy, dw, dh] = bounds(right.quad);
+  const source = ctx.getImageData(sx, sy, sw, sh).data,
+    target = ctx.getImageData(dx, dy, dw, dh),
+    project = panelProjection(right.quad);
+  for (let y = 0; y < dh; y++)
+    for (let x = 0; x < dw; x++) {
+      const [u, v] = project(dx + x + 0.5, dy + y + 0.5);
+      if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+      const [px, py] = lerp(
+        lerp(left.quad[0], left.quad[1], u),
+        lerp(left.quad[3], left.quad[2], u),
+        v,
+      ).map((n, i) => Math.max(0, n - (i ? sy : sx) - 0.5));
+      const ix = Math.floor(px),
+        iy = Math.floor(py),
+        fx = px - ix,
+        fy = py - iy;
+      for (let k = 0; k < 4; k++) {
+        const top =
+          source[(iy * sw + ix) * 4 + k] * (1 - fx) +
+          source[(iy * sw + Math.min(ix + 1, sw - 1)) * 4 + k] * fx;
+        const bottom =
+          source[(Math.min(iy + 1, sh - 1) * sw + ix) * 4 + k] * (1 - fx) +
+          source[
+            (Math.min(iy + 1, sh - 1) * sw + Math.min(ix + 1, sw - 1)) * 4 + k
+          ] *
+            fx;
+        target.data[(y * dw + x) * 4 + k] = top * (1 - fy) + bottom * fy;
+      }
+    }
+  ctx.putImageData(target, dx, dy);
 }
 
 export function yellowWindowButtonRect(window, layout) {

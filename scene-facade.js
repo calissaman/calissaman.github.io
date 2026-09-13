@@ -1,4 +1,5 @@
 import { drawFacadePanels } from "./facade-panels.js?v=20260913-62";
+import { drawMatchingYellowShutters } from "./yellow-windows.js?v=20260913-65";
 export const FACADE_RECT = Object.freeze({
   x: 425,
   y: 185,
@@ -98,6 +99,7 @@ export async function prepareFacadeScene(
     ctx.drawImage(wallLamp, WALL_LAMP_RECT.x, WALL_LAMP_RECT.y);
   }
   if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });
+  drawMatchingYellowShutters(ctx);
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);
