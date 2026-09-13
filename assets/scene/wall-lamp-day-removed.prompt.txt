@@ -1,0 +1,5 @@
+Use case: precise-object-edit. Image 1 is the full scene EDIT TARGET. Image 2 is the small white/cream wall lamp to REMOVE.
+Remove only that small bowl-shaped wall lamp and its mounting bracket on the white column between the LEFT green shophouse and the MIDDLE cream/pink shophouse, immediately beside the RIGHT end of the green awning. Its position in the full scene is approximately x=634,y=510, within x=615..664 y=491..539.
+Reconstruct the uninterrupted white column surface and existing moulding behind the removed fixture, with natural shading. Keep the foliage to the left of the column and the green awning unchanged. Remove the entire lamp bowl, bracket, fixture shadow and any fixture glow. Do not mistake column capitals/mouldings for the lamp.
+Every other pixel and feature should remain unchanged: the exact 1536x1024 crop, sharp photographic art style, camera, windows, tiles, all architecture, water, sky, trees, bistro lighting and all other lamps. Do not redesign the scene. Do not add new ornaments or props. Return the full frame.
+Preserve the original daytime natural illumination of image 1.

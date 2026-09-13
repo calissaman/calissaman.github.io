@@ -26,8 +26,8 @@ import { setupTimeScroller } from "./time-scroller.js?v=20260912-29";
 import {
   createWindows,
   prepareMerlionImage,
-} from "./scene-windows.js?v=20260913-58";
-import { prepareFloralFacade } from "./scene-facade.js?v=20260913-58";
+} from "./scene-windows.js?v=20260913-59";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260913-59";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260913-55";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
@@ -109,9 +109,11 @@ export async function createScene({
       "bistro-night-patch.png",
       "facade-day-floral.png",
       "facade-night-floral.png",
+      "wall-lamp-day-removed.png",
+      "wall-lamp-night-removed.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -129,19 +131,27 @@ export async function createScene({
     bistroNightPatch,
     facadeDayPatch,
     facadeNightPatch,
+    wallLampDayPatch,
+    wallLampNightPatch,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
   let day = originalDay,
     night = originalNight;
-  if (day && night && facadeDayPatch && facadeNightPatch) {
+  if (day && night) {
     try {
       [day, night] = await Promise.all([
-        prepareFloralFacade(day, facadeDayPatch),
-        prepareFloralFacade(night, facadeNightPatch),
+        prepareFacadeScene(day, {
+          floral: facadeDayPatch,
+          wallLamp: wallLampDayPatch,
+        }),
+        prepareFacadeScene(night, {
+          floral: facadeNightPatch,
+          wallLamp: wallLampNightPatch,
+        }),
       ]);
     } catch (error) {
-      console.warn("Floral facade artwork could not load.", error);
+      console.warn("Facade artwork could not load.", error);
     }
   }
   if (day && night && bistroDayPatch && bistroNightPatch) {

@@ -5,6 +5,13 @@ export const FACADE_RECT = Object.freeze({
   height: 313,
 });
 
+export const WALL_LAMP_RECT = Object.freeze({
+  x: 615,
+  y: 491,
+  width: 53,
+  height: 52,
+});
+
 export const GREEN_WINDOW_OPENINGS = Object.freeze([
   [
     [444, 307],
@@ -60,9 +67,9 @@ export function traceGreenWindows(ctx) {
   GREEN_WINDOW_OPENINGS.forEach((points) => trace(ctx, points));
 }
 
-export async function prepareFloralFacade(
+export async function prepareFacadeScene(
   original,
-  patch,
+  { floral, wallLamp },
   createCanvas = () => document.createElement("canvas"),
 ) {
   const canvas = createCanvas();
@@ -70,20 +77,25 @@ export async function prepareFloralFacade(
   canvas.height = 1024;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(original, 0, 0);
-  ctx.save();
-  ctx.beginPath();
-  trace(ctx, FACADE_OUTLINE);
-  ctx.clip();
-  ctx.beginPath();
-  ctx.rect(0, 0, canvas.width, canvas.height);
-  traceGreenWindows(ctx);
-  ctx.clip("evenodd");
-  ctx.beginPath();
-  ctx.rect(0, 0, canvas.width, canvas.height);
-  GRILLES.forEach((points) => trace(ctx, points));
-  ctx.clip("evenodd");
-  ctx.drawImage(patch, FACADE_RECT.x, FACADE_RECT.y);
-  ctx.restore();
+  if (floral) {
+    ctx.save();
+    ctx.beginPath();
+    trace(ctx, FACADE_OUTLINE);
+    ctx.clip();
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    traceGreenWindows(ctx);
+    ctx.clip("evenodd");
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    GRILLES.forEach((points) => trace(ctx, points));
+    ctx.clip("evenodd");
+    ctx.drawImage(floral, FACADE_RECT.x, FACADE_RECT.y);
+    ctx.restore();
+  }
+  if (wallLamp) {
+    ctx.drawImage(wallLamp, WALL_LAMP_RECT.x, WALL_LAMP_RECT.y);
+  }
   const image = new Image();
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
   image.src = URL.createObjectURL(blob);

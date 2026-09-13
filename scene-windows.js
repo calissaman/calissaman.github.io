@@ -1,5 +1,5 @@
 import { windowVisitorAt } from "./scene-model.js?v=20260913-42";
-import { traceGreenWindows } from "./scene-facade.js?v=20260913-58";
+import { traceGreenWindows } from "./scene-facade.js?v=20260913-59";
 
 export function prepareMerlionImage(
   image,
