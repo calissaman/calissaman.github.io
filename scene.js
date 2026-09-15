@@ -158,8 +158,8 @@ export async function createScene({
       "pink-vine-join-day.png",
       "pink-vine-join-night.png",
       "white-sill-night-clean.png",
-      "white-windows-clear-day.png",
-      "white-windows-clear-night.png",
+      "green-bookshop-day.png",
+      "green-bookshop-night.png",
       "hydrangea-natural-day.png",
       "hydrangea-natural-night.png",
       "facades-crisp-day.png",
@@ -169,7 +169,7 @@ export async function createScene({
       "blue-border-cream-turquoise.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260915-89" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260915-103" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -219,8 +219,8 @@ export async function createScene({
     pinkVineJoinDay,
     pinkVineJoinNight,
     whiteSillNight,
-    clearWindowsDay,
-    clearWindowsNight,
+    bookshopDay,
+    bookshopNight,
     hydrangeaDay,
     hydrangeaNight,
     clarityDay,
@@ -230,11 +230,11 @@ export async function createScene({
   );
   const facadeDayPatch = prepareWhiteWindowGlass(
     facadeDayOriginal,
-    clearWindowsDay,
+    bookshopDay,
   );
   const facadeNightPatch = prepareWhiteWindowGlass(
     facadeNightOriginal,
-    clearWindowsNight,
+    bookshopNight,
   );
   const panels = { green: panelGreen, cream: panelCream, blue: panelBlue };
   let day = originalDay,
