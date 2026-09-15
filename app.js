@@ -1,5 +1,8 @@
+import { setupInteractionAudio } from "./interaction-audio.js?v=20260915-90";
 import { createScene } from "./scene.js?v=20260915-89";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
+
+setupInteractionAudio();
 
 const root = document.documentElement;
 const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");

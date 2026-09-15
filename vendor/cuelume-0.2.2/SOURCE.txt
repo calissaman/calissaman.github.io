@@ -1,0 +1,5 @@
+Cuelume 0.2.2, unmodified npm distribution.
+https://cuelume-site.pages.dev/
+https://github.com/Danilaa1/cuelume
+https://registry.npmjs.org/cuelume/-/cuelume-0.2.2.tgz
+MIT license included in LICENSE.
