@@ -148,7 +148,7 @@ p {
 .wordmark-monogram {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: linear-gradient(146deg, #fffdf4, #f5ead4 36%, #e4d1af 63%, #f8efd9 79%, #ceb58f);
   -webkit-mask: url("assets/monogram-watermark.png") center / contain no-repeat;
   mask: url("assets/monogram-watermark.png") center / contain no-repeat;
 }
