@@ -12,7 +12,7 @@ import {
   addFlower,
   stepSimulation,
   maintainWaterFlowers,
-} from "./scene-model.js?v=20260915-80";
+} from "./scene-model.js?v=20260915-87";
 import {
   createRenderer,
   drawWaterFallback,

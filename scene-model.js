@@ -72,12 +72,7 @@ export function sceneLayout(w, h) {
   const nearSquare = !portrait && w / h < 1.15;
   const scale = portrait
     ? w / SCENE.width
-    : Math.min(
-        Math.max(w / 1536, h / 1024),
-        w / 920,
-        h / 990,
-        nearSquare ? w / 1080 : Infinity,
-      );
+    : Math.max(w / SCENE.width, Math.min(h / 1024, w / 920));
   let x = (w - 1536 * scale) * 0.53;
   if (portrait) x = 0;
   else if (nearSquare) {
@@ -86,12 +81,8 @@ export function sceneLayout(w, h) {
   }
   return {
     scale,
-    x,
-    y: portrait
-      ? w <= 600
-        ? 104
-        : 88
-      : Math.min((h - 1024 * scale) * 0.45, h - 990 * scale),
+    x: Math.min(0, Math.max(w - SCENE.width * scale, x)),
+    y: portrait ? 0 : Math.min(0, (h - 1024 * scale) * 0.45),
     portrait,
   };
 }

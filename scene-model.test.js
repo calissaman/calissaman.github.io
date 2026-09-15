@@ -157,11 +157,12 @@ test("common portrait crops protect all three facades, the plant and water", () 
     [2560, 1080],
     [844, 390],
   ]) {
-    const l = sceneLayout(w, h);
+    const heroHeight = Math.max(h, (w * 990) / 1536);
+    const l = sceneLayout(w, heroHeight);
     assert.ok(l.x + 410 * l.scale >= 0, `${w}: green facade`);
     assert.ok(l.x + 1220 * l.scale <= w, `${w}: blue facade`);
-    assert.ok(l.y + 770 * l.scale < h, `${w}: Tan Hua`);
-    assert.ok(l.y + 950 * l.scale < h, `${w}: water`);
+    assert.ok(l.y + 770 * l.scale < heroHeight, `${w}: Tan Hua`);
+    assert.ok(l.y + 950 * l.scale < heroHeight, `${w}: water`);
   }
 });
 
@@ -646,5 +647,20 @@ test("portrait framing keeps both trees and the entire flowering canopy on scree
       assert.ok(px >= 0 && px <= w, `${w}×${h}: tree/canopy x=${x}`);
       assert.ok(py >= 0 && py <= h, `${w}×${h}: tree/canopy y=${y}`);
     }
+  }
+});
+
+test("the scene fills the top and both page edges", () => {
+  for (const [w, h] of [
+    [320, 640],
+    [390, 844],
+    [768, 1024],
+    [1440, 928],
+    [2560, 1650],
+  ]) {
+    const l = sceneLayout(w, h);
+    assert.ok(l.x <= 0);
+    assert.ok(l.x + 1536 * l.scale >= w);
+    assert.ok(l.y <= 0);
   }
 });

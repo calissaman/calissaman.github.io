@@ -62,6 +62,7 @@ button:disabled {
 img {
   display: block;
   max-width: 100%;
+  border-radius: 16px;
 }
 button:focus-visible,
 a:focus-visible,
@@ -204,7 +205,7 @@ p {
 .shophouse-hero {
   position: relative;
   height: 100svh;
-  min-height: 540px;
+  min-height: max(540px, calc(100vw * 990 / 1536));
   isolation: isolate;
   background: #073743;
   color: #fff9ee;
@@ -226,6 +227,7 @@ p {
 }
 .scene-fallback {
   object-fit: cover;
+  border-radius: 0;
   object-position: 54% 50%;
 }
 .scene-canvas {
@@ -777,7 +779,7 @@ p {
 .sgsf-triptych {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 26px;
+  gap: clamp(24px, 3vw, 36px);
 }
 .sgsf-panel-row {
   display: grid;
@@ -799,11 +801,24 @@ p {
   object-fit: contain;
   transition: filter 0.3s;
 }
+.sgsf-panel-image {
+  display: block;
+  aspect-ratio: 1.64;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.sgsf-panel-image img {
+  height: 100%;
+  object-fit: cover;
+}
+.sgsf-panel[data-sgsf-modal="dispatch"] img {
+  transform: translateY(-1.5%) scale(1.065, 1.1);
+}
 .sgsf-panel:hover img {
   filter: brightness(1.05);
 }
 .sgsf-panel-banner {
-  max-width: 760px;
+  max-width: 100%;
   margin-inline: auto;
 }
 .sgsf-panel-meta {
@@ -1159,11 +1174,12 @@ p {
     font-size: 26px;
   }
   .sgsf-triptych {
-    display: block;
+    display: grid;
   }
   .sgsf-panel-row {
-    margin-top: 20px;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 0;
+    gap: 24px;
   }
   .sgsf-panel-meta {
     margin-top: 8px;
@@ -1210,7 +1226,7 @@ p {
 }
 @media (max-height: 550px) and (min-width: 601px) {
   .shophouse-hero {
-    min-height: 100svh;
+    min-height: max(100svh, calc(100vw * 990 / 1536));
   }
   .scene-clock {
     top: 105px;
