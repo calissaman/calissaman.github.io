@@ -1,3 +1,4 @@
+import { drawFacadeClarity } from "./facade-clarity.js?v=20260915-94";
 import { drawFacadePanels } from "./facade-panels.js?v=20260915-82";
 import {
   drawPinkWindowTrim,
@@ -41,6 +42,7 @@ export function createSceneDetails({
   pinkTrim = [],
   panels = {},
   whiteFacades = [],
+  clarity = [],
   whiteSill,
   pinkVineJoins = [],
 }) {
@@ -72,7 +74,7 @@ export function createSceneDetails({
     resize(layout, dpr) {
       const width = RECT.width * layout.scale;
       const height = RECT.height * layout.scale;
-      const density = Math.min(dpr, 3, Math.sqrt(3_000_000 / (width * height)));
+      const density = Math.min(dpr, 3, Math.sqrt(8_000_000 / (width * height)));
       const next = `${width}/${height}/${density}/${layout.portrait}`;
       Object.assign(canvas.style, {
         left: `${layout.x + RECT.x * layout.scale}px`,
@@ -141,6 +143,10 @@ export function createSceneDetails({
       for (const [i, image] of blueShutters.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawMatchingBlueShutter(ctx, image);
+      }
+      for (const [i, image] of clarity.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawFacadeClarity(ctx, image);
       }
       ctx.restore();
     },

@@ -1,0 +1,7 @@
+Restore the architectural clarity of the pink and blue shophouses using
+current day and night screenshots of world rectangle 665,25,585,785.
+Resolve crisp edges on carved columns, mouldings, filigree fanlights,
+individual shutter louvres, roof tiles, glazing frames and door panels.
+Preserve geometry, perspective, colours, lighting, patterns and window
+angles. No redesign, invented ornament or sharpening halos.
+Runtime masks preserve the existing tile panels, plants and bistro scene.
