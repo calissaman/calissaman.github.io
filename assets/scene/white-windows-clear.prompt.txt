@@ -1,0 +1,10 @@
+Original assets: white-exterior-day.png and white-exterior-night.png.
+Edit only the left upstairs glazed window: remove its internal grid bars,
+retain two tall uninterrupted glass panes, slim emerald perimeter frames,
+and the central dividing stile. Preserve the open louvered shutter.
+Then edit the right upstairs window to match the left with the same clear
+panes and symmetric construction, respecting the facade perspective.
+Preserve the respective day and night lighting and all other details.
+
+Runtime composition clips the generated images to GREEN_WINDOW_OPENINGS;
+the original facade supplies all pixels outside those window openings.

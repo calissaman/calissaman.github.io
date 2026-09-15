@@ -178,6 +178,23 @@ export function traceGreenWindows(ctx) {
   GREEN_WINDOW_OPENINGS.forEach((points) => trace(ctx, points));
 }
 
+export function prepareWhiteWindowGlass(original, edited) {
+  if (!original || !edited) return original;
+  const canvas = document.createElement("canvas");
+  canvas.width = original.naturalWidth || original.width;
+  canvas.height = original.naturalHeight || original.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(original, 0, 0);
+  const { x, y, width, height } = FACADE_RECT;
+  ctx.scale(canvas.width / width, canvas.height / height);
+  ctx.translate(-x, -y);
+  ctx.beginPath();
+  traceGreenWindows(ctx);
+  ctx.clip();
+  ctx.drawImage(edited, x, y, width, height);
+  return canvas;
+}
+
 const whiteFacadeLayers = new WeakMap();
 
 export function drawWhiteFacade(ctx, image, cleanSill) {
