@@ -1,4 +1,4 @@
-import { fillWaterChannel } from "./water-audio.js?v=20260915-88";
+import { createWaterLoop } from "./water-audio.js?v=20260915-95";
 
 export function setupAudio() {
   const ambientButton = document.querySelector(".ambient-toggle");
@@ -13,6 +13,7 @@ export function setupAudio() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let ambientContext = null;
   let ambientGain = null;
+  let waterReady = null;
   let ambientWanted = false;
   let resumeAmbient = false;
   let ambientVersion = 0;
@@ -30,37 +31,23 @@ export function setupAudio() {
   function createWaterSound() {
     const context = new AudioContextClass();
     ambientContext = context;
-    const buffer = context.createBuffer(
-      2,
-      context.sampleRate * 37,
-      context.sampleRate,
-    );
-    for (let channel = 0; channel < 2; channel += 1)
-      fillWaterChannel(buffer.getChannelData(channel), context.sampleRate);
-    const noise = context.createBufferSource();
-    noise.buffer = buffer;
-    noise.loop = true;
-    const lowpass = context.createBiquadFilter();
-    lowpass.type = "lowpass";
-    lowpass.frequency.value = 2400;
-    lowpass.Q.value = 0.5;
-    const highpass = context.createBiquadFilter();
-    highpass.type = "highpass";
-    highpass.frequency.value = 90;
     ambientGain = context.createGain();
     ambientGain.gain.value = 0;
-    noise
-      .connect(lowpass)
-      .connect(highpass)
-      .connect(ambientGain)
-      .connect(context.destination);
-    const flow = context.createOscillator();
-    flow.frequency.value = 0.09;
-    const flowDepth = context.createGain();
-    flowDepth.gain.value = 220;
-    flow.connect(flowDepth).connect(lowpass.frequency);
-    noise.start();
-    flow.start();
+    ambientGain.connect(context.destination);
+    return fetch(new URL("./assets/audio/flowing-water.mp3", import.meta.url))
+      .then((response) => {
+        if (!response.ok) throw new Error("Water recording could not load");
+        return response.arrayBuffer();
+      })
+      .then((bytes) => context.decodeAudioData(bytes))
+      .then((recording) => {
+        if (context.state === "closed") return;
+        const source = context.createBufferSource();
+        source.buffer = createWaterLoop(context, recording);
+        source.loop = true;
+        source.connect(ambientGain);
+        source.start();
+      });
   }
 
   async function startAmbient() {
@@ -68,6 +55,7 @@ export function setupAudio() {
     const context = ambientContext;
     try {
       await context.resume();
+      await waterReady;
       if (version !== ambientVersion) return;
       if (!ambientWanted || document.hidden) {
         await context.suspend();
@@ -82,6 +70,7 @@ export function setupAudio() {
     } catch {
       if (version !== ambientVersion) return;
       ambientWanted = false;
+      context.close().catch(() => {});
       renderAmbient();
       ambientButton.title = "Sound could not start. Try again.";
     }
@@ -101,7 +90,7 @@ export function setupAudio() {
     ambientButton?.removeAttribute("title");
     try {
       if (!ambientContext || ambientContext.state === "closed")
-        createWaterSound();
+        waterReady = createWaterSound();
       startAmbient();
     } catch {
       ambientWanted = false;
