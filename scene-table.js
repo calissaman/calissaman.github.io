@@ -17,9 +17,11 @@ export function prepareDinnerSprite(
 ) {
   const rect = NIGHT_TABLE_RECT;
   const canvas = createCanvas();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+  canvas.width = rect.width * 4;
+  canvas.height = rect.height * 4;
   const ctx = canvas.getContext("2d");
+  ctx.scale(4, 4);
+  ctx.imageSmoothingQuality = "high";
   const scale = Math.min(
     (rect.width - 6) / image.width,
     (rect.height - 6) / image.height,
@@ -51,7 +53,7 @@ export function prepareDinnerSprite(
   ctx.drawImage(image, x, baseY - height, width, height);
   if (night || unlit) {
     const light = unlit ? [0.22, 0.29, 0.37] : [0.96, 0.88, 0.76];
-    const pixels = ctx.getImageData(0, 0, rect.width, rect.height);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < pixels.data.length; i += 4) {
       for (let channel = 0; channel < 3; channel++)
         pixels.data[i + channel] *= light[channel];
@@ -109,8 +111,8 @@ export function prepareDinnerFrame(
   let frame = dinnerFrames.get(assets);
   if (!frame) {
     const canvas = createCanvas();
-    canvas.width = NIGHT_TABLE_RECT.width;
-    canvas.height = NIGHT_TABLE_RECT.height;
+    canvas.width = Math.max(...sources.map((image) => image.width));
+    canvas.height = Math.max(...sources.map((image) => image.height));
     frame = { canvas, sources: [], weights: [] };
     dinnerFrames.set(assets, frame);
   }

@@ -228,6 +228,8 @@ test("dinner matches the room throughout daylight and light-switch transitions",
     for (const bistroLight of [0.1, 0.49, 0.5, 0.75, 0.9]) {
       const frame = prepareDinnerFrame(assets, night, bistroLight, () => canvas);
       assert.equal(frame, canvas);
+      assert.equal(frame.width, 700, "lighting transitions retain the sharpest source width");
+      assert.equal(frame.height, 250, "lighting transitions retain the sharpest source height");
       assert.ok(layers.every(layer => layer.composite === "lighter"));
       assert.ok(Math.abs(layers.reduce((alpha, layer) => alpha + layer.weight, 0) - 1) < 1e-12,
         "the mixed artwork stays opaque instead of showing the empty table beneath it");

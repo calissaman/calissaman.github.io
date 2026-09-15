@@ -109,13 +109,10 @@ export const SCENE_LIGHTS = [
   },
   {
     id: "bistro-candle-left",
-    name: "bistro counter candles",
-    flicker: "candle",
-    rect: [1138, 660, 34, 31],
-    bulbs: [
-      [1147, 682, 5, 7],
-      [1163, 671, 7, 12],
-    ],
+    name: "sugar gem jar lights",
+    flicker: "lamp",
+    rect: [1135, 660, 37, 30],
+    bulbs: [[1148, 676, 13, 11]],
     hitClipX: [0, 1173],
     ellipse: true,
     bistro: true,
