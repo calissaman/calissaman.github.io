@@ -2,7 +2,7 @@ import { drawPinkWindowTrim } from "./pink-facade.js?v=20260914-77";
 import {
   drawFacadePanels,
   FACADE_PANELS,
-} from "./facade-panels.js?v=20260914-77";
+} from "./facade-panels.js?v=20260915-82";
 import { drawMatchingYellowShutters } from "./yellow-windows.js?v=20260913-65";
 
 export function drawBlueWindowTrim(ctx, image) {

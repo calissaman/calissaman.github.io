@@ -1,4 +1,4 @@
-import { drawFacadePanels } from "./facade-panels.js?v=20260914-77";
+import { drawFacadePanels } from "./facade-panels.js?v=20260915-82";
 import {
   drawPinkWindowTrim,
   drawPinkVineJoin,
@@ -56,11 +56,11 @@ export function createSceneDetails({
   const facadePanels = Object.keys(panels).length
     ? [false, true].map((night) => {
         const panel = document.createElement("canvas");
-        panel.width = 1260;
-        panel.height = 255;
+        panel.width = 2190;
+        panel.height = 327;
         const paint = panel.getContext("2d");
         paint.scale(3, 3);
-        paint.translate(-465, -400);
+        paint.translate(-465, -376);
         drawFacadePanels(paint, panels, { night, pixelRatio: 3 });
         return panel;
       })
@@ -124,7 +124,7 @@ export function createSceneDetails({
       }
       for (const [i, image] of facadePanels.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
-        ctx.drawImage(image, 465, 400, 420, 85);
+        ctx.drawImage(image, 465, 376, 730, 109);
       }
       for (const [i, image] of vines.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;

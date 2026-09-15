@@ -30,14 +30,14 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-60";
-import { prepareFacadeScene } from "./scene-facade.js?v=20260914-78";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260915-82";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
   createDaylightEffects,
   daylightAt,
 } from "./daylight-effects.js?v=20260915-81";
-import { createSceneDetails } from "./scene-details.js?v=20260915-80";
+import { createSceneDetails } from "./scene-details.js?v=20260915-82";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -127,7 +127,7 @@ export async function createScene({
       "wall-lamp-night-removed.png",
       "panel-white-turquoise.png",
       "panel-pink-rosette.png",
-      "panel-blue-orange.png",
+      "panel-blue-turquoise-reference.png",
       "canopy-day-v2.png",
       "canopy-night-v2.png",
       "angsana-flower.png",
@@ -152,7 +152,7 @@ export async function createScene({
       "white-sill-night-clean.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -407,7 +407,7 @@ export async function createScene({
     blueShutters: [blueShutterDay, blueShutterNight],
     blueTrim: [blueTrimDay, blueTrimNight],
     pinkTrim: [pinkTrimDay, pinkTrimNight],
-    panels: { green: panelGreen, cream: panelCream },
+    panels: { green: panelGreen, cream: panelCream, blue: panelBlue },
     whiteFacades: [facadeDayPatch, facadeNightPatch],
     whiteSill: whiteSillNight,
     pinkVineJoins: [pinkVineJoinDay, pinkVineJoinNight],

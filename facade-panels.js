@@ -113,7 +113,22 @@ export function drawFacadePanels(
     canvas.width = 512;
     canvas.height = 256;
     const paint = canvas.getContext("2d");
-    paint.drawImage(image, 0, 0, 512, 256);
+    if (house === "blue" && image.height > image.width / 2) {
+      // Use one row of square tiles rather than compressing two rows.
+      paint.drawImage(
+        image,
+        0,
+        0,
+        image.width,
+        image.width / 2,
+        0,
+        0,
+        512,
+        256,
+      );
+    } else {
+      paint.drawImage(image, 0, 0, 512, 256);
+    }
     textures.set(house, paint.getImageData(0, 0, 512, 256).data);
   }
   for (const panel of FACADE_PANELS) {
