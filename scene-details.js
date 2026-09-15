@@ -1,3 +1,4 @@
+import { drawBlueBorder } from "./blue-border.js?v=20260915-101";
 import { drawFacadeClarity } from "./facade-clarity.js?v=20260915-94";
 import { drawFacadePanels } from "./facade-panels.js?v=20260915-82";
 import {
@@ -43,6 +44,7 @@ export function createSceneDetails({
   panels = {},
   whiteFacades = [],
   clarity = [],
+  blueBorder,
   whiteSill,
   pinkVineJoins = [],
 }) {
@@ -148,6 +150,7 @@ export function createSceneDetails({
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawFacadeClarity(ctx, image);
       }
+      drawBlueBorder(ctx, blueBorder, tone / 255);
       ctx.restore();
     },
   };
