@@ -135,19 +135,22 @@ export function createDaylightEffects(
     ctx.fill();
     return canvas;
   });
-  const glint = createCanvas();
-  glint.width = 64;
-  glint.height = 16;
-  const paint = glint.getContext("2d");
-  paint.translate(32, 8);
-  paint.scale(1, 0.22);
-  const glow = paint.createRadialGradient(0, 0, 0, 0, 0, 31);
-  glow.addColorStop(0, "#fffdf2");
-  glow.addColorStop(0.25, "#fff7d9ee");
-  glow.addColorStop(0.5, "#fff0ba50");
-  glow.addColorStop(1, "#fff0ba00");
-  paint.fillStyle = glow;
-  paint.fillRect(-32, -36, 64, 72);
+  const highlights = ["#eafaff", "#ffe3ab"].map((color) => {
+    const canvas = createCanvas();
+    canvas.width = 64;
+    canvas.height = 16;
+    const paint = canvas.getContext("2d");
+    paint.translate(32, 8);
+    paint.scale(1, 0.22);
+    const glow = paint.createRadialGradient(0, 0, 0, 0, 0, 31);
+    glow.addColorStop(0, "#fffef9");
+    glow.addColorStop(0.25, color + "ee");
+    glow.addColorStop(0.6, color + "80");
+    glow.addColorStop(1, color + "00");
+    paint.fillStyle = glow;
+    paint.fillRect(-32, -36, 64, 72);
+    return canvas;
+  });
 
   let glints = [],
     layout = null;
@@ -161,8 +164,8 @@ export function createDaylightEffects(
       const random = randomSource(0x73756e6c);
       glints = [];
       const count = Math.min(
-        300,
-        Math.max(160, Math.round((width * height) / 3200)),
+        800,
+        Math.max(400, Math.round((width * height) / 1600)),
       );
       for (
         let attempt = 0;
@@ -182,8 +185,38 @@ export function createDaylightEffects(
           y,
           phase: random() * Math.PI * 2,
           speed: 0.55 + random() * 0.55,
-          width: (4 + random() * 8) * (0.7 + clamp((y - 820) / 600, 0, 1.2)),
+          width: (7 + random() * 12) * (0.7 + clamp((y - 820) / 600, 0, 1.2)),
+          warmth: 0,
+          strength: 0.55,
         });
+      }
+      // Broken vertical trails widen toward the viewer, like reflected sunlight.
+      for (const [sourceX, strength] of [
+        [560, 1],
+        [815, 0.75],
+        [1065, 0.5],
+      ]) {
+        for (
+          let y = Math.max(top, shoreline(sourceX) + 36);
+          y < bottom;
+          y += 2 + random() * 3
+        ) {
+          const depth = Math.max(0, y - shoreline(sourceX));
+          const spread = 9 + Math.min(depth, 800) * 0.13;
+          const x =
+            sourceX + depth * 0.1 + (random() + random() - 1) * spread * 2;
+          if (!inWaterSurface(x - 16, y) || !inWaterSurface(x + 16, y))
+            continue;
+          glints.push({
+            x,
+            y,
+            phase: random() * Math.PI * 2,
+            speed: 0.45 + random() * 0.7,
+            width: (10 + random() * 22) * (0.65 + Math.min(depth, 600) / 600),
+            warmth: 1,
+            strength,
+          });
+        }
       }
     },
     draw(ctx, { time, daylight, reduced = false, waterField }) {
@@ -258,22 +291,29 @@ export function createDaylightEffects(
               127;
           }
         }
-        const depth = Math.max(0, g.y - 870);
-        const reflection =
-          0.3 +
-          0.7 *
-            Math.exp(
-              -(((g.x - 820 - depth * 0.12) / (240 + depth * 0.35)) ** 2),
-            );
+        const pulse = glintStrength(g, time, slope, reduced);
         const alpha =
-          daylight * glintStrength(g, time, slope, reduced) * reflection * 0.8;
+          daylight * g.strength * (g.warmth ? 0.28 + pulse * 0.72 : pulse);
         if (alpha < 0.015) continue;
         const x = g.x + Math.sin(g.y * 0.025 + t * 0.9) * (reduced ? 0 : 1.7);
         const y = g.y + Math.sin(g.x * 0.035 + t * 0.65) * (reduced ? 0 : 0.65);
-        if (!inWaterSurface(x, y)) continue;
+        if (
+          !inWaterSurface(x - g.width / 2, y - 2) ||
+          !inWaterSurface(x + g.width / 2, y + 2)
+        )
+          continue;
         ctx.globalAlpha = alpha;
-        const height = Math.max(0.8 / layout.scale, g.width * 0.22);
-        ctx.drawImage(glint, x - g.width / 2, y - height / 2, g.width, height);
+        const height = Math.max(
+          1 / layout.scale,
+          g.width * (g.warmth ? 0.24 : 0.16),
+        );
+        ctx.drawImage(
+          highlights[g.warmth],
+          x - g.width / 2,
+          y - height / 2,
+          g.width,
+          height,
+        );
       }
       ctx.restore();
     },

@@ -2,6 +2,8 @@ import { SCENE, WATER, smooth } from "./scene-model.js?v=20260912-29";
 
 import { drawWaterFieldFallback } from "./water-field-fallback.js?v=20260912-29";
 
+const DAYLIGHT_WATER_TINT = [0.1, 0.19, 0.2];
+
 export const WATER_REFLECTION = Object.freeze({
   left: SCENE.width * 0.36,
   right: SCENE.width * 0.72,
@@ -53,7 +55,7 @@ precision highp float;
 precision mediump float;
 #endif
 varying vec2 uv;uniform sampler2D dayImage;uniform sampler2D nightImage;
-uniform vec2 size;uniform vec3 layout;uniform float clock;uniform float night;uniform float motion;uniform float portrait;uniform sampler2D waterField;uniform vec4 waterDomain;
+uniform vec2 size;uniform vec3 layout;uniform float clock;uniform float night;uniform float daylight;uniform float motion;uniform sampler2D waterField;uniform vec4 waterDomain;
 float mirror(float value){return 1.-abs(mod(value,2.)-1.);}
 vec2 reflectionPoint(vec2 p){
  float depth=p.y-${WATER_REFLECTION.blendStart / SCENE.height};
@@ -83,11 +85,10 @@ void main(){
  vec3 day=texture2D(dayImage,clamp(q,0.,1.)).rgb;
  vec3 dark=texture2D(nightImage,clamp(q,0.,1.)).rgb;
  vec3 color=mix(day,dark,night);
- // Portrait keeps the facade at its original aspect ratio, in a continuous sky/water surround.
+ // Fill the space above and below the artwork with sky and reflected water.
  vec3 sky=mix(vec3(.31,.64,.83),vec3(.015,.09,.19),night);
  vec3 river=mix(vec3(.075,.34,.36),vec3(.015,.08,.11),night);
- if(portrait>.5){color=mix(sky,color,smoothstep(.0,.11,p.y));}
- else if(p.y<0.){color=sky;}else if(p.y>1.){color=river;}
+ if(p.y<0.){color=sky;}else if(p.y>1.){color=river;}
  if(p.x<0.||p.x>1.){color=mix(sky,river,smoothstep(.65,1.,p.y));}
  if((size.y-layout.y)/layout.z>1024.&&p.y>${WATER_REFLECTION.blendStart / SCENE.height}){
   vec2 reflection=reflectionPoint(p+rippleOffset);
@@ -106,6 +107,7 @@ void main(){
  float trough=pow(max(0.,-slopeLight),.62)*smoothstep(.006,.025,abs(slopeLight));
  color*=1.-min(.2,trough*.85)*surface;
  color+=mix(vec3(.7,.79,.72),vec3(.65,.77,.82),night)*crest*.8*surface;
+ color+=(1.-color)*vec3(${DAYLIGHT_WATER_TINT.join(",")})*daylight*surface;
  gl_FragColor=vec4(color,1.);
 }`;
 
@@ -183,8 +185,8 @@ export function createRenderer(
       "layout",
       "clock",
       "night",
+      "daylight",
       "motion",
-      "portrait",
       "waterDomain",
     ].map((k) => [k, gl.getUniformLocation(program, k)]),
   );
@@ -195,6 +197,7 @@ export function createRenderer(
       layout,
       time,
       night,
+      daylight = 0,
       reduced,
       streetLights = false,
       waterField,
@@ -220,8 +223,8 @@ export function createRenderer(
       gl.uniform3f(locations.layout, layout.x, layout.y, layout.scale);
       gl.uniform1f(locations.clock, time % (Math.PI * 200));
       gl.uniform1f(locations.night, night);
+      gl.uniform1f(locations.daylight, daylight);
       gl.uniform1f(locations.motion, reduced ? 0.08 : 1);
-      gl.uniform1f(locations.portrait, layout.portrait ? 1 : 0);
       gl.activeTexture(gl.TEXTURE2);
       gl.bindTexture(gl.TEXTURE_2D, fieldTexture);
       if (
@@ -271,7 +274,18 @@ export function createRenderer(
 // Call after applying the scene transform and before drawing flowers or windows.
 export function drawWaterFallback(
   ctx,
-  { day, nightImage, layout, width, height, time, night, reduced, waterField },
+  {
+    day,
+    nightImage,
+    layout,
+    width,
+    height,
+    time,
+    night,
+    daylight = 0,
+    reduced,
+    waterField,
+  },
 ) {
   const top = WATER.shoreY + WATER.shoreFadeEnd;
   const leftY =
@@ -443,6 +457,12 @@ export function drawWaterFallback(
     }
   }
   drawWaterFieldFallback(ctx, waterField, layout, night, reduced ? 0.3 : 1);
+  if (daylight > 0) {
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = daylight;
+    ctx.fillStyle = `rgb(${DAYLIGHT_WATER_TINT.map((value) => value * 255).join(" ")})`;
+    ctx.fillRect(left, top, right - left, bottom - top);
+  }
   ctx.restore();
   ctx.restore();
 }

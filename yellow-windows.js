@@ -174,11 +174,12 @@ export function drawMatchingYellowShutters(ctx) {
 
 export function yellowWindowButtonRect(window, layout) {
   const [x, y, w, h] = window.target;
-  const width = Math.max(44, w * layout.scale),
-    height = Math.max(44, h * layout.scale);
+  const minimum = layout.portrait ? 24 : 44;
+  const width = Math.max(minimum, w * layout.scale),
+    height = Math.max(minimum, h * layout.scale);
   return {
     left: `${layout.x + (x + w / 2) * layout.scale - width / 2}px`,
-    top: `${layout.y + (y + h / 2) * layout.scale - height / 2}px`,
+    top: `${layout.y + (y + h / 2) * layout.scale - height / 2 + (layout.portrait ? 2 : 0)}px`,
     width: `${width}px`,
     height: `${height}px`,
   };

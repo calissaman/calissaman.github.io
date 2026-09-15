@@ -222,11 +222,11 @@ test("accepted water taps stay inside the artwork river mask", () => {
 
 test("portrait water taps reach the visible river below the source image", () => {
   const layout = sceneLayout(390, 844);
-  for (const cssY of [615, 675, 824]) {
+  for (const cssY of [layout.y + 970 * layout.scale, 675, 824]) {
     const x = (195 - layout.x) / layout.scale;
     const y = (cssY - layout.y) / layout.scale;
     assert.equal(inWaterSurface(x, y), true, `tap at CSS 195,${cssY}`);
-    assert.equal(inWater(x, y), cssY === 615);
+    assert.equal(inWater(x, y), cssY < layout.y + 1024 * layout.scale);
   }
 });
 
@@ -622,4 +622,29 @@ test("flower births alternate variants and only maintained flowers start an appe
   assert.equal(maintained.appearedAt, sim.time);
   advanceSimulation(sim, 0.5, true);
   assert.equal(maintained.variant, 1);
+});
+
+test("portrait framing keeps both trees and the entire flowering canopy on screen", () => {
+  for (const [w, h] of [
+    [320, 640],
+    [375, 667],
+    [390, 844],
+    [430, 932],
+    [768, 1024],
+  ]) {
+    const layout = sceneLayout(w, h);
+    for (const [x, y] of [
+      [0, 0],
+      [1536, 0],
+      [0, 1024],
+      [1536, 1024],
+      [138, 442],
+      [1480, 500],
+    ]) {
+      const px = layout.x + x * layout.scale;
+      const py = layout.y + y * layout.scale;
+      assert.ok(px >= 0 && px <= w, `${w}×${h}: tree/canopy x=${x}`);
+      assert.ok(py >= 0 && py <= h, `${w}×${h}: tree/canopy y=${y}`);
+    }
+  }
 });

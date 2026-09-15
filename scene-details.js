@@ -66,8 +66,7 @@ export function createSceneDetails({
       })
     : [];
   let geometry = "",
-    lastTone = -1,
-    portrait = false;
+    lastTone = -1;
 
   return {
     resize(layout, dpr) {
@@ -85,7 +84,6 @@ export function createSceneDetails({
       geometry = next;
       canvas.width = Math.round(width * density);
       canvas.height = Math.round(height * density);
-      portrait = layout.portrait;
       lastTone = -1;
     },
     draw(amount) {
@@ -143,15 +141,6 @@ export function createSceneDetails({
       for (const [i, image] of blueShutters.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawMatchingBlueShutter(ctx, image);
-      }
-      if (portrait) {
-        ctx.globalAlpha = 1;
-        ctx.globalCompositeOperation = "destination-in";
-        const fade = ctx.createLinearGradient(0, 0, 0, 113);
-        fade.addColorStop(0, "transparent");
-        fade.addColorStop(1, "white");
-        ctx.fillStyle = fade;
-        ctx.fillRect(RECT.x, RECT.y, RECT.width, RECT.height);
       }
       ctx.restore();
     },

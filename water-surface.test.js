@@ -151,7 +151,7 @@ test("mask respects the river and ignores taps on land or outside the viewport",
     }
   }
   addRipple(f.sim, 780, 400);
-  addRipple(f.sim, 780, 3000);
+  addRipple(f.sim, 780, (844 - f.layout.y) / f.layout.scale + 100);
   f.update(0, false);
   assert.equal(energy(frame), 0);
   const empty = fixture(400, 200, identity);

@@ -12,17 +12,17 @@ import {
   addFlower,
   stepSimulation,
   maintainWaterFlowers,
-} from "./scene-model.js?v=20260913-67";
+} from "./scene-model.js?v=20260915-80";
 import {
   createRenderer,
   drawWaterFallback,
-} from "./scene-renderer.js?v=20260913-60";
+} from "./scene-renderer.js?v=20260915-80";
 import {
   createSceneLighting,
   prepareLightPatches,
   SCENE_LIGHTS,
 } from "./scene-lighting.js?v=20260914-76";
-import { createYellowWindows } from "./yellow-windows.js?v=20260913-65";
+import { createYellowWindows } from "./yellow-windows.js?v=20260915-80";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import { setupAudio } from "./audio.js?v=20260912-6";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
@@ -36,8 +36,8 @@ import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
   createDaylightEffects,
   daylightAt,
-} from "./daylight-effects.js?v=20260913-69";
-import { createSceneDetails } from "./scene-details.js?v=20260914-78";
+} from "./daylight-effects.js?v=20260914-79";
+import { createSceneDetails } from "./scene-details.js?v=20260915-80";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -589,6 +589,10 @@ export async function createScene({
     width = stage.clientWidth;
     height = stage.clientHeight;
     layout = sceneLayout(width, height);
+    hero.style.setProperty(
+      "--scene-art-bottom",
+      `${layout.y + 1024 * layout.scale}px`,
+    );
     details.resize(layout, window.devicePixelRatio || 1);
     if (geometryChanged) {
       waterSurface.resize({ width, height, layout });
@@ -607,9 +611,7 @@ export async function createScene({
         left: `${layout.x}px`,
         top: `${layout.y}px`,
         objectFit: "fill",
-        maskImage: layout.portrait
-          ? "linear-gradient(transparent,black 11%)"
-          : "none",
+        maskImage: "none",
       });
     }
     for (const {
@@ -716,6 +718,7 @@ export async function createScene({
         layout,
         time: sim.time,
         night: displayNight,
+        daylight: displayDaylight,
         reduced,
         streetLights: true,
         waterField: waterSurface.frame,
@@ -740,6 +743,7 @@ export async function createScene({
         height,
         time: sim.time,
         night: displayNight,
+        daylight: displayDaylight,
         reduced,
         waterField: waterSurface.frame,
       });

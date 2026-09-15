@@ -67,11 +67,11 @@ export function pairedClockMinutes(minutes, city, date = new Date()) {
   };
 }
 export function sceneLayout(w, h) {
-  // Both axes share one scale; narrow crops include the right-side plants.
+  // Portrait fits the full canopy and both banks without stretching the artwork.
   const portrait = w / h < 0.85;
   const nearSquare = !portrait && w / h < 1.15;
   const scale = portrait
-    ? w / 1030
+    ? w / SCENE.width
     : Math.min(
         Math.max(w / 1536, h / 1024),
         w / 920,
@@ -79,7 +79,7 @@ export function sceneLayout(w, h) {
         nearSquare ? w / 1080 : Infinity,
       );
   let x = (w - 1536 * scale) * 0.53;
-  if (portrait) x = w / 2 - 875 * scale;
+  if (portrait) x = 0;
   else if (nearSquare) {
     const focusedX = w / 2 - 870 * scale;
     x = focusedX + (x - focusedX) * smooth(1.1, 1.15, w / h);
@@ -88,7 +88,9 @@ export function sceneLayout(w, h) {
     scale,
     x,
     y: portrait
-      ? Math.min(h * 0.34 - 60 * scale, h - 1024 * scale)
+      ? w <= 600
+        ? 104
+        : 88
       : Math.min((h - 1024 * scale) * 0.45, h - 990 * scale),
     portrait,
   };

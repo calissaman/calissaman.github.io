@@ -1287,3 +1287,12 @@ p {
     scroll-padding-top: 115px;
   }
 }
+
+@media (max-aspect-ratio: 849/1000) {
+  .shophouse-hero {
+    height: max(640px, calc(100vw / 0.84), calc(100vw * 2 / 3 + 360px));
+  }
+  .scene-clock {
+    top: calc(var(--scene-art-bottom) + 24px);
+  }
+}

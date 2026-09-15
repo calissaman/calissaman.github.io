@@ -113,7 +113,8 @@ test("window touch targets and their light controls stay separate on mobile and 
           ),
         ).map(([k, v]) => [k, parseFloat(v)]),
       );
-      assert.ok(rect.width >= 44 && rect.height >= 44);
+      const minimum = layout.portrait ? 24 : 44;
+      assert.ok(rect.width >= minimum && rect.height >= minimum);
       assert.ok(
         rect.top >= lamp.top + lamp.height ||
           lamp.top >= rect.top + rect.height ||
