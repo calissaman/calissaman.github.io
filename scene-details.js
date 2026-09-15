@@ -13,7 +13,7 @@ import {
   drawMatchingBlueShutter,
   drawBlueWindowTrim,
   drawWhiteFacade,
-} from "./scene-facade.js?v=20260914-78";
+} from "./scene-facade.js?v=20260915-83";
 
 const RECT = { x: 410, y: 0, width: 860, height: 832 };
 const OUTLINE = [

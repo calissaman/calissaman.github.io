@@ -10,14 +10,14 @@ export function drawBlueWindowTrim(ctx, image) {
   ctx.save();
   ctx.beginPath();
   trace(ctx, [
-    [937, 160],
+    [916, 160],
     [1167, 110],
     [1167, 366],
     [1179, 405],
     [1176, 437],
     [1190, 474],
     [1190, 490],
-    [937, 505],
+    [916, 505],
   ]);
   ctx.clip();
   for (const hole of [
@@ -38,12 +38,12 @@ export function drawBlueWindowTrim(ctx, image) {
     ),
   ]) {
     ctx.beginPath();
-    ctx.rect(925, 40, 345, 465);
+    ctx.rect(916, 40, 354, 465);
     trace(ctx, hole);
     ctx.clip("evenodd");
   }
   ctx.beginPath();
-  ctx.rect(925, 40, 345, 465);
+  ctx.rect(916, 40, 354, 465);
   ctx.moveTo(971, 233);
   ctx.lineTo(971, 214);
   ctx.bezierCurveTo(975, 194, 1008, 176, 1038, 192);
@@ -52,7 +52,7 @@ export function drawBlueWindowTrim(ctx, image) {
   ctx.closePath();
   ctx.clip("evenodd");
   ctx.beginPath();
-  ctx.rect(925, 40, 345, 465);
+  ctx.rect(916, 40, 354, 465);
   ctx.moveTo(1092, 218);
   ctx.lineTo(1092, 190);
   ctx.bezierCurveTo(1112, 164, 1154, 151, 1176, 167);
@@ -60,6 +60,18 @@ export function drawBlueWindowTrim(ctx, image) {
   ctx.lineTo(1185, 202);
   ctx.closePath();
   ctx.clip("evenodd");
+  // Carry the clean column edge across the narrow join with the pink facade.
+  ctx.drawImage(
+    image,
+    0,
+    0,
+    (image.width * 9) / 345,
+    image.height,
+    916,
+    40,
+    9,
+    465,
+  );
   ctx.drawImage(image, 925, 40, 345, 465);
   ctx.restore();
 }

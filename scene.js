@@ -30,14 +30,14 @@ import {
   createWindows,
   prepareMerlionImage,
 } from "./scene-windows.js?v=20260913-60";
-import { prepareFacadeScene } from "./scene-facade.js?v=20260915-82";
+import { prepareFacadeScene } from "./scene-facade.js?v=20260915-83";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
   createDaylightEffects,
   daylightAt,
 } from "./daylight-effects.js?v=20260915-81";
-import { createSceneDetails } from "./scene-details.js?v=20260915-82";
+import { createSceneDetails } from "./scene-details.js?v=20260915-83";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
