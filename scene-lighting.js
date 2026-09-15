@@ -238,12 +238,17 @@ export function unlitPixel(r, g, b, night) {
       ];
 }
 
-export function unlitLampPixel(r, g, b, night, distance) {
+export function unlitLampPixel(r, g, b, night, distance, glass = false) {
   const brightness = (r + g + b) / 3;
   const core =
     clamp((0.36 - distance) * 12, 0, 1) * clamp((brightness - 90) / 90, 0, 1);
   const halo = clamp(1 - distance, 0, 1) * 0.32;
-  const neutral = night ? [99, 92, 78] : [171, 161, 143];
+  const shade = night ? 0.64 : 0.82;
+  const neutral = glass
+    ? [r * shade, g * shade * 0.88, b * shade * 0.69]
+    : night
+      ? [99, 92, 78]
+      : [171, 161, 143];
   return [
     r * 0.88 * (1 - core) + neutral[0] * core,
     g * 0.86 * (1 - core) + neutral[1] * core,
@@ -321,7 +326,12 @@ export function prepareLightPatches(
                     (py + 0.5 - height / 2) / (height / 2),
                   );
               const rgba = light.ellipse
-                ? unlitLampPixel(...rgb, mode === 1, distance)
+                ? unlitLampPixel(
+                    ...rgb,
+                    mode === 1,
+                    distance,
+                    light.id === "bistro-pendant",
+                  )
                 : unlitPixel(...rgb, mode === 1);
               const edge = light.ellipse
                 ? clamp((1 - distance) * 4, 0, 1)
