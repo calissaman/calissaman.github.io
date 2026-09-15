@@ -338,8 +338,9 @@ test("released and landed flowers remain in the river until retirement", () => {
     for (const flower of sim.flowers) {
       if (!flower.active || flower.falling) continue;
       floated.add(flower.id);
-      assert.ok(inWater(flower.x, flower.y), JSON.stringify(flower));
-      assert.ok(artworkWaterCoverage(flower.x, flower.y) > 0.99);
+      assert.ok(inWaterSurface(flower.x, flower.y), JSON.stringify(flower));
+      if (flower.y < 1024 * 0.94)
+        assert.ok(artworkWaterCoverage(flower.x, flower.y) > 0.99);
     }
   }
   assert.equal(floated.size, 7);
@@ -663,4 +664,17 @@ test("the scene fills the top and both page edges", () => {
     assert.ok(l.x + 1536 * l.scale >= w);
     assert.ok(l.y <= 0);
   }
+});
+
+test("whole flowers drift beyond the mobile water before retiring", () => {
+  const sim = createSimulation();
+  sim.waterExitY = 2400;
+  const flower = addFlower(sim, 1200, 985);
+  for (let frame = 0; frame < 60 * 230; frame++) {
+    stepSimulation(sim, 1 / 60);
+    if (flower.y <= sim.waterExitY + flowerSize(sim, flower))
+      assert.equal(flower.active, true);
+  }
+  assert.equal(flower.active, false);
+  assert.ok(flower.y > sim.waterExitY + flowerSize(sim, flower));
 });

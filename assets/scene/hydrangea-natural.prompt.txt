@@ -1,0 +1,6 @@
+Source: local day and night screenshots of world rectangle 1160,590,240,250.
+Edit hydrangea flower heads into natural rounded mophead clusters of small
+four-petal blue and periwinkle florets with lilac highlights. Remove the
+large tile-like scales. Keep the existing bouquet positions and silhouette,
+leaves, planter, column, bistro and background. Preserve each lighting state.
+The runtime clips the edited images to the bouquet, preserving the pot.

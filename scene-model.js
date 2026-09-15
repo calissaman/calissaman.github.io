@@ -257,7 +257,10 @@ export function maintainWaterFlowers(sim, minimum = 4) {
 export function flowerSize(sim, f) {
   if (f.breaking) return f.fragmentSize;
   const settled = f.falling ? 0 : smooth(0, 1.2, sim.time - f.landedAt);
-  return (42 + settled * (4 + (f.y - 850) * 0.07)) * (f.sizeScale ?? 1);
+  return (
+    (42 + settled * (4 + (Math.min(f.y, SCENE.height) - 850) * 0.07)) *
+    (f.sizeScale ?? 1)
+  );
 }
 
 export function breakFlower(sim, f, reduced = false) {
@@ -286,6 +289,17 @@ export function breakFlower(sim, f, reduced = false) {
     });
   }
   return true;
+}
+
+function driftDownstream(p, sim, dt, margin) {
+  p.x += dt * (p.vx + Math.sin(sim.time * 0.18 + p.id) * 1.2);
+  p.y += dt * (7 + p.vy);
+  if (p.y < SCENE.height) {
+    const bank = constrainToWater(p, margin);
+    p.x = bank.x;
+    p.y = Math.max(p.y, bank.y);
+  }
+  if (p.y - margin > (sim.waterExitY ?? SCENE.height)) p.active = false;
 }
 
 function stepPetals(sim, f, dt, reduced) {
@@ -384,11 +398,8 @@ export function stepSimulation(sim, seconds, reduced = false) {
     } else if (!reduced) {
       f.vx += (3 + (f.id % 7) * 0.6 - f.vx) * dt * 0.6;
       f.vy *= Math.exp(-dt * 1.5);
-      f.x += dt * (f.vx + Math.sin(sim.time * 0.18 + f.id) * 2);
-      f.y += dt * (f.vy + Math.sin(sim.time * 0.15 + f.id) * 0.8);
+      driftDownstream(f, sim, dt, flowerSize(sim, f));
       f.angle += dt * 0.014;
-      if (f.x > 1240 || f.y > 1010) f.active = false;
-      else Object.assign(f, constrainToWater(f));
     }
   }
 }

@@ -1,3 +1,4 @@
+import { drawHydrangeas } from "./hydrangea.js?v=20260915-93";
 import { prepareStreetScene } from "./street-scene.js?v=20260914-72";
 import {
   nightAt,
@@ -12,7 +13,7 @@ import {
   addFlower,
   stepSimulation,
   maintainWaterFlowers,
-} from "./scene-model.js?v=20260915-87";
+} from "./scene-model.js?v=20260915-93";
 import {
   createRenderer,
   drawWaterFallback,
@@ -155,9 +156,11 @@ export async function createScene({
       "white-sill-night-clean.png",
       "white-windows-clear-day.png",
       "white-windows-clear-night.png",
+      "hydrangea-natural-day.png",
+      "hydrangea-natural-night.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 40 ? "20260915-89" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 42 ? "20260915-93" : index >= 40 ? "20260915-89" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -204,6 +207,8 @@ export async function createScene({
     whiteSillNight,
     clearWindowsDay,
     clearWindowsNight,
+    hydrangeaDay,
+    hydrangeaNight,
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
@@ -604,6 +609,7 @@ export async function createScene({
     width = stage.clientWidth;
     height = stage.clientHeight;
     layout = sceneLayout(width, height);
+    sim.waterExitY = (height - layout.y) / layout.scale;
     hero.style.setProperty(
       "--scene-art-bottom",
       `${layout.y + 1024 * layout.scale}px`,
@@ -780,6 +786,7 @@ export async function createScene({
       time: sim.time,
       reduced,
     });
+    drawHydrangeas(ctx, [hydrangeaDay, hydrangeaNight], displayNight);
     gardenVisitor.draw(ctx, displayNight);
     drawMorningGlory(ctx, morningGlory, displayMorningGlory, displayNight);
     flowers.draw(ctx, displayNight);
