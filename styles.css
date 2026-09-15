@@ -499,7 +499,8 @@ p {
   font-size: 10px;
   margin-top: 10px;
 }
-.track-name {
+.track-name,
+.audio-hint {
   font-size: 11px;
   overflow-wrap: anywhere;
   margin: 12px 0;
@@ -519,7 +520,8 @@ p {
   font-size: 10px;
   display: block;
 }
-#music-volume {
+#music-volume,
+#water-volume {
   width: 100%;
   accent-color: #efd5a9;
 }

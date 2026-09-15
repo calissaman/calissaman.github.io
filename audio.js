@@ -1,11 +1,15 @@
+import { fillWaterChannel } from "./water-audio.js?v=20260915-88";
+
 export function setupAudio() {
-  const ambientButton = document.querySelector('.ambient-toggle');
-  const fileInput = document.querySelector('#music-files');
-  const trackName = document.querySelector('.track-name');
-  const previousButton = document.querySelector('.track-previous');
-  const playButton = document.querySelector('.track-play');
-  const nextButton = document.querySelector('.track-next');
-  const volumeInput = document.querySelector('#music-volume');
+  const ambientButton = document.querySelector(".ambient-toggle");
+  const fileInput = document.querySelector("#music-files");
+  const trackName = document.querySelector(".track-name");
+  const previousButton = document.querySelector(".track-previous");
+  const playButton = document.querySelector(".track-play");
+  const nextButton = document.querySelector(".track-next");
+  const volumeInput = document.querySelector("#music-volume");
+  const waterVolumeInput = document.querySelector("#water-volume");
+  let waterVolume = Number(waterVolumeInput?.value ?? 0.45);
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let ambientContext = null;
   let ambientGain = null;
@@ -15,38 +19,34 @@ export function setupAudio() {
 
   function renderAmbient() {
     if (!ambientButton) return;
-    ambientButton.setAttribute('aria-pressed', String(ambientWanted));
-    const label = ambientButton.querySelector('span');
-    const icon = ambientButton.querySelector('i');
-    if (label) label.textContent = ambientWanted ? 'Sound on' : 'Sound off';
+    ambientButton.setAttribute("aria-pressed", String(ambientWanted));
+    const label = ambientButton.querySelector("span");
+    const icon = ambientButton.querySelector("i");
+    if (label) label.textContent = ambientWanted ? "Water on" : "Water off";
     if (icon)
-      icon.className = `fa-solid fa-volume-${ambientWanted ? 'low' : 'xmark'}`;
+      icon.className = `fa-solid fa-volume-${ambientWanted ? "low" : "xmark"}`;
   }
 
   function createWaterSound() {
     const context = new AudioContextClass();
     ambientContext = context;
     const buffer = context.createBuffer(
-      1,
-      context.sampleRate * 5,
+      2,
+      context.sampleRate * 37,
       context.sampleRate,
     );
-    const samples = buffer.getChannelData(0);
-    let previous = 0;
-    for (let index = 0; index < samples.length; index += 1) {
-      previous = (previous + (Math.random() * 2 - 1) * 0.035) / 1.035;
-      samples[index] = previous * 3.5;
-    }
+    for (let channel = 0; channel < 2; channel += 1)
+      fillWaterChannel(buffer.getChannelData(channel), context.sampleRate);
     const noise = context.createBufferSource();
     noise.buffer = buffer;
     noise.loop = true;
     const lowpass = context.createBiquadFilter();
-    lowpass.type = 'lowpass';
-    lowpass.frequency.value = 700;
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 2400;
     lowpass.Q.value = 0.5;
     const highpass = context.createBiquadFilter();
-    highpass.type = 'highpass';
-    highpass.frequency.value = 100;
+    highpass.type = "highpass";
+    highpass.frequency.value = 90;
     ambientGain = context.createGain();
     ambientGain.gain.value = 0;
     noise
@@ -75,58 +75,83 @@ export function setupAudio() {
       }
       ambientGain.gain.cancelScheduledValues(context.currentTime);
       ambientGain.gain.setValueAtTime(0, context.currentTime);
-      ambientGain.gain.linearRampToValueAtTime(0.06, context.currentTime + 0.8);
+      ambientGain.gain.linearRampToValueAtTime(
+        waterVolume * 0.65,
+        context.currentTime + 0.8,
+      );
     } catch {
       if (version !== ambientVersion) return;
       ambientWanted = false;
       renderAmbient();
-      ambientButton.title = 'Sound could not start. Try again.';
+      ambientButton.title = "Sound could not start. Try again.";
     }
   }
 
   function suspendAmbient() {
     ambientVersion += 1;
-    if (ambientContext && ambientContext.state !== 'closed') {
+    if (ambientContext && ambientContext.state !== "closed") {
       ambientContext.suspend().catch(() => {});
     }
   }
 
+  function enableWater() {
+    if (!AudioContextClass) return;
+    ambientWanted = true;
+    resumeAmbient = false;
+    ambientButton?.removeAttribute("title");
+    try {
+      if (!ambientContext || ambientContext.state === "closed")
+        createWaterSound();
+      startAmbient();
+    } catch {
+      ambientWanted = false;
+      ambientContext?.close().catch(() => {});
+      ambientContext = null;
+      ambientGain = null;
+      if (ambientButton)
+        ambientButton.title = "Water audio is unavailable in this browser.";
+    }
+    renderAmbient();
+  }
+
   if (ambientButton && AudioContextClass) {
-    ambientButton.addEventListener('click', () => {
-      ambientWanted = !ambientWanted;
-      resumeAmbient = false;
-      ambientButton.removeAttribute('title');
-      if (ambientWanted) {
-        try {
-          if (!ambientContext || ambientContext.state === 'closed')
-            createWaterSound();
-          startAmbient();
-        } catch {
-          ambientWanted = false;
-          if (ambientContext && ambientContext.state !== 'closed')
-            ambientContext.close().catch(() => {});
-          ambientContext = null;
-          ambientGain = null;
-          ambientButton.title = 'Ambient sound is unavailable in this browser.';
-        }
-      } else {
+    ambientButton.addEventListener("click", () => {
+      if (!ambientWanted) enableWater();
+      else {
+        ambientWanted = false;
+        resumeAmbient = false;
         suspendAmbient();
+        renderAmbient();
       }
-      renderAmbient();
     });
-  } else if (ambientButton) {
-    ambientButton.disabled = true;
-    ambientButton.title = 'Ambient sound is unavailable in this browser.';
+    waterVolumeInput?.addEventListener("input", () => {
+      waterVolume = Math.min(
+        1,
+        Math.max(0, Number(waterVolumeInput.value) || 0),
+      );
+      if (!ambientWanted && waterVolume > 0) enableWater();
+      else if (ambientGain) {
+        ambientGain.gain.cancelScheduledValues(ambientContext.currentTime);
+        ambientGain.gain.setTargetAtTime(
+          waterVolume * 0.65,
+          ambientContext.currentTime,
+          0.08,
+        );
+      }
+    });
+  } else {
+    if (ambientButton) ambientButton.disabled = true;
+    if (waterVolumeInput) waterVolumeInput.disabled = true;
   }
 
   let player = null;
   try {
     if (
-      typeof window.Audio === 'function' &&
-      typeof URL.createObjectURL === 'function'
+      typeof window.Audio === "function" &&
+      typeof URL.createObjectURL === "function"
     ) {
       player = new window.Audio();
-      player.preload = 'metadata';
+      player.preload = "metadata";
     }
   } catch {
     player = null;
@@ -142,12 +167,12 @@ export function setupAudio() {
     const playing = player && !player.paused && !player.ended && playbackWanted;
     if (playButton) {
       playButton.disabled = !hasTracks;
-      playButton.textContent = playing ? 'Pause' : 'Play';
+      playButton.textContent = playing ? "Pause" : "Play";
       playButton.setAttribute(
-        'aria-label',
-        playing ? 'Pause track' : 'Play track',
+        "aria-label",
+        playing ? "Pause track" : "Play track",
       );
-      playButton.setAttribute('aria-pressed', String(Boolean(playing)));
+      playButton.setAttribute("aria-pressed", String(Boolean(playing)));
     }
     if (previousButton) previousButton.disabled = playlist.length < 2;
     if (nextButton) nextButton.disabled = playlist.length < 2;
@@ -162,6 +187,7 @@ export function setupAudio() {
 
   async function playTrack() {
     if (!player || !playlist.length || document.hidden) return;
+    if (!ambientWanted) enableWater();
     const version = ++playbackVersion;
     playbackWanted = true;
     if (trackName) trackName.textContent = playlist[currentTrack].name;
@@ -191,13 +217,13 @@ export function setupAudio() {
     pauseTrack();
     resumeTrack = false;
     if (player) {
-      player.removeAttribute('src');
+      player.removeAttribute("src");
       player.load();
     }
     playlist.forEach((track) => URL.revokeObjectURL(track.url));
     playlist = [];
     currentTrack = 0;
-    if (trackName) trackName.textContent = 'Your playlist, on this device.';
+    if (trackName) trackName.textContent = "Your playlist, on this device.";
     renderPlayer();
   }
 
@@ -210,15 +236,15 @@ export function setupAudio() {
           : 0.35;
       };
       updateVolume();
-      volumeInput.addEventListener('input', updateVolume);
+      volumeInput.addEventListener("input", updateVolume);
     }
-    fileInput?.addEventListener('change', () => {
+    fileInput?.addEventListener("change", () => {
       const files = Array.from(fileInput.files || []);
       if (!files.length) return;
       clearPlaylist();
       for (const file of files) {
         if (
-          !file.type.startsWith('audio/') &&
+          !file.type.startsWith("audio/") &&
           !/\.(mp3|m4a|aac|wav|ogg|oga|opus|flac|aiff|aif|webm)$/i.test(
             file.name,
           )
@@ -226,25 +252,25 @@ export function setupAudio() {
           continue;
         playlist.push({ name: file.name, url: URL.createObjectURL(file) });
       }
-      fileInput.value = '';
+      fileInput.value = "";
       if (playlist.length) selectTrack(0);
       else if (trackName)
-        trackName.textContent = 'Choose an audio file to make a playlist.';
+        trackName.textContent = "Choose an audio file to make a playlist.";
     });
-    playButton?.addEventListener('click', () => {
+    playButton?.addEventListener("click", () => {
       resumeTrack = false;
       if (playbackWanted) pauseTrack();
       else playTrack();
     });
-    previousButton?.addEventListener('click', () => {
+    previousButton?.addEventListener("click", () => {
       if (playlist.length) selectTrack(currentTrack - 1, playbackWanted);
     });
-    nextButton?.addEventListener('click', () => {
+    nextButton?.addEventListener("click", () => {
       if (playlist.length) selectTrack(currentTrack + 1, playbackWanted);
     });
-    player.addEventListener('play', renderPlayer);
-    player.addEventListener('pause', renderPlayer);
-    player.addEventListener('ended', () => {
+    player.addEventListener("play", renderPlayer);
+    player.addEventListener("pause", renderPlayer);
+    player.addEventListener("ended", () => {
       if (
         playbackWanted &&
         currentTrack + 1 < playlist.length &&
@@ -255,7 +281,7 @@ export function setupAudio() {
         pauseTrack();
       }
     });
-    player.addEventListener('error', () => {
+    player.addEventListener("error", () => {
       if (!player.error || !playlist.length) return;
       pauseTrack();
       resumeTrack = false;
@@ -267,13 +293,13 @@ export function setupAudio() {
     if (volumeInput) volumeInput.disabled = true;
     if (trackName)
       trackName.textContent =
-        'Local music playback is unavailable in this browser.';
+        "Local music playback is unavailable in this browser.";
   }
   renderPlayer();
 
-  document.addEventListener('visibilitychange', () => {
+  document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-      resumeAmbient = ambientWanted && ambientContext?.state === 'running';
+      resumeAmbient = ambientWanted && ambientContext?.state === "running";
       suspendAmbient();
       resumeTrack = Boolean(
         player && !player.paused && !player.ended && playbackWanted,
@@ -287,12 +313,12 @@ export function setupAudio() {
     }
   });
 
-  window.addEventListener('pagehide', () => {
+  window.addEventListener("pagehide", () => {
     clearPlaylist();
     ambientWanted = false;
     resumeAmbient = false;
     ambientVersion += 1;
-    if (ambientContext && ambientContext.state !== 'closed')
+    if (ambientContext && ambientContext.state !== "closed")
       ambientContext.close().catch(() => {});
     ambientContext = null;
     ambientGain = null;
