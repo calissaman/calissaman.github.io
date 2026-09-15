@@ -51,17 +51,17 @@ export function shutterLeaves(quad, amount) {
   const [tl, tr, br, bl] = quad;
   const top = lerp(tl, tr, 0.5),
     bottom = lerp(bl, br, 0.5);
-  const angle = amount * Math.PI * 0.34,
+  const angle = amount * Math.PI * 0.62,
     width = Math.cos(angle),
     depth = Math.sin(angle) * 10;
   const leftTop = lerp(tl, top, width),
     leftBottom = lerp(bl, bottom, width);
   const rightTop = lerp(tr, top, width),
     rightBottom = lerp(br, bottom, width);
-  leftTop[1] += depth;
-  rightTop[1] += depth;
-  leftBottom[1] -= depth;
-  rightBottom[1] -= depth;
+  leftTop[1] -= depth;
+  rightTop[1] -= depth;
+  leftBottom[1] += depth;
+  rightBottom[1] += depth;
   return [
     { source: [tl, top, bottom, bl], target: [tl, leftTop, leftBottom, bl] },
     { source: [top, tr, br, bottom], target: [rightTop, tr, br, rightBottom] },
@@ -330,6 +330,9 @@ export function createYellowWindows({
           ctx.fillStyle = shade;
           ctx.fillRect(x, y, w.texture.width, w.texture.height);
         }
+        ctx.restore();
+        // Outward leaves project beyond the opening, so only the recess is clipped.
+        ctx.save();
         for (const leaf of shutterLeaves(w.quad, w.amount))
           paintLeaf(
             ctx,

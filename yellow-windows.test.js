@@ -132,3 +132,23 @@ test("missing scene artwork leaves window controls disabled", (t) => {
   buttons.forEach((b) => b.click());
   assert.ok(buttons.every((b) => b.getAttribute("aria-pressed") === "false"));
 });
+
+test("leaves swing toward the viewer and beyond the outer jambs", () => {
+  const quad = [
+    [0, 0],
+    [100, 0],
+    [100, 150],
+    [0, 150],
+  ];
+  for (const amount of [0.1, 0.5, 1]) {
+    const [left, right] = shutterLeaves(quad, amount);
+    assert.ok(left.target[1][1] < 0 && left.target[2][1] > 150);
+    assert.ok(right.target[0][1] < 0 && right.target[3][1] > 150);
+  }
+  const [left, right] = shutterLeaves(quad, 1);
+  assert.ok(left.target[1][0] < 0, "left leaf opens outside the left jamb");
+  assert.ok(
+    right.target[0][0] > 100,
+    "right leaf opens outside the right jamb",
+  );
+});
