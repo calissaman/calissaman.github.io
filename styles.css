@@ -148,7 +148,14 @@ p {
 .wordmark-monogram {
   position: absolute;
   inset: 0;
-  background: linear-gradient(146deg, #fffdf4, #f5ead4 36%, #e4d1af 63%, #f8efd9 79%, #ceb58f);
+  background: linear-gradient(
+    146deg,
+    #fffdf4,
+    #f5ead4 36%,
+    #e4d1af 63%,
+    #f8efd9 79%,
+    #ceb58f
+  );
   -webkit-mask: url("assets/monogram-watermark.png") center / contain no-repeat;
   mask: url("assets/monogram-watermark.png") center / contain no-repeat;
 }
@@ -906,6 +913,25 @@ p {
 }
 .book-choice:hover img,
 .book-choice.is-active img {
+  box-shadow: 8px 16px 24px #071e2930;
+}
+.book-cover-crop {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 5px 8px 16px #071e2924;
+}
+.book-cover-crop img {
+  display: block;
+  height: 100%;
+  transform: scale(1.025);
+  box-shadow: none;
+}
+.book-choice:hover .book-cover-crop,
+.book-choice.is-active .book-cover-crop {
   box-shadow: 8px 16px 24px #071e2930;
 }
 .book-label {
