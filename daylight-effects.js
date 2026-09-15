@@ -135,7 +135,14 @@ export function createDaylightEffects(
     ctx.fill();
     return canvas;
   });
-  const highlights = ["#eafaff", "#ffe3ab"].map((color) => {
+  const highlights = [
+    "#eafaff",
+    "#ffe3ab",
+    "#ffc477",
+    "#ef9dca",
+    "#87cfff",
+    "#8de0c3",
+  ].map((color, index) => {
     const canvas = createCanvas();
     canvas.width = 64;
     canvas.height = 16;
@@ -143,7 +150,7 @@ export function createDaylightEffects(
     paint.translate(32, 8);
     paint.scale(1, 0.22);
     const glow = paint.createRadialGradient(0, 0, 0, 0, 0, 31);
-    glow.addColorStop(0, "#fffef9");
+    glow.addColorStop(0, index < 2 ? "#fffef9" : color);
     glow.addColorStop(0.25, color + "ee");
     glow.addColorStop(0.6, color + "80");
     glow.addColorStop(1, color + "00");
@@ -218,9 +225,42 @@ export function createDaylightEffects(
           });
         }
       }
+      // Match the warm lamps and the pink, blue, and emerald facades.
+      for (const [sourceX, color] of [
+        [480, 2],
+        [620, 5],
+        [820, 3],
+        [1050, 4],
+        [1130, 2],
+      ]) {
+        for (
+          let y = Math.max(top, shoreline(sourceX) + 34);
+          y < bottom;
+          y += 3 + random() * 5
+        ) {
+          const depth = Math.max(0, y - shoreline(sourceX));
+          const spread = 12 + Math.min(depth, 900) * 0.12;
+          const x =
+            sourceX +
+            Math.sin(depth * 0.004) * 24 +
+            (random() + random() - 1) * spread * 2;
+          if (!inWaterSurface(x - 20, y) || !inWaterSurface(x + 20, y))
+            continue;
+          glints.push({
+            x,
+            y,
+            phase: random() * Math.PI * 2,
+            speed: 0.35 + random() * 0.65,
+            width: (12 + random() * 28) * (0.65 + Math.min(depth, 700) / 700),
+            warmth: color,
+            strength: 0.72 / (1 + depth / 2200),
+            night: true,
+          });
+        }
+      }
     },
-    draw(ctx, { time, daylight, reduced = false, waterField }) {
-      if (!layout || daylight <= 0.001) return;
+    draw(ctx, { time, daylight, night = 0, reduced = false, waterField }) {
+      if (!layout || (daylight <= 0.001 && night <= 0.001)) return;
       const t = reduced ? 0 : time;
       ctx.save();
       ctx.globalCompositeOperation = "screen";
@@ -268,6 +308,8 @@ export function createDaylightEffects(
       ctx.save();
       ctx.globalCompositeOperation = "screen";
       for (const g of glints) {
+        const illumination = g.night ? night : daylight;
+        if (illumination <= 0.001) continue;
         let slope = 0;
         if (
           !reduced &&
@@ -293,7 +335,7 @@ export function createDaylightEffects(
         }
         const pulse = glintStrength(g, time, slope, reduced);
         const alpha =
-          daylight * g.strength * (g.warmth ? 0.28 + pulse * 0.72 : pulse);
+          illumination * g.strength * (g.warmth ? 0.28 + pulse * 0.72 : pulse);
         if (alpha < 0.015) continue;
         const x = g.x + Math.sin(g.y * 0.025 + t * 0.9) * (reduced ? 0 : 1.7);
         const y = g.y + Math.sin(g.x * 0.035 + t * 0.65) * (reduced ? 0 : 0.65);
