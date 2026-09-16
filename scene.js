@@ -1,4 +1,3 @@
-import { createCamellia } from "./camellia.js?v=20260917-111";
 import {
   prepareFoliage,
   drawFoliage,
@@ -168,15 +167,11 @@ export async function createScene({ onThemeChange } = {}) {
       "foliage-crisp-day.png",
       "foliage-crisp-night.png",
       "blue-border-cream-turquoise.png",
-      "camellia-sprigs.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index === 49 ? "20260917-111" : index === 23 || index === 24 ? "20260916-104" : index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260916-108" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index === 23 || index === 24 ? "20260916-104" : index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260916-108" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260913-46" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
-  );
-  const camellia = createCamellia(
-    images[49].status === "fulfilled" ? images[49].value : null,
   );
   const foliage = images
     .slice(46, 48)
@@ -807,12 +802,6 @@ export async function createScene({ onThemeChange } = {}) {
       reduced,
     });
     drawHydrangeas(ctx, [hydrangeaDay, hydrangeaNight], displayNight);
-    camellia.draw(ctx, {
-      minutes: environmentTime,
-      night: displayNight,
-      time: sim.time,
-      reduced,
-    });
     gardenVisitor.draw(ctx, displayNight);
     drawMorningGlory(ctx, morningGlory, displayMorningGlory, displayNight);
     flowers.draw(ctx, displayNight);

@@ -1,5 +1,5 @@
 import { minutesInZone, nightAt } from "./scene-model.js";
-import { createScene } from "./scene.js?v=20260917-112";
+import { createScene } from "./scene.js?v=20260917-115";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 const root = document.documentElement;
