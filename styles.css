@@ -1361,3 +1361,51 @@ p {
     max-height: calc(100svh - 112px);
   }
 }
+
+.ceramic-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 80px);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: clamp(60px, 8vw, 120px) clamp(24px, 5vw, 72px);
+  border-top: 1px solid var(--line);
+}
+.ceramic-copy h2 {
+  font-family: var(--serif);
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 20px 0;
+}
+.ceramic-copy > p:not(.kicker) { max-width: 36ch; color: var(--muted); }
+.ceramic-copy .ceramic-status { font-size: 14px; margin-top: 28px; }
+.ceramic-object { min-width: 0; }
+.ceramic-stage {
+  position: relative;
+  height: clamp(340px, 42vw, 530px);
+  border-radius: 28px;
+  background: radial-gradient(ellipse at 50% 45%, #dfe6d9 0, #eaece0 45%, #f3f1e7 75%);
+  overflow: hidden;
+}
+:root[data-theme="dark"] .ceramic-stage {
+  background: radial-gradient(ellipse at 50% 45%, #3d5148, #1a302e 65%, #14282c);
+}
+.ceramic-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.ceramic-stage canvas:active { cursor: grabbing; }
+.ceramic-stage canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: -5px; }
+.ceramic-reference { width: 100%; height: 100%; object-fit: contain; padding: 24px; }
+.ceramic-section[data-ready="true"] .ceramic-reference { display: none; }
+.ceramic-section[data-ready="false"] canvas { display: none; }
+.ceramic-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.ceramic-controls[hidden] { display: none; }
+.ceramic-controls button { min-height: 44px; min-width: 44px; padding: 8px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+.ceramic-controls button:hover, .ceramic-controls button[aria-pressed="true"] { border-color: var(--accent); }
+.ceramic-controls button:active { transform: scale(.97); }
+@media (max-width: 760px) {
+  .ceramic-section { grid-template-columns: 1fr; gap: 28px; padding: 56px 20px; }
+  .ceramic-copy h2 br { display: none; }
+  .ceramic-copy > p:not(.kicker) { max-width: 46ch; }
+  .ceramic-stage { height: 390px; }
+}

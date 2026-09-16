@@ -20,7 +20,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260916-110" />
+    <link rel="stylesheet" href="styles.css?v=20260917-113" />
     <link rel="stylesheet" href="time-scroller.css?v=20260913-61" />
     <link rel="icon" type="image/png" href="assets/site-monogram.png" />
     <link
@@ -797,6 +797,27 @@
             </a>
           </div>
         </section>
+        <section class="ceramic-section" id="ceramic" aria-labelledby="ceramic-title">
+          <div class="ceramic-copy">
+            <p class="kicker">A detail worth keeping</p>
+            <h2 id="ceramic-title">A little piece of <br>the shophouse.</h2>
+            <p>A celadon breeze block, with curling leaves and a flower at its heart. Pick it up, turn it around, and look through the openings.</p>
+            <p class="ceramic-status" id="ceramic-help" role="status">Preparing your ceramic block…</p>
+          </div>
+          <div class="ceramic-object">
+            <div class="ceramic-stage">
+              <img class="ceramic-reference" src="assets/ceramic/reference.png" loading="lazy" alt="Green glazed ceramic breeze block with a raised floral centre and open carved scrollwork" width="810" height="1080">
+            </div>
+            <div class="ceramic-controls" aria-label="Ceramic block controls" hidden>
+              <button type="button" data-ceramic="left" aria-label="Turn block left">↶</button>
+              <button type="button" data-ceramic="right" aria-label="Turn block right">↷</button>
+              <button type="button" data-ceramic="out" aria-label="Zoom out">−</button>
+              <button type="button" data-ceramic="in" aria-label="Zoom in">+</button>
+              <button type="button" data-ceramic="spin" aria-pressed="false">Slow spin</button>
+              <button type="button" data-ceramic="reset">Reset view</button>
+            </div>
+          </div>
+        </section>
       </main>
       <footer class="site-footer">
         <span>Calissa Man</span><a href="#top">Back to the shophouses ↑</a
@@ -808,6 +829,6 @@
       </footer>
     </div>
 
-    <script type="module" src="app.js?v=20260917-112"></script>
+    <script type="module" src="app.js?v=20260917-113"></script>
   </body>
 </html>
