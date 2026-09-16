@@ -13,6 +13,8 @@ export function setupAudio() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let ambientContext = null;
   let ambientGain = null;
+  let mixBus = null;
+  let musicSource = null;
   let waterReady = null;
   let ambientWanted = false;
   let ambientVersion = 0;
@@ -32,8 +34,23 @@ export function setupAudio() {
     ambientContext = context;
     ambientGain = context.createGain();
     ambientGain.gain.value = 0;
-    ambientGain.connect(context.destination);
-    return fetch(new URL("./assets/audio/flowing-water.mp3", import.meta.url))
+    mixBus = context.createDynamicsCompressor();
+    mixBus.threshold.value = -6;
+    mixBus.knee.value = 6;
+    mixBus.ratio.value = 12;
+    mixBus.attack.value = 0.003;
+    mixBus.release.value = 0.25;
+    const output = context.createGain();
+    output.gain.value = 0.85;
+    mixBus.connect(output).connect(context.destination);
+    ambientGain.connect(mixBus);
+    return loadWaterRecording(context);
+  }
+
+  function loadWaterRecording(context) {
+    return fetch(
+      new URL("./assets/audio/flowing-water.ogg?v=20260917-112", import.meta.url),
+    )
       .then((response) => {
         if (!response.ok) throw new Error("Water recording could not load");
         return response.arrayBuffer();
@@ -44,7 +61,15 @@ export function setupAudio() {
         const source = context.createBufferSource();
         source.buffer = createWaterLoop(context, recording);
         source.loop = true;
-        source.connect(ambientGain);
+        const rumble = context.createBiquadFilter();
+        rumble.type = "highpass";
+        rumble.frequency.value = 90;
+        rumble.Q.value = 0.707;
+        const soften = context.createBiquadFilter();
+        soften.type = "lowpass";
+        soften.frequency.value = 5500;
+        soften.Q.value = 0.707;
+        source.connect(rumble).connect(soften).connect(ambientGain);
         source.start();
       });
   }
@@ -57,29 +82,29 @@ export function setupAudio() {
       await waterReady;
       if (version !== ambientVersion) return;
       if (!ambientWanted) {
-        await context.suspend();
         return;
       }
-      ambientGain.gain.cancelScheduledValues(context.currentTime);
-      ambientGain.gain.setValueAtTime(0, context.currentTime);
-      ambientGain.gain.linearRampToValueAtTime(
-        waterVolume * 0.65,
-        context.currentTime + 0.8,
-      );
+      setWaterGain(waterVolume * 0.65);
     } catch {
       if (version !== ambientVersion) return;
       ambientWanted = false;
-      context.close().catch(() => {});
+      setWaterGain(0);
+      waterReady = null;
       renderAmbient();
       ambientButton.title = "Sound could not start. Try again.";
     }
   }
 
-  function suspendAmbient() {
+  function setWaterGain(value) {
+    if (!ambientGain || ambientContext.state === "closed") return;
+    const now = ambientContext.currentTime;
+    ambientGain.gain.cancelAndHoldAtTime(now);
+    ambientGain.gain.setTargetAtTime(value, now, 0.08);
+  }
+
+  function muteWater() {
     ambientVersion += 1;
-    if (ambientContext && ambientContext.state !== "closed") {
-      ambientContext.suspend().catch(() => {});
-    }
+    setWaterGain(0);
   }
 
   function enableWater() {
@@ -89,6 +114,7 @@ export function setupAudio() {
     try {
       if (!ambientContext || ambientContext.state === "closed")
         waterReady = createWaterSound();
+      else if (!waterReady) waterReady = loadWaterRecording(ambientContext);
       startAmbient();
     } catch {
       ambientWanted = false;
@@ -106,7 +132,7 @@ export function setupAudio() {
       if (!ambientWanted) enableWater();
       else {
         ambientWanted = false;
-        suspendAmbient();
+        muteWater();
         renderAmbient();
       }
     });
@@ -117,12 +143,7 @@ export function setupAudio() {
       );
       if (!ambientWanted && waterVolume > 0) enableWater();
       else if (ambientGain) {
-        ambientGain.gain.cancelScheduledValues(ambientContext.currentTime);
-        ambientGain.gain.setTargetAtTime(
-          waterVolume * 0.65,
-          ambientContext.currentTime,
-          0.08,
-        );
+        setWaterGain(waterVolume * 0.65);
       }
     });
   } else {
@@ -177,6 +198,13 @@ export function setupAudio() {
     playbackWanted = true;
     if (trackName) trackName.textContent = playlist[currentTrack].name;
     try {
+      if (ambientContext && ambientContext.state !== "closed") {
+        await ambientContext.resume();
+        if (!musicSource) {
+          musicSource = ambientContext.createMediaElementSource(player);
+          musicSource.connect(mixBus);
+        }
+      }
       await player.play();
       if (version === playbackVersion) renderPlayer();
     } catch {
