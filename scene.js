@@ -45,7 +45,7 @@ import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
   createDaylightEffects,
   daylightAt,
-} from "./daylight-effects.js?v=20260915-81";
+} from "./daylight-effects.js?v=20260916-106";
 import { createSceneDetails } from "./scene-details.js?v=20260915-101";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";

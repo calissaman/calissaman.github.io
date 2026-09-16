@@ -86,7 +86,7 @@ export function createDaylightEffects(
 ) {
   const random = randomSource(0x6b6f6d6f);
   const dapples = [];
-  for (let attempt = 0; attempt < 2500 && dapples.length < 86; attempt++) {
+  for (let attempt = 0; attempt < 2500 && dapples.length < 110; attempt++) {
     const x = 125 + random() * 1260,
       y = 737 + random() * 167;
     if (
@@ -105,7 +105,7 @@ export function createDaylightEffects(
       phase: random() * Math.PI * 2,
       speed: 0.2 + random() * 0.22,
       angle: random() * 0.45 - 0.22,
-      opacity: 0.25 + random() * 0.27,
+      opacity: 0.32 + random() * 0.30,
     });
   }
   const patches = Array.from({ length: 4 }, (_, index) => {
@@ -171,8 +171,8 @@ export function createDaylightEffects(
       const random = randomSource(0x73756e6c);
       glints = [];
       const count = Math.min(
-        800,
-        Math.max(400, Math.round((width * height) / 1600)),
+        1100,
+        Math.max(560, Math.round((width * height) / 1250)),
       );
       for (
         let attempt = 0;
@@ -194,19 +194,20 @@ export function createDaylightEffects(
           speed: 0.55 + random() * 0.55,
           width: (7 + random() * 12) * (0.7 + clamp((y - 820) / 600, 0, 1.2)),
           warmth: 0,
-          strength: 0.55,
+          strength: 0.76,
         });
       }
       // Broken vertical trails widen toward the viewer, like reflected sunlight.
       for (const [sourceX, strength] of [
+        [420, 0.48],
         [560, 1],
-        [815, 0.75],
-        [1065, 0.5],
+        [815, 0.90],
+        [1065, 0.72],
       ]) {
         for (
           let y = Math.max(top, shoreline(sourceX) + 36);
           y < bottom;
-          y += 2 + random() * 3
+          y += 1.8 + random() * 2.5
         ) {
           const depth = Math.max(0, y - shoreline(sourceX));
           const spread = 9 + Math.min(depth, 800) * 0.13;
@@ -262,6 +263,18 @@ export function createDaylightEffects(
     draw(ctx, { time, daylight, night = 0, reduced = false, waterField }) {
       if (!layout || (daylight <= 0.001 && night <= 0.001)) return;
       const t = reduced ? 0 : time;
+      if (daylight > 0.001) {
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.globalAlpha = daylight;
+        const sunlight = ctx.createRadialGradient(760, 180, 60, 760, 180, 1250);
+        sunlight.addColorStop(0, "rgba(255, 245, 214, 0.085)");
+        sunlight.addColorStop(0.65, "rgba(255, 245, 225, 0.045)");
+        sunlight.addColorStop(1, "rgba(225, 247, 255, 0)");
+        ctx.fillStyle = sunlight;
+        ctx.fillRect(0, 0, 1536, 1024);
+        ctx.restore();
+      }
       ctx.save();
       ctx.globalCompositeOperation = "screen";
       ctx.beginPath();
@@ -335,7 +348,8 @@ export function createDaylightEffects(
         }
         const pulse = glintStrength(g, time, slope, reduced);
         const alpha =
-          illumination * g.strength * (g.warmth ? 0.28 + pulse * 0.72 : pulse);
+          illumination * g.strength *
+          (g.warmth ? 0.28 + pulse * 0.72 : 0.08 + pulse * 0.92);
         if (alpha < 0.015) continue;
         const x = g.x + Math.sin(g.y * 0.025 + t * 0.9) * (reduced ? 0 : 1.7);
         const y = g.y + Math.sin(g.x * 0.035 + t * 0.65) * (reduced ? 0 : 0.65);
