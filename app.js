@@ -222,24 +222,6 @@ bookButtons.forEach((button) => {
 });
 selectBook(0, false);
 
-
-const ceramicSection = document.querySelector('#ceramic');
-if (ceramicSection) {
-  const ceramicLoader = new IntersectionObserver(async ([entry]) => {
-    if (!entry.isIntersecting) return;
-    ceramicLoader.disconnect();
-    try {
-      const { mountCeramicViewer } = await import('./ceramic-viewer.js?v=20260917-113');
-      mountCeramicViewer(ceramicSection);
-    } catch (error) {
-      ceramicSection.querySelector('.ceramic-status').textContent =
-        'The 3D view could not load. Here is the original ceramic block.';
-      console.warn('Ceramic viewer unavailable', error);
-    }
-  }, { rootMargin: '400px' });
-  ceramicLoader.observe(ceramicSection);
-}
-
 try {
   scene = await createScene({
     onThemeChange: setTheme,
