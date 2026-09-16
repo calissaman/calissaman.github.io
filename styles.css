@@ -6,6 +6,7 @@
   --muted: #647574;
   --line: #d8dfd8;
   --accent: #087c91;
+  --signature-ink: #183b40;
   --sans: "Outfit", system-ui, sans-serif;
   --serif: "Newsreader", Georgia, serif;
 }
@@ -17,6 +18,7 @@
   --muted: #abc0c1;
   --line: #28404a;
   --accent: #89c9cb;
+  --signature-ink: #f1e6cf;
 }
 * {
   box-sizing: border-box;
@@ -993,11 +995,24 @@ p {
 .site-footer {
   border-top: 1px solid var(--line);
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 24px;
   padding: 25px 0;
   font-size: 11px;
   color: var(--muted);
+}
+.footer-signature {
+  display: block;
+  flex: 0 0 auto;
+  width: clamp(108px, 11vw, 132px);
+  aspect-ratio: 131 / 70;
+  background: var(--signature-ink);
+  transition: background-color 0.6s;
+  -webkit-mask: url("assets/footer-signature.png?v=20260917-117") center / contain
+    no-repeat;
+  mask: url("assets/footer-signature.png?v=20260917-117") center / contain
+    no-repeat;
 }
 .site-footer span:last-child {
   font: italic 14px var(--serif);
