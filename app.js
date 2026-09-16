@@ -1,5 +1,6 @@
+import { minutesInZone, nightAt } from "./scene-model.js";
 import { setupInteractionAudio } from "./interaction-audio.js?v=20260915-90";
-import { createScene } from "./scene.js?v=20260916-104";
+import { createScene } from "./scene.js?v=20260916-105";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 setupInteractionAudio();
@@ -18,14 +19,7 @@ motionPreference.addEventListener("change", () => {
 const themeToggle = document.querySelector(".theme-toggle");
 const themeLabels = { dark: "dark mode", light: "light mode" };
 let scene = null;
-let savedTheme = null;
-
-try {
-  const stored = window.localStorage.getItem("calissa-theme");
-  if (Object.hasOwn(themeLabels, stored)) savedTheme = stored;
-} catch {}
-
-const setTheme = (theme, persist = true) => {
+const setTheme = (theme) => {
   if (!Object.hasOwn(themeLabels, theme)) return;
   root.dataset.theme = theme;
   const dark = theme === "dark";
@@ -35,15 +29,9 @@ const setTheme = (theme, persist = true) => {
   );
   themeToggle?.setAttribute("aria-pressed", String(dark));
   themeToggle?.setAttribute("title", `Current: ${themeLabels[theme]}`);
-  if (persist) {
-    savedTheme = theme;
-    try {
-      window.localStorage.setItem("calissa-theme", theme);
-    } catch {}
-  }
 };
 
-setTheme(savedTheme || root.dataset.theme || "dark", false);
+setTheme(nightAt(minutesInZone(new Date(), "singapore")) > 0.45 ? "dark" : "light");
 const header = document.querySelector(".site-header");
 const opening = document.querySelector(".shophouse-hero");
 if (header && opening) {
@@ -239,14 +227,7 @@ selectBook(0, false);
 
 try {
   scene = await createScene({
-    initialTheme: savedTheme,
-    onThemeChange: (theme) => setTheme(theme, false),
-    onLiveMode: () => {
-      savedTheme = null;
-      try {
-        window.localStorage.removeItem("calissa-theme");
-      } catch {}
-    },
+    onThemeChange: setTheme,
   });
 } catch (error) {
   console.warn(

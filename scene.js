@@ -74,11 +74,7 @@ function loadImage(src) {
   });
 }
 
-export async function createScene({
-  onThemeChange,
-  onLiveMode,
-  initialTheme,
-} = {}) {
+export async function createScene({ onThemeChange } = {}) {
   const hero = document.querySelector(".shophouse-hero");
   if (!hero) return null;
   setupAudio();
@@ -417,12 +413,8 @@ export async function createScene({
     layout,
     pixelRatio = 1;
   let city = "singapore",
-    live = !initialTheme,
-    environmentTime = initialTheme
-      ? initialTheme === "dark"
-        ? 1320
-        : 720
-      : minutesInZone(new Date(), city),
+    live = true,
+    environmentTime = minutesInZone(new Date(), city),
     targetNight = nightAt(environmentTime),
     displayNight = targetNight,
     targetDaylight = daylightAt(environmentTime),
@@ -597,7 +589,6 @@ export async function createScene({
       timeScroller.cancel();
       city = button.dataset.city;
       live = true;
-      onLiveMode?.();
       hero
         .querySelectorAll("[data-city]")
         .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
@@ -606,9 +597,8 @@ export async function createScene({
   );
   hero.querySelector(".return-local").addEventListener("click", () => {
     timeScroller.cancel();
-    city = "local";
+    city = "singapore";
     live = true;
-    onLiveMode?.();
     hero
       .querySelectorAll("[data-city]")
       .forEach((b) =>
