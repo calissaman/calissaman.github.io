@@ -1,5 +1,5 @@
 import { setupInteractionAudio } from "./interaction-audio.js?v=20260915-90";
-import { createScene } from "./scene.js?v=20260915-103";
+import { createScene } from "./scene.js?v=20260916-104";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 setupInteractionAudio();
