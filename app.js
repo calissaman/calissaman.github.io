@@ -1,5 +1,5 @@
 import { minutesInZone, nightAt } from "./scene-model.js";
-import { createScene } from "./scene.js?v=20260916-106";
+import { createScene } from "./scene.js?v=20260916-108";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 const root = document.documentElement;
@@ -231,8 +231,4 @@ try {
     "The interactive scene could not load. The image and content remain available.",
     error,
   );
-}
-if (savedTheme) {
-  setTheme(savedTheme, false);
-  scene?.setTheme(savedTheme);
 }
