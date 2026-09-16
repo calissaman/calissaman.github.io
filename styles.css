@@ -487,11 +487,11 @@ p {
   position: absolute;
   bottom: 44px;
   right: 0;
-  width: 260px;
-  padding: 20px;
+  width: min(320px, calc(100vw - 32px));
+  padding: 18px;
   background: #092330f5;
   border: 1px solid #fff5de30;
-  border-radius: 6px;
+  border-radius: 16px;
   text-shadow: none;
 }
 .music-upload {
@@ -1321,9 +1321,43 @@ p {
 
 @media (max-aspect-ratio: 849/1000) {
   .shophouse-hero {
-    height: max(640px, calc(100vw / 0.84), calc(100vw * 2 / 3 + 360px));
+    height: max(440px, calc(100vw * 2 / 3 + 160px));
+    min-height: 0;
   }
   .scene-clock {
-    top: calc(var(--scene-art-bottom) + 24px);
+    top: auto;
+    bottom: 112px;
+  }
+}
+
+.music-upload input::file-selector-button {
+  border: 1px solid #efd5a970;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #efd5a9;
+  color: #092330;
+  font: inherit;
+  cursor: pointer;
+}
+.music-upload {
+  text-decoration: none;
+}
+.music-controls button {
+  border-radius: 8px;
+}
+.music-controls .track-play {
+  flex: 1;
+}
+.music-panel {
+  line-height: 1.45;
+}
+@media (max-width: 600px), (max-height: 650px) {
+  .music-panel {
+    position: fixed;
+    top: 88px;
+    bottom: auto;
+    right: 16px;
+    width: min(320px, calc(100vw - 32px));
+    max-height: calc(100svh - 112px);
   }
 }

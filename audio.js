@@ -15,7 +15,6 @@ export function setupAudio() {
   let ambientGain = null;
   let waterReady = null;
   let ambientWanted = false;
-  let resumeAmbient = false;
   let ambientVersion = 0;
 
   function renderAmbient() {
@@ -57,7 +56,7 @@ export function setupAudio() {
       await context.resume();
       await waterReady;
       if (version !== ambientVersion) return;
-      if (!ambientWanted || document.hidden) {
+      if (!ambientWanted) {
         await context.suspend();
         return;
       }
@@ -86,7 +85,6 @@ export function setupAudio() {
   function enableWater() {
     if (!AudioContextClass) return;
     ambientWanted = true;
-    resumeAmbient = false;
     ambientButton?.removeAttribute("title");
     try {
       if (!ambientContext || ambientContext.state === "closed")
@@ -108,7 +106,6 @@ export function setupAudio() {
       if (!ambientWanted) enableWater();
       else {
         ambientWanted = false;
-        resumeAmbient = false;
         suspendAmbient();
         renderAmbient();
       }
@@ -148,7 +145,6 @@ export function setupAudio() {
   let playlist = [];
   let currentTrack = 0;
   let playbackWanted = false;
-  let resumeTrack = false;
   let playbackVersion = 0;
 
   function renderPlayer() {
@@ -175,7 +171,7 @@ export function setupAudio() {
   }
 
   async function playTrack() {
-    if (!player || !playlist.length || document.hidden) return;
+    if (!player || !playlist.length) return;
     if (!ambientWanted) enableWater();
     const version = ++playbackVersion;
     playbackWanted = true;
@@ -194,7 +190,6 @@ export function setupAudio() {
 
   function selectTrack(index, shouldPlay = false) {
     pauseTrack();
-    resumeTrack = false;
     currentTrack = (index + playlist.length) % playlist.length;
     player.src = playlist[currentTrack].url;
     if (trackName) trackName.textContent = playlist[currentTrack].name;
@@ -204,7 +199,6 @@ export function setupAudio() {
 
   function clearPlaylist() {
     pauseTrack();
-    resumeTrack = false;
     if (player) {
       player.removeAttribute("src");
       player.load();
@@ -247,7 +241,6 @@ export function setupAudio() {
         trackName.textContent = "Choose an audio file to make a playlist.";
     });
     playButton?.addEventListener("click", () => {
-      resumeTrack = false;
       if (playbackWanted) pauseTrack();
       else playTrack();
     });
@@ -260,11 +253,7 @@ export function setupAudio() {
     player.addEventListener("play", renderPlayer);
     player.addEventListener("pause", renderPlayer);
     player.addEventListener("ended", () => {
-      if (
-        playbackWanted &&
-        currentTrack + 1 < playlist.length &&
-        !document.hidden
-      ) {
+      if (playbackWanted && currentTrack + 1 < playlist.length) {
         selectTrack(currentTrack + 1, true);
       } else {
         pauseTrack();
@@ -273,7 +262,6 @@ export function setupAudio() {
     player.addEventListener("error", () => {
       if (!player.error || !playlist.length) return;
       pauseTrack();
-      resumeTrack = false;
       if (trackName)
         trackName.textContent = `Could not play ${playlist[currentTrack].name}. Try another audio file.`;
     });
@@ -286,26 +274,9 @@ export function setupAudio() {
   }
   renderPlayer();
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      resumeAmbient = ambientWanted && ambientContext?.state === "running";
-      suspendAmbient();
-      resumeTrack = Boolean(
-        player && !player.paused && !player.ended && playbackWanted,
-      );
-      pauseTrack();
-    } else {
-      if (resumeAmbient && ambientWanted) startAmbient();
-      if (resumeTrack) playTrack();
-      resumeAmbient = false;
-      resumeTrack = false;
-    }
-  });
-
   window.addEventListener("pagehide", () => {
     clearPlaylist();
     ambientWanted = false;
-    resumeAmbient = false;
     ambientVersion += 1;
     if (ambientContext && ambientContext.state !== "closed")
       ambientContext.close().catch(() => {});
