@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { SCENE, inWater, sceneLayout, smooth } from "./scene-model.js";
+import { SCENE, inWater, sceneLayout } from "./scene-model.js";
 import {
   WATER_REFLECTION,
   waterReflectionPoint,
@@ -130,40 +130,44 @@ test("foreground reflections sample clear source water at every depth and motion
   }
 });
 
-test("fallback fills the portrait foreground with bounded photographic strips", () => {
+test("fallback joins the photo to the extended river with mirrored edge strips", () => {
   for (const reduced of [false, true]) {
     const { ctx, layout, width, height } = draw({ reduced });
-    const photos = ctx.draws.filter(
-      ({ source, clipped }) => source[0] > 0 && clipped,
+    const mirrored = ctx.draws.filter(
+      ({ source, clipped, top }) =>
+        source[0] === 0 && !clipped && top >= SCENE.height,
     );
-    assert.ok(photos.length > 0);
+    assert.ok(mirrored.length > 0, "the source edge must continue below the photo");
     const left = -layout.x / layout.scale;
     const right = (width - layout.x) / layout.scale;
     const bottom = (height - layout.y) / layout.scale;
-    const rows = Map.groupBy(photos, (photo) => photo.top);
-    let coveredTo = WATER_REFLECTION.blendStart;
+    const rows = Map.groupBy(mirrored, (photo) => photo.top);
+    let coveredTo = SCENE.height;
     for (const [top, strips] of rows) {
       assert.ok(
         Math.abs(top - coveredTo) < 1e-8,
-        "the reflected water has a horizontal gap",
+        "the mirrored edge has a horizontal gap",
       );
       assert.ok(Math.min(...strips.map((s) => s.left)) <= left);
       assert.ok(Math.max(...strips.map((s) => s.right)) >= right);
       coveredTo = strips[0].bottom;
-      for (const {
-        source: [sx, sy, sw, sh],
-      } of strips) {
-        assert.ok(
-          sx >= WATER_REFLECTION.left &&
-            sx + sw <= WATER_REFLECTION.right + 1e-8,
-        );
-        assert.ok(
-          sy >= WATER_REFLECTION.top &&
-            sy + sh <= WATER_REFLECTION.bottom + 1e-8,
-        );
+      for (const { source: [sx, sy, sw, sh] } of strips) {
+        assert.equal(sx, 0);
+        assert.equal(sw, SCENE.width);
+        assert.ok(sy >= 0 && sy + sh <= SCENE.height);
       }
     }
-    assert.ok(Math.abs(coveredTo - bottom) < 1e-8);
+    assert.ok(
+      Math.abs(
+        coveredTo -
+          Math.min(bottom, SCENE.height + WATER_REFLECTION.edgeBlendDepth),
+      ) < 1e-8,
+    );
+    const first = rows.values().next().value;
+    assert.ok(
+      first.every(({ source: [, sy, , sh] }) => sy + sh === SCENE.height),
+      "the first extension row must sample the photo's exact bottom edge",
+    );
     assert.equal(
       ctx.globalAlpha,
       1,
@@ -176,7 +180,7 @@ test("fallback fills the portrait foreground with bounded photographic strips", 
   }
 });
 
-test("the seam preserves the day/night mix and high resolution source coordinates", () => {
+test("the continuation preserves the day/night mix and high resolution source coordinates", () => {
   const original = draw().ctx.draws;
   const highResolution = draw({ assetScale: 2 }).ctx.draws;
   assert.equal(original.length, highResolution.length);
@@ -189,29 +193,29 @@ test("the seam preserves the day/night mix and high resolution source coordinate
     for (const key of ["left", "right", "top", "bottom", "alpha"])
       assert.equal(high[key], photo[key]);
   });
-  const photos = original.filter(({ source }) => source[0] > 0);
-  for (let i = 0; i < photos.length; i += 2) {
-    const day = photos[i];
-    const night = photos[i + 1];
-    const fadeStart = day.clipped
-      ? WATER_REFLECTION.blendStart
-      : WATER_REFLECTION.tailStart;
-    const blend = smooth(fadeStart, SCENE.height, (day.top + day.bottom) / 2);
-    assert.ok(Math.abs(night.alpha - blend * 0.6) < 1e-10);
-    assert.ok(Math.abs(day.alpha * (1 - night.alpha) - blend * 0.4) < 1e-10);
+  const mirrored = original.filter(
+    ({ source, clipped, top }) =>
+      source[0] === 0 && !clipped && top >= SCENE.height,
+  );
+  assert.ok(mirrored.length > 0);
+  for (let i = 0; i < mirrored.length; i += 2) {
+    assert.equal(mirrored[i].alpha, 1);
+    assert.equal(mirrored[i + 1].alpha, 0.6);
   }
 });
 
-test("full-width fading is confined to the final photo tail and reaches the edge gradually", () => {
+test("continued water fades in gradually after the mirrored edge", () => {
   const { ctx, layout, width } = draw();
-  const tail = ctx.draws.filter(({ clipped }) => !clipped);
-  assert.ok(tail.length > 0);
-  const rows = Map.groupBy(tail, (photo) => photo.top);
+  const water = ctx.draws.filter(
+    ({ source, clipped }) => source[0] > 0 && !clipped,
+  );
+  assert.ok(water.length > 0);
+  const rows = Map.groupBy(water, (photo) => photo.top);
   let previousBlend = 0;
-  let coveredTo = WATER_REFLECTION.tailStart;
+  let coveredTo = SCENE.height;
   for (const [top, strips] of rows) {
     assert.equal(top, coveredTo);
-    assert.ok(top >= SCENE.height * 0.985);
+    assert.ok(top >= SCENE.height);
     assert.ok(
       Math.min(...strips.map((s) => s.left)) <= -layout.x / layout.scale,
     );
@@ -222,14 +226,14 @@ test("full-width fading is confined to the final photo tail and reaches the edge
     const day = strips[0],
       night = strips[1];
     const blend = night.alpha + day.alpha * (1 - night.alpha);
-    assert.ok(blend > previousBlend && blend - previousBlend < 0.2);
+    assert.ok(blend >= previousBlend && blend - previousBlend < 0.12);
     previousBlend = blend;
     coveredTo = strips[0].bottom;
   }
-  assert.equal(coveredTo, SCENE.height);
+  assert.ok(coveredTo > SCENE.height + WATER_REFLECTION.edgeBlendDepth);
   assert.ok(
     previousBlend > 0.99,
-    "the photo must not end with a visible hard step",
+    "the repeated water must fully replace the mirrored edge",
   );
 });
 

@@ -10,7 +10,7 @@ export const WATER_REFLECTION = Object.freeze({
   top: SCENE.height * 0.925,
   bottom: SCENE.height * 0.995,
   blendStart: SCENE.height * 0.97,
-  tailStart: SCENE.height * 0.985,
+  edgeBlendDepth: SCENE.height * 0.16,
   bandHeight: SCENE.height * 0.12,
 });
 
@@ -90,12 +90,14 @@ void main(){
  vec3 river=mix(vec3(.075,.34,.36),vec3(.015,.08,.11),night);
  if(p.y<0.){color=sky;}else if(p.y>1.){color=river;}
  if(p.x<0.||p.x>1.){color=mix(sky,river,smoothstep(.65,1.,p.y));}
- if((size.y-layout.y)/layout.z>1024.&&p.y>${WATER_REFLECTION.blendStart / SCENE.height}){
+ if((size.y-layout.y)/layout.z>1024.&&p.y>1.){
+  float extensionDepth=p.y-1.;
+  vec2 edgePoint=vec2(clamp(q.x,0.,1.),clamp(1.-extensionDepth+(q.y-p.y),0.,1.));
+  vec3 edgeColor=mix(texture2D(dayImage,edgePoint).rgb,texture2D(nightImage,edgePoint).rgb,night);
   vec2 reflection=reflectionPoint(p+rippleOffset);
   vec3 reflectionColor=mix(texture2D(dayImage,reflection).rgb,texture2D(nightImage,reflection).rgb,night);
-  float reflectionBlend=smoothstep(${WATER_REFLECTION.blendStart / SCENE.height},1.,p.y)*water;
-  reflectionBlend=mix(reflectionBlend,1.,smoothstep(${WATER_REFLECTION.tailStart / SCENE.height},1.,p.y));
-  color=mix(color,reflectionColor,reflectionBlend);
+  float settled=smoothstep(0.,${WATER_REFLECTION.edgeBlendDepth / SCENE.height},extensionDepth);
+  color=mix(edgeColor,reflectionColor,settled);
  }
  float glint=pow(max(0.,sin(p.y*275.+sin(p.x*18.+clock*.18)*1.4+clock*1.1)),14.);
  float shimmer=glint*(.4+.6*pow(.5+.5*sin(p.x*31.-clock*.7),2.))*motion;
@@ -353,13 +355,13 @@ export function drawWaterFallback(
       );
     }
   }
-  function drawReflection(start, end, fadeStart) {
+  function drawReflection(start, end, fadeStart, fadeEnd) {
     const patchWidth = WATER_REFLECTION.right - WATER_REFLECTION.left;
     const patchHeight = WATER_REFLECTION.bottom - WATER_REFLECTION.top;
     for (let y = start; y < end; ) {
       const strip = Math.min(y < SCENE.height ? 2 : 8, end - y);
       const middleY = y + strip / 2;
-      const blend = smooth(fadeStart, SCENE.height, middleY);
+      const blend = smooth(fadeStart, fadeEnd, middleY);
       const nightAlpha = blend * night;
       const dayAlpha =
         nightAlpha === 1 ? 0 : (blend * (1 - night)) / (1 - nightAlpha);
@@ -414,20 +416,44 @@ export function drawWaterFallback(
       y += strip;
     }
   }
-  if (bottom > SCENE.height) {
-    drawReflection(
-      WATER_REFLECTION.blendStart,
-      bottom,
-      WATER_REFLECTION.blendStart,
-    );
-  }
   ctx.restore();
   if (bottom > SCENE.height) {
-    // Only the last 1.5% of the photo fades across the full width.
+    // Mirror the exact bottom edge first. This keeps foliage and water
+    // continuous at the source boundary while the repeated river settles in.
+    const mirrorBottom = Math.min(
+      bottom,
+      SCENE.height + WATER_REFLECTION.edgeBlendDepth,
+    );
+    for (let y = SCENE.height; y < mirrorBottom; y += 4) {
+      const strip = Math.min(4, mirrorBottom - y);
+      const depth = y - SCENE.height;
+      for (let pass = 0; pass < 2; pass++) {
+        const source = pass ? nightImage : day;
+        const alpha = pass ? night : 1;
+        if (!source || alpha === 0) continue;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(0, y + strip);
+        ctx.scale(1, -1);
+        ctx.drawImage(
+          source,
+          0,
+          ((SCENE.height - depth - strip) / SCENE.height) * source.height,
+          source.width,
+          (strip / SCENE.height) * source.height,
+          0,
+          0,
+          SCENE.width,
+          strip,
+        );
+        ctx.restore();
+      }
+    }
     drawReflection(
-      WATER_REFLECTION.tailStart,
       SCENE.height,
-      WATER_REFLECTION.tailStart,
+      bottom,
+      SCENE.height,
+      SCENE.height + WATER_REFLECTION.edgeBlendDepth,
     );
   }
   ctx.save();
