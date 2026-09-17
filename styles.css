@@ -6,7 +6,6 @@
   --muted: #647574;
   --line: #d8dfd8;
   --accent: #087c91;
-  --signature-ink: #183b40;
   --sans: "Outfit", system-ui, sans-serif;
   --serif: "Newsreader", Georgia, serif;
 }
@@ -18,7 +17,6 @@
   --muted: #abc0c1;
   --line: #28404a;
   --accent: #89c9cb;
-  --signature-ink: #f1e6cf;
 }
 * {
   box-sizing: border-box;
@@ -138,6 +136,19 @@ p {
   margin-right: auto;
   font: 25px var(--serif);
   white-space: nowrap;
+}
+.wordmark-signature {
+  display: block;
+  width: clamp(92px, 7vw, 108px);
+  aspect-ratio: 131 / 70;
+  flex: 0 0 auto;
+  background: currentColor;
+  transform: rotate(11deg);
+  transform-origin: center;
+  -webkit-mask: url("assets/footer-signature.png?v=20260917-117") center / contain
+    no-repeat;
+  mask: url("assets/footer-signature.png?v=20260917-117") center / contain
+    no-repeat;
 }
 .wordmark-monogram-wrap {
   position: relative;
@@ -1002,18 +1013,6 @@ p {
   font-size: 11px;
   color: var(--muted);
 }
-.footer-signature {
-  display: block;
-  flex: 0 0 auto;
-  width: clamp(108px, 11vw, 132px);
-  aspect-ratio: 131 / 70;
-  background: var(--signature-ink);
-  transition: background-color 0.6s;
-  -webkit-mask: url("assets/footer-signature.png?v=20260917-117") center / contain
-    no-repeat;
-  mask: url("assets/footer-signature.png?v=20260917-117") center / contain
-    no-repeat;
-}
 .site-footer span:last-child {
   font: italic 14px var(--serif);
 }
@@ -1047,8 +1046,8 @@ p {
     gap: 17px;
     font-size: 12px;
   }
-  .wordmark-text {
-    display: none;
+  .wordmark-signature {
+    width: 88px;
   }
   .hero,
   .flow-section,
@@ -1092,9 +1091,8 @@ p {
   .wordmark {
     margin-right: auto;
   }
-  .wordmark-text {
-    display: block;
-    font-size: 23px;
+  .wordmark-signature {
+    width: 82px;
   }
   .wordmark-monogram-wrap {
     width: 34px;
