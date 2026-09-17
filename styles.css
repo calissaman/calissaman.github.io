@@ -150,28 +150,6 @@ p {
   mask: url("assets/footer-signature.png?v=20260917-117") center / contain
     no-repeat;
 }
-.wordmark-monogram-wrap {
-  position: relative;
-  display: block;
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 1px 2px #00162166);
-}
-.wordmark-monogram {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    146deg,
-    #fffdf4,
-    #f5ead4 36%,
-    #e4d1af 63%,
-    #f8efd9 79%,
-    #ceb58f
-  );
-  -webkit-mask: url("assets/monogram-watermark.png") center / contain no-repeat;
-  mask: url("assets/monogram-watermark.png") center / contain no-repeat;
-}
 .main-nav {
   display: flex;
   gap: 26px;
@@ -1013,6 +991,16 @@ p {
   font-size: 11px;
   color: var(--muted);
 }
+.footer-monogram {
+  display: block;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  background: var(--text);
+  transition: background-color 0.6s;
+  -webkit-mask: url("assets/monogram-watermark.png") center / contain no-repeat;
+  mask: url("assets/monogram-watermark.png") center / contain no-repeat;
+}
 .site-footer span:last-child {
   font: italic 14px var(--serif);
 }
@@ -1093,10 +1081,6 @@ p {
   }
   .wordmark-signature {
     width: 82px;
-  }
-  .wordmark-monogram-wrap {
-    width: 34px;
-    height: 34px;
   }
   .main-nav {
     order: 3;
