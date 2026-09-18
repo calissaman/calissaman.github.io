@@ -4,6 +4,7 @@ import {
   YELLOW_WINDOWS,
   shutterLeaves,
   yellowInteriorCrop,
+  yellowInteriorTarget,
   yellowWindowButtonRect,
   createYellowWindows,
 } from "./yellow-windows.js";
@@ -71,19 +72,20 @@ test("all three yellow windows open and close independently", (t) => {
   }
 });
 
-test("the two upstairs windows reveal distinct parts of one continuous gallery", () => {
+test("the two upstairs windows clip one continuous gallery projection", () => {
   const interior = { width: 1402, height: 1122 };
   const left = yellowInteriorCrop(YELLOW_WINDOWS[0], interior);
   const right = yellowInteriorCrop(YELLOW_WINDOWS[1], interior);
-  assert.ok(left[0] + left[2] < right[0]);
+  const leftTarget = yellowInteriorTarget(YELLOW_WINDOWS[0]);
+  const rightTarget = yellowInteriorTarget(YELLOW_WINDOWS[1]);
+  assert.deepEqual(left, right);
+  assert.deepEqual(leftTarget, rightTarget);
   assert.equal(left[1], 0);
-  assert.equal(right[1], 0);
   assert.equal(left[3], interior.height);
-  assert.equal(right[3], interior.height);
-  assert.ok(left[2] > 500 && right[2] > 500);
-  assert.ok(left[0] >= 0 && right[0] + right[2] <= interior.width);
+  assert.ok(left[2] > 1200);
+  assert.ok(left[0] >= 0 && left[0] + left[2] <= interior.width);
   assert.ok(left[1] >= 0 && left[1] + left[3] <= interior.height);
-  assert.ok(right[1] >= 0 && right[1] + right[3] <= interior.height);
+  assert.deepEqual(leftTarget, [695, 247, 185, 164]);
 });
 
 test("shutter leaves keep their hinges fixed and reveal more of the opening", () => {

@@ -65,26 +65,26 @@ export function yellowInteriorCrop(window, interior) {
   const imageHeight = interior?.naturalHeight || interior?.height || 0;
   if (!imageWidth || !imageHeight) return null;
 
-  const opening = quadBounds(window.quad);
+  const target = yellowInteriorTarget(window);
   if (!window.id.startsWith("upper-")) {
-    return coverCrop(
-      imageWidth,
-      imageHeight,
-      opening.width / opening.height,
-      0.08,
-    );
+    return coverCrop(imageWidth, imageHeight, target[2] / target[3], 0.08);
   }
 
-  const left = window.id === "upper-left";
-  const halfWidth = imageWidth / 2;
-  const room = coverCrop(
-    halfWidth,
-    imageHeight,
-    opening.width / opening.height,
-    left ? 0.42 : 0.58,
+  return coverCrop(imageWidth, imageHeight, target[2] / target[3]);
+}
+
+export function yellowInteriorTarget(window) {
+  const opening = quadBounds(window.quad);
+  if (!window.id.startsWith("upper-")) {
+    return [opening.x, opening.y, opening.width, opening.height];
+  }
+
+  const room = quadBounds(
+    YELLOW_WINDOWS.filter(({ id }) => id.startsWith("upper-")).flatMap(
+      ({ quad }) => quad,
+    ),
   );
-  room[0] += left ? 0 : halfWidth;
-  return room;
+  return [room.x, room.y, room.width, room.height];
 }
 
 function trace(ctx, points) {
@@ -368,17 +368,11 @@ export function createYellowWindows({
           ctx.save();
           ctx.filter = `brightness(${0.62 + glow * 0.24 - nightAmount * (1 - light) * 0.25}) contrast(1.05) sepia(${glow * 0.06}) saturate(${1.16 + glow * 0.08})`;
           const crop = yellowInteriorCrop(w, interior);
+          const target = yellowInteriorTarget(w);
           if (crop) {
-            ctx.drawImage(
-              interior,
-              ...crop,
-              x,
-              y,
-              w.texture.width,
-              w.texture.height,
-            );
+            ctx.drawImage(interior, ...crop, ...target);
           } else {
-            ctx.drawImage(interior, x, y, w.texture.width, w.texture.height);
+            ctx.drawImage(interior, ...target);
           }
           ctx.restore();
           const shade = ctx.createLinearGradient(x, y, x + w.texture.width, y);

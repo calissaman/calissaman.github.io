@@ -25,7 +25,7 @@ import {
   prepareLightPatches,
   SCENE_LIGHTS,
 } from "./scene-lighting.js?v=20260915-98";
-import { createYellowWindows } from "./yellow-windows.js?v=20260919-127";
+import { createYellowWindows } from "./yellow-windows.js?v=20260919-130";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import { setupAudio } from "./audio.js?v=20260918-122";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
@@ -36,7 +36,7 @@ import {
 import {
   prepareFacadeScene,
   prepareWhiteWindowGlass,
-} from "./scene-facade.js?v=20260915-94";
+} from "./scene-facade.js?v=20260919-130";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
