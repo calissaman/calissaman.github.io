@@ -2,24 +2,64 @@ import { createWaterLoop } from "./water-audio.js?v=20260915-95";
 
 export const DEFAULT_PLAYLIST = Object.freeze([
   {
-    title: "In The Night",
-    artist: "Fly By Midnight",
-    src: "./assets/audio/playlist/fly-by-midnight-in-the-night.mp3?v=20260918-120",
-  },
-  {
-    title: "The Weather",
-    artist: "Fly By Midnight",
-    src: "./assets/audio/playlist/fly-by-midnight-the-weather.mp3?v=20260918-120",
+    title: "Natural",
+    artist: "Valley",
+    src: "./assets/audio/playlist/valley-natural.mp3?v=20260918-122",
   },
   {
     title: "like 1999",
     artist: "Valley",
-    src: "./assets/audio/playlist/valley-like-1999.mp3?v=20260918-120",
+    src: "./assets/audio/playlist/valley-like-1999.mp3?v=20260918-122",
   },
   {
-    title: "Natural",
-    artist: "Valley",
-    src: "./assets/audio/playlist/valley-natural.mp3?v=20260918-120",
+    title: "In The Night",
+    artist: "Fly By Midnight",
+    src: "./assets/audio/playlist/fly-by-midnight-in-the-night.mp3?v=20260918-122",
+  },
+  {
+    title: "The Weather",
+    artist: "Fly By Midnight",
+    src: "./assets/audio/playlist/fly-by-midnight-the-weather.mp3?v=20260918-122",
+  },
+  {
+    title: "Same Page",
+    artist: "The Band CAMINO",
+    src: "./assets/audio/playlist/the-band-camino-same-page.mp3?v=20260918-122",
+  },
+  {
+    title: "See Through",
+    artist: "The Band CAMINO",
+    src: "./assets/audio/playlist/the-band-camino-see-through.mp3?v=20260918-122",
+  },
+  {
+    title: "Caramel (Acoustic Cover)",
+    artist: "Sleep Token",
+    src: "./assets/audio/playlist/sleep-token-caramel-acoustic-cover.mp3?v=20260918-122",
+  },
+  {
+    title: "Infinite Baths Cover",
+    artist: "ANTOINETTE",
+    src: "./assets/audio/playlist/antoinette-infinite-baths-cover.mp3?v=20260918-122",
+  },
+  {
+    title: "Kataomoi「カタオモイ」(Unrequited Love)",
+    artist: "Aimer",
+    src: "./assets/audio/playlist/aimer-kataomoi-unrequited-love.mp3?v=20260918-122",
+  },
+  {
+    title: "After Rain",
+    artist: "Aimer",
+    src: "./assets/audio/playlist/aimer-after-rain.mp3?v=20260918-122",
+  },
+  {
+    title: "Adakah Kau Mendengar (Are You Listening)",
+    artist: "ALYPH",
+    src: "./assets/audio/playlist/alyph-adakah-kau-mendengar.mp3?v=20260918-122",
+  },
+  {
+    title: "Ingat (Remember)",
+    artist: "ALYPH",
+    src: "./assets/audio/playlist/alyph-ingat.mp3?v=20260918-122",
   },
 ]);
 
@@ -370,13 +410,14 @@ export function setupAudio() {
           )
         )
           continue;
-        const name = file.name.replace(/\.[^.]+$/, "");
-        const [artist, ...titleParts] = name.split(/\s+-\s+/);
-        const title = titleParts.join(" - ") || name;
+        const displayName = file.name.replace(/\.[^.]+$/, "");
+        const [artist, ...titleParts] = displayName.split(/\s+-\s+/);
+        const title = titleParts.join(" - ") || displayName;
+        const uploadedArtist = titleParts.length ? artist : "Uploaded track";
         playlist.push({
           title,
-          artist: titleParts.length ? artist : "Uploaded track",
-          name: file.name,
+          artist: uploadedArtist,
+          name: `${title} — ${uploadedArtist}`,
           url: URL.createObjectURL(file),
           local: true,
         });

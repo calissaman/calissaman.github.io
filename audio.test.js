@@ -10,13 +10,21 @@ test("the built-in playlist keeps the requested song and artist order", () => {
   assert.deepEqual(
     DEFAULT_PLAYLIST.map(({ title, artist }) => [title, artist]),
     [
+      ["Natural", "Valley"],
+      ["like 1999", "Valley"],
       ["In The Night", "Fly By Midnight"],
       ["The Weather", "Fly By Midnight"],
-      ["like 1999", "Valley"],
-      ["Natural", "Valley"],
+      ["Same Page", "The Band CAMINO"],
+      ["See Through", "The Band CAMINO"],
+      ["Caramel (Acoustic Cover)", "Sleep Token"],
+      ["Infinite Baths Cover", "ANTOINETTE"],
+      ["Kataomoi「カタオモイ」(Unrequited Love)", "Aimer"],
+      ["After Rain", "Aimer"],
+      ["Adakah Kau Mendengar (Are You Listening)", "ALYPH"],
+      ["Ingat (Remember)", "ALYPH"],
     ],
   );
-  assert.equal(new Set(DEFAULT_PLAYLIST.map(({ src }) => src)).size, 4);
+  assert.equal(new Set(DEFAULT_PLAYLIST.map(({ src }) => src)).size, 12);
 });
 
 test("shuffle always selects another track when alternatives exist", () => {
