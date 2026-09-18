@@ -503,6 +503,62 @@ p {
   overflow-wrap: anywhere;
   margin: 12px 0;
 }
+.track-name {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid #fff5de24;
+  border-radius: 10px;
+  background: #ffffff08;
+}
+.track-title {
+  color: #fff5de;
+  font-size: 13px;
+  font-weight: 600;
+}
+.track-artist,
+.playlist-track-artist {
+  color: #c9d4d5;
+  font-size: 10px;
+}
+.playlist-heading {
+  margin: 14px 0 5px;
+  color: #c9d4d5;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.playlist-list {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+.playlist-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+}
+.playlist-track:hover,
+.playlist-track[aria-current="true"] {
+  background: #ffffff12;
+}
+.playlist-track[aria-current="true"] .playlist-track-title {
+  color: #efd5a9;
+}
+.playlist-track-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .music-controls {
   display: flex;
   justify-content: space-between;

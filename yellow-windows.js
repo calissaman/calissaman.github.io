@@ -40,6 +40,56 @@ export const YELLOW_WINDOWS = [
   },
 ];
 
+const UPPER_ROOM = { x: 695, y: 247, width: 185, height: 164 };
+
+function quadBounds(quad) {
+  const x = Math.min(...quad.map(([px]) => px));
+  const y = Math.min(...quad.map(([, py]) => py));
+  return {
+    x,
+    y,
+    width: Math.max(...quad.map(([px]) => px)) - x,
+    height: Math.max(...quad.map(([, py]) => py)) - y,
+  };
+}
+
+function coverCrop(width, height, aspect, focusX = 0.5) {
+  if (width / height > aspect) {
+    const cropWidth = height * aspect;
+    return [(width - cropWidth) * focusX, 0, cropWidth, height];
+  }
+  const cropHeight = width / aspect;
+  return [0, (height - cropHeight) / 2, width, cropHeight];
+}
+
+export function yellowInteriorCrop(window, interior) {
+  const imageWidth = interior?.naturalWidth || interior?.width || 0;
+  const imageHeight = interior?.naturalHeight || interior?.height || 0;
+  if (!imageWidth || !imageHeight) return null;
+
+  const opening = quadBounds(window.quad);
+  if (!window.id.startsWith("upper-")) {
+    return coverCrop(
+      imageWidth,
+      imageHeight,
+      opening.width / opening.height,
+      0.08,
+    );
+  }
+
+  const room = coverCrop(
+    imageWidth,
+    imageHeight,
+    UPPER_ROOM.width / UPPER_ROOM.height,
+  );
+  return [
+    room[0] + ((opening.x - UPPER_ROOM.x) / UPPER_ROOM.width) * room[2],
+    room[1] + ((opening.y - UPPER_ROOM.y) / UPPER_ROOM.height) * room[3],
+    (opening.width / UPPER_ROOM.width) * room[2],
+    (opening.height / UPPER_ROOM.height) * room[3],
+  ];
+}
+
 function trace(ctx, points) {
   ctx.beginPath();
   points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
@@ -319,8 +369,20 @@ export function createYellowWindows({
         ctx.fillRect(x, y, w.texture.width, w.texture.height);
         if (interior) {
           ctx.save();
-          ctx.filter = `brightness(${0.42 + glow * 0.24 - nightAmount * (1 - light) * 0.34}) sepia(${glow * 0.35})`;
-          ctx.drawImage(interior, x, y, w.texture.width, w.texture.height);
+          ctx.filter = `brightness(${0.54 + glow * 0.22 - nightAmount * (1 - light) * 0.3}) sepia(${glow * 0.14}) saturate(${0.94 + glow * 0.1})`;
+          const crop = yellowInteriorCrop(w, interior);
+          if (crop) {
+            ctx.drawImage(
+              interior,
+              ...crop,
+              x,
+              y,
+              w.texture.width,
+              w.texture.height,
+            );
+          } else {
+            ctx.drawImage(interior, x, y, w.texture.width, w.texture.height);
+          }
           ctx.restore();
           const shade = ctx.createLinearGradient(x, y, x + w.texture.width, y);
           shade.addColorStop(0, "#050e14c0");

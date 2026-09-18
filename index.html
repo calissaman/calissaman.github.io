@@ -20,7 +20,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260917-119" />
+    <link rel="stylesheet" href="styles.css?v=20260918-120" />
     <link rel="stylesheet" href="time-scroller.css?v=20260913-61" />
     <link rel="icon" type="image/png" href="assets/site-monogram.png" />
     <link
@@ -219,9 +219,12 @@
                     accept="audio/*"
                     multiple
                 /></label>
-                <p class="track-name" role="status">
-                  Your playlist, on this device.
-                </p>
+                <div class="track-name" role="status" aria-live="polite">
+                  <span class="track-title">In The Night</span>
+                  <span class="track-artist">Fly By Midnight</span>
+                </div>
+                <p class="playlist-heading">Playlist</p>
+                <ol class="playlist-list" aria-label="Music playlist"></ol>
                 <div class="music-controls">
                   <button
                     type="button"
@@ -811,6 +814,6 @@
       </footer>
     </div>
 
-    <script type="module" src="app.js?v=20260917-116"></script>
+    <script type="module" src="app.js?v=20260918-120"></script>
   </body>
 </html>

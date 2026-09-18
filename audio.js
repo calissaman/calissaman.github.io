@@ -1,9 +1,35 @@
 import { createWaterLoop } from "./water-audio.js?v=20260915-95";
 
+export const DEFAULT_PLAYLIST = Object.freeze([
+  {
+    title: "In The Night",
+    artist: "Fly By Midnight",
+    src: "./assets/audio/playlist/fly-by-midnight-in-the-night.mp3?v=20260918-120",
+  },
+  {
+    title: "The Weather",
+    artist: "Fly By Midnight",
+    src: "./assets/audio/playlist/fly-by-midnight-the-weather.mp3?v=20260918-120",
+  },
+  {
+    title: "like 1999",
+    artist: "Valley",
+    src: "./assets/audio/playlist/valley-like-1999.mp3?v=20260918-120",
+  },
+  {
+    title: "Natural",
+    artist: "Valley",
+    src: "./assets/audio/playlist/valley-natural.mp3?v=20260918-120",
+  },
+]);
+
 export function setupAudio() {
   const ambientButton = document.querySelector(".ambient-toggle");
   const fileInput = document.querySelector("#music-files");
   const trackName = document.querySelector(".track-name");
+  const trackTitle = document.querySelector(".track-title");
+  const trackArtist = document.querySelector(".track-artist");
+  const playlistList = document.querySelector(".playlist-list");
   const previousButton = document.querySelector(".track-previous");
   const playButton = document.querySelector(".track-play");
   const nextButton = document.querySelector(".track-next");
@@ -153,20 +179,54 @@ export function setupAudio() {
 
   let player = null;
   try {
-    if (
-      typeof window.Audio === "function" &&
-      typeof URL.createObjectURL === "function"
-    ) {
+    if (typeof window.Audio === "function") {
       player = new window.Audio();
       player.preload = "metadata";
     }
   } catch {
     player = null;
   }
-  let playlist = [];
+  let playlist = DEFAULT_PLAYLIST.map((track) => ({
+    ...track,
+    name: `${track.title} — ${track.artist}`,
+    url: new URL(track.src, import.meta.url).href,
+    local: false,
+  }));
   let currentTrack = 0;
   let playbackWanted = false;
   let playbackVersion = 0;
+
+  function renderTrackMeta(track, message = "") {
+    if (trackTitle) trackTitle.textContent = message || track?.title || "";
+    if (trackArtist)
+      trackArtist.textContent = message ? "Try another track." : track?.artist || "";
+    if (!trackTitle && trackName)
+      trackName.textContent = message || track?.name || "";
+  }
+
+  function renderPlaylist() {
+    if (!playlistList) return;
+    playlistList.replaceChildren();
+    playlist.forEach((track, index) => {
+      const item = document.createElement("li");
+      const button = document.createElement("button");
+      const title = document.createElement("span");
+      const artist = document.createElement("span");
+      button.type = "button";
+      button.className = "playlist-track";
+      button.setAttribute("aria-current", index === currentTrack ? "true" : "false");
+      button.addEventListener("click", () =>
+        selectTrack(index, playbackWanted),
+      );
+      title.className = "playlist-track-title";
+      title.textContent = track.title;
+      artist.className = "playlist-track-artist";
+      artist.textContent = track.artist;
+      button.append(title, artist);
+      item.append(button);
+      playlistList.append(item);
+    });
+  }
 
   function renderPlayer() {
     const hasTracks = playlist.length > 0;
@@ -182,6 +242,14 @@ export function setupAudio() {
     }
     if (previousButton) previousButton.disabled = playlist.length < 2;
     if (nextButton) nextButton.disabled = playlist.length < 2;
+    playlistList
+      ?.querySelectorAll(".playlist-track")
+      .forEach((button, index) =>
+        button.setAttribute(
+          "aria-current",
+          index === currentTrack ? "true" : "false",
+        ),
+      );
   }
 
   function pauseTrack() {
@@ -196,7 +264,7 @@ export function setupAudio() {
     if (!ambientWanted) enableWater();
     const version = ++playbackVersion;
     playbackWanted = true;
-    if (trackName) trackName.textContent = playlist[currentTrack].name;
+    renderTrackMeta(playlist[currentTrack]);
     try {
       if (ambientContext && ambientContext.state !== "closed") {
         await ambientContext.resume();
@@ -210,8 +278,10 @@ export function setupAudio() {
     } catch {
       if (version !== playbackVersion) return;
       playbackWanted = false;
-      if (trackName)
-        trackName.textContent = `Could not play ${playlist[currentTrack].name}. Try another audio file.`;
+      renderTrackMeta(
+        playlist[currentTrack],
+        `Could not play ${playlist[currentTrack].name}.`,
+      );
       renderPlayer();
     }
   }
@@ -220,7 +290,7 @@ export function setupAudio() {
     pauseTrack();
     currentTrack = (index + playlist.length) % playlist.length;
     player.src = playlist[currentTrack].url;
-    if (trackName) trackName.textContent = playlist[currentTrack].name;
+    renderTrackMeta(playlist[currentTrack]);
     renderPlayer();
     if (shouldPlay) playTrack();
   }
@@ -231,10 +301,13 @@ export function setupAudio() {
       player.removeAttribute("src");
       player.load();
     }
-    playlist.forEach((track) => URL.revokeObjectURL(track.url));
+    playlist
+      .filter((track) => track.local)
+      .forEach((track) => URL.revokeObjectURL(track.url));
     playlist = [];
     currentTrack = 0;
-    if (trackName) trackName.textContent = "Your playlist, on this device.";
+    renderTrackMeta(null, "Your playlist, on this device.");
+    renderPlaylist();
     renderPlayer();
   }
 
@@ -261,12 +334,22 @@ export function setupAudio() {
           )
         )
           continue;
-        playlist.push({ name: file.name, url: URL.createObjectURL(file) });
+        const name = file.name.replace(/\.[^.]+$/, "");
+        const [artist, ...titleParts] = name.split(/\s+-\s+/);
+        const title = titleParts.join(" - ") || name;
+        playlist.push({
+          title,
+          artist: titleParts.length ? artist : "Uploaded track",
+          name: file.name,
+          url: URL.createObjectURL(file),
+          local: true,
+        });
       }
       fileInput.value = "";
-      if (playlist.length) selectTrack(0);
-      else if (trackName)
-        trackName.textContent = "Choose an audio file to make a playlist.";
+      if (playlist.length) {
+        renderPlaylist();
+        selectTrack(0);
+      } else renderTrackMeta(null, "Choose an audio file to make a playlist.");
     });
     playButton?.addEventListener("click", () => {
       if (playbackWanted) pauseTrack();
@@ -290,17 +373,20 @@ export function setupAudio() {
     player.addEventListener("error", () => {
       if (!player.error || !playlist.length) return;
       pauseTrack();
-      if (trackName)
-        trackName.textContent = `Could not play ${playlist[currentTrack].name}. Try another audio file.`;
+      renderTrackMeta(
+        playlist[currentTrack],
+        `Could not play ${playlist[currentTrack].name}.`,
+      );
     });
   } else {
     if (fileInput) fileInput.disabled = true;
     if (volumeInput) volumeInput.disabled = true;
-    if (trackName)
-      trackName.textContent =
-        "Local music playback is unavailable in this browser.";
+    renderTrackMeta(null, "Music playback is unavailable in this browser.");
   }
-  renderPlayer();
+  if (player && playlist.length) {
+    renderPlaylist();
+    selectTrack(0);
+  } else renderPlayer();
 
   window.addEventListener("pagehide", () => {
     clearPlaylist();

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   YELLOW_WINDOWS,
   shutterLeaves,
+  yellowInteriorCrop,
   yellowWindowButtonRect,
   createYellowWindows,
 } from "./yellow-windows.js";
@@ -68,6 +69,17 @@ test("all three yellow windows open and close independently", (t) => {
     assert.equal(button.getAttribute("aria-pressed"), "false");
     assert.match(button.getAttribute("aria-label"), /^Open/);
   }
+});
+
+test("the two upstairs windows reveal distinct parts of one continuous gallery", () => {
+  const interior = { width: 1402, height: 1122 };
+  const left = yellowInteriorCrop(YELLOW_WINDOWS[0], interior);
+  const right = yellowInteriorCrop(YELLOW_WINDOWS[1], interior);
+  assert.ok(left[0] + left[2] < right[0]);
+  assert.ok(left[1] > right[1]);
+  assert.ok(left[0] >= 0 && right[0] + right[2] <= interior.width);
+  assert.ok(left[1] >= 0 && left[1] + left[3] <= interior.height);
+  assert.ok(right[1] >= 0 && right[1] + right[3] <= interior.height);
 });
 
 test("shutter leaves keep their hinges fixed and reveal more of the opening", () => {
