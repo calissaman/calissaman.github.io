@@ -1,9 +1,8 @@
 import {
   addFlower,
-  addRipple,
   constrainToWater,
   clamp,
-} from "./scene-model.js?v=20260913-67";
+} from "./scene-model.js?v=20260919-128";
 
 export const TREE_CLICK_LIMIT = 88;
 const TRUMPET_ORIGINS = [
@@ -74,24 +73,17 @@ export function createTreeBlooms(
           { x: range(385, 740), y: range(900, 967) },
           25,
         );
-        const f = addFlower(
-          sim,
-          reduced ? end.x : start.x,
-          reduced ? end.y : start.y,
-          !reduced,
-        );
+        const f = addFlower(sim, start.x, start.y, true);
         f.startsAt = startsAt;
         f.sizeScale = range(0.76, 0.94);
-        if (reduced) addRipple(sim, end.x, end.y);
-        else
-          f.path = {
-            start,
-            end,
-            duration: range(10, 15),
-            sway: range(12, 26),
-            phase: range(0, Math.PI * 2),
-            angle: f.angle,
-          };
+        f.path = {
+          start,
+          end,
+          duration: reduced ? 2.5 : range(10, 15),
+          sway: reduced ? 0 : range(12, 26),
+          phase: range(0, Math.PI * 2),
+          angle: f.angle,
+        };
       } else {
         const landX = range(
           1300,
@@ -101,15 +93,15 @@ export function createTreeBlooms(
         yellow.push({
           start,
           end,
-          x: reduced ? end.x : start.x,
-          y: reduced ? end.y : start.y,
+          x: start.x,
+          y: start.y,
           startsAt,
-          duration: reduced ? 0 : range(6.5, 10.5),
+          duration: reduced ? 2.5 : range(6.5, 10.5),
           size: range(10, 15),
           angle: range(-1, 1),
           spin: range(-0.9, 0.9),
           life: range(32, 48),
-          landed: reduced,
+          landed: false,
         });
       }
       released++;
@@ -130,10 +122,6 @@ export function createTreeBlooms(
     step(reduced = false) {
       for (let i = yellow.length - 1; i >= 0; i--) {
         const f = yellow[i];
-        if (reduced && !f.landed) {
-          f.startsAt = sim.time;
-          f.duration = 0;
-        }
         const age = sim.time - f.startsAt;
         const t = f.duration ? clamp(age / f.duration, 0, 1) : 1;
         f.x =

@@ -3,7 +3,7 @@ import {
   WATER,
   inWaterSurface,
   shoreline,
-} from "./scene-model.js?v=20260912-29";
+} from "./scene-model.js?v=20260919-128";
 
 const STEP = 1 / 60;
 const WAVE_SPEED = 22;

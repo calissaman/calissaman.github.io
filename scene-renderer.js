@@ -1,4 +1,4 @@
-import { SCENE, WATER, smooth } from "./scene-model.js?v=20260912-29";
+import { SCENE, WATER, smooth } from "./scene-model.js?v=20260919-128";
 
 import { drawWaterFieldFallback } from "./water-field-fallback.js?v=20260912-29";
 

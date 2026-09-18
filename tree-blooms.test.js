@@ -109,7 +109,7 @@ test("automatic releases use separate cadences without spending click allowances
   assert.equal(trees.remaining("angsana"), 88);
 });
 
-test("reduced motion suppresses automatic falls and settles clicked flowers", () => {
+test("reduced motion suppresses automatic falls and keeps clicked flowers tree-born", () => {
   const { sim, trees } = setup();
   advance(sim, trees, 60, true);
   assert.equal(trees.yellow.length, 0);
@@ -119,12 +119,13 @@ test("reduced motion suppresses automatic falls and settles clicked flowers", ()
   );
   trees.release("trumpet", { reduced: true });
   trees.release("angsana", { reduced: true });
-  assert.ok(
-    sim.flowers
-      .filter((f) => f.active)
-      .every((f) => !f.falling && inWater(f.x, f.y)),
-  );
-  assert.equal(trees.yellow[0].landed, true);
+  const trumpet = sim.flowers.find((f) => f.active);
+  const angsana = trees.yellow[0];
+  assert.ok(trumpet.falling && trumpet.y < 340);
+  assert.ok(!angsana.landed && angsana.y < 225);
+  advance(sim, trees, 3, true);
+  assert.ok(!trumpet.falling && inWater(trumpet.x, trumpet.y));
+  assert.equal(angsana.landed, true);
 });
 
 test("mobile releases originate in the visible portion of each canopy", () => {

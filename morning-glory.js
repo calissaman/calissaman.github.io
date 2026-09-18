@@ -1,4 +1,4 @@
-import { clamp, smooth } from "./scene-model.js?v=20260912-29";
+import { clamp, smooth } from "./scene-model.js?v=20260919-128";
 
 export const MORNING_GLORY_VINE_OUTLINE = [
   [878, 365],

@@ -14,10 +14,8 @@ import {
   inWaterSurface,
   createSimulation,
   addRipple,
-  addFlower,
   stepSimulation,
-  maintainWaterFlowers,
-} from "./scene-model.js?v=20260916-110";
+} from "./scene-model.js?v=20260919-128";
 import {
   createRenderer,
   drawWaterFallback,
@@ -61,7 +59,7 @@ import {
 import {
   createTreeBlooms,
   TREE_HOTSPOTS,
-} from "./tree-blooms.js?v=20260913-67";
+} from "./tree-blooms.js?v=20260919-128";
 import { prepareTreeScene } from "./tree-art.js?v=20260913-71";
 
 function loadImage(src, retries = src.includes("green-bookshop-") ? 2 : 0) {
@@ -395,14 +393,6 @@ export async function createScene({ onThemeChange } = {}) {
   let down = null;
   const resolution = createSceneResolution();
   const media = matchMedia("(prefers-reduced-motion: reduce)");
-  if (flower) {
-    [
-      [555, 920],
-      [780, 895],
-      [930, 980],
-      [1105, 951],
-    ].forEach(([x, y]) => addFlower(sim, x, y));
-  }
   let reduced = media.matches,
     visible = true,
     frame = 0,
@@ -833,7 +823,6 @@ export async function createScene({ onThemeChange } = {}) {
     last = now;
     stepSimulation(sim, dt, reduced);
     treeBlooms.step(reduced);
-    if (flower) maintainWaterFlowers(sim);
     const easing = 1 - Math.exp(-Math.min(dt, 0.05) * (reduced ? 16 : 4));
     displayNight += (targetNight - displayNight) * easing;
     displayDaylight += (targetDaylight - displayDaylight) * easing;

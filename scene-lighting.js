@@ -1,4 +1,4 @@
-import { clamp } from "./scene-model.js?v=20260912-29";
+import { clamp } from "./scene-model.js?v=20260919-128";
 import { streetLightsAt } from "./street-scene.js?v=20260913-43";
 
 // Source-image coordinates keep each switch attached to its actual fixture.

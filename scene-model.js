@@ -158,7 +158,6 @@ function resetPetal(petal) {
 export function createSimulation() {
   return {
     time: 0,
-    nextWaterFlowerAt: 4,
     flowerCursor: 0,
     rippleCursor: 0,
     flowers: [],
@@ -207,48 +206,6 @@ export function addFlower(sim, x, y, falling = false) {
   return f;
 }
 
-export function maintainWaterFlowers(sim, minimum = 4) {
-  if (sim.time < sim.nextWaterFlowerAt) return null;
-  sim.nextWaterFlowerAt = sim.time + 4;
-  const floating = sim.flowers.filter(
-    (f) => f.active && !f.falling && !f.breaking,
-  );
-  if (floating.length >= minimum) return null;
-  // Retired breakup origins remain useful until their pooled slots are reused.
-  const occupied = sim.flowers.filter(
-    (f) => f.breaking || (f.active && !f.falling),
-  );
-  let position = null;
-  let clearance = -1;
-  for (const [x, y] of [
-    [565, 925],
-    [755, 910],
-    [935, 976],
-    [1100, 950],
-    [670, 966],
-    [1010, 933],
-  ]) {
-    const candidate = constrainToWater({ x, y }, 25);
-    if (
-      floating.some(
-        (f) => Math.hypot(f.x - candidate.x, f.y - candidate.y) < 90,
-      )
-    )
-      continue;
-    const distance = Math.min(
-      ...occupied.map((f) => Math.hypot(f.x - candidate.x, f.y - candidate.y)),
-    );
-    if (distance > clearance) {
-      position = candidate;
-      clearance = distance;
-    }
-  }
-  if (!position) return null;
-  const flower = addFlower(sim, position.x, position.y);
-  flower.appearedAt = sim.time;
-  return flower;
-}
-
 export function flowerSize(sim, f) {
   if (f.breaking) return f.fragmentSize;
   const settled = f.falling ? 0 : smooth(0, 1.2, sim.time - f.landedAt);
@@ -261,7 +218,6 @@ export function flowerSize(sim, f) {
 export function breakFlower(sim, f, reduced = false) {
   if (!f.active || f.breaking || sim.time < f.startsAt) return false;
   if (!f.falling) addRipple(sim, f.x, f.y);
-  sim.nextWaterFlowerAt = Math.max(sim.nextWaterFlowerAt, sim.time + 6);
   f.fragmentSize = flowerSize(sim, f);
   f.breaking = true;
   f.breakReduced = reduced;
@@ -362,7 +318,7 @@ export function stepSimulation(sim, seconds, reduced = false) {
     if (f.dragged) continue;
     if (f.falling && f.path) {
       const p = f.path;
-      const t = reduced ? 1 : clamp((sim.time - f.startsAt) / p.duration, 0, 1);
+      const t = clamp((sim.time - f.startsAt) / p.duration, 0, 1);
       f.x =
         p.start.x +
         (p.end.x - p.start.x) * t +

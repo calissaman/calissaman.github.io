@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   createSimulation,
   addFlower,
-  maintainWaterFlowers,
   breakFlower,
   flowerSize,
   addRipple,
@@ -499,131 +498,6 @@ test("enabling reduced motion during breakup does not leave active fragments", (
     assert.ok(
       Math.hypot(p.x - positions[index].x, p.y - positions[index].y) < 5,
     );
-});
-
-test("water maintenance adds at most one flower per four simulation seconds", () => {
-  const sim = createSimulation();
-  assert.equal(maintainWaterFlowers(sim), null);
-  sim.time = 3.99;
-  assert.equal(maintainWaterFlowers(sim), null);
-  sim.time = 4;
-  const first = maintainWaterFlowers(sim);
-  assert.ok(first);
-  assert.equal(first.falling, false);
-  assert.equal(first.appearedAt, 4);
-  assert.equal(maintainWaterFlowers(sim), null);
-  sim.time = 7.99;
-  assert.equal(maintainWaterFlowers(sim), null);
-  sim.time = 8;
-  assert.ok(maintainWaterFlowers(sim));
-  sim.time = 100;
-  assert.ok(maintainWaterFlowers(sim));
-  assert.equal(maintainWaterFlowers(sim), null);
-  assert.equal(sim.flowers.filter((f) => f.active).length, 3);
-  sim.time = 104;
-  assert.equal(maintainWaterFlowers(sim, 3), null);
-});
-
-test("whole water flowers recover after click bursts in normal and reduced motion", () => {
-  for (const reduced of [false, true]) {
-    const sim = createSimulation();
-    for (const [x, y] of [
-      [555, 920],
-      [780, 895],
-      [930, 980],
-      [1105, 951],
-    ])
-      addFlower(sim, x, y);
-    for (let burst = 0; burst < 3; burst++) {
-      sim.flowers
-        .filter((f) => f.active && !f.breaking)
-        .forEach((f) => breakFlower(sim, f, reduced));
-      const clickedAt = sim.time;
-      let previousBirth = null;
-      for (let frame = 0; frame < 20 * 60; frame++) {
-        stepSimulation(sim, 1 / 60, reduced);
-        const replacement = maintainWaterFlowers(sim);
-        if (sim.time < clickedAt + 6) assert.equal(replacement, null);
-        if (replacement) {
-          assert.ok(inWater(replacement.x, replacement.y));
-          assert.ok(artworkWaterCoverage(replacement.x, replacement.y) > 0.99);
-          assert.equal(replacement.appearedAt, sim.time);
-          if (previousBirth !== null) assert.ok(sim.time - previousBirth >= 4);
-          previousBirth = sim.time;
-        }
-        assert.ok(sim.flowers.filter((f) => f.active).length <= 7);
-      }
-      assert.equal(
-        sim.flowers.filter((f) => f.active && !f.breaking && !f.falling).length,
-        4,
-      );
-    }
-  }
-});
-
-test("replacement flowers stay apart even when retired breakup origins cover every anchor", () => {
-  const sim = createSimulation();
-  for (const [x, y] of [
-    [565, 925],
-    [755, 910],
-    [935, 976],
-    [1100, 950],
-    [670, 966],
-    [1010, 933],
-  ]) {
-    const point = constrainToWater({ x, y }, 25);
-    breakFlower(sim, addFlower(sim, point.x, point.y), true);
-  }
-  advanceSimulation(sim, 1.2, true);
-  assert.ok(sim.flowers.every((f) => !f.active));
-  for (const time of [6, 10, 14, 18]) {
-    sim.time = time;
-    const others = sim.flowers.filter((f) => f.active);
-    const replacement = maintainWaterFlowers(sim);
-    assert.ok(replacement);
-    for (const other of others)
-      assert.ok(
-        Math.hypot(other.x - replacement.x, other.y - replacement.y) >= 90,
-      );
-  }
-});
-
-test("water maintenance continues while broken falling flowers finish", () => {
-  const sim = createSimulation();
-  const flowers = Array.from({ length: 7 }, () =>
-    addFlower(sim, 500, 100, true),
-  );
-  flowers.forEach((f) => breakFlower(sim, f));
-  advanceSimulation(sim, 6.1);
-  assert.ok(maintainWaterFlowers(sim));
-  assert.ok(flowers.every((f) => f.active && f.breaking));
-  assert.equal(sim.flowerCursor, 8);
-  advanceSimulation(sim, 14);
-  assert.ok(flowers.every((f) => !f.active));
-  assert.ok(maintainWaterFlowers(sim));
-  assert.equal(sim.flowers.filter((f) => f.active).length, 2);
-});
-
-test("flower births alternate variants and only maintained flowers start an appearance fade", () => {
-  const sim = createSimulation();
-  const first = addFlower(sim, 700, 920);
-  const second = addFlower(sim, 900, 970);
-  assert.deepEqual([first.variant, second.variant], [0, 1]);
-  assert.deepEqual([first.appearedAt, second.appearedAt], [-2, -2]);
-  breakFlower(sim, first, true);
-  advanceSimulation(sim, 1.2, true);
-  const reused = addFlower(sim, 500, 100, true);
-  assert.equal(reused, first);
-  assert.equal(reused.variant, 0);
-  assert.equal(reused.appearedAt, -2);
-  breakFlower(sim, reused, true);
-  advanceSimulation(sim, 6.1, true);
-  const maintained = maintainWaterFlowers(sim);
-  assert.equal(maintained, first);
-  assert.equal(maintained.variant, 1);
-  assert.equal(maintained.appearedAt, sim.time);
-  advanceSimulation(sim, 0.5, true);
-  assert.equal(maintained.variant, 1);
 });
 
 test("portrait framing keeps both trees and the entire flowering canopy on screen", () => {
