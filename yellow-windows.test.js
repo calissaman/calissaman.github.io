@@ -76,7 +76,11 @@ test("the two upstairs windows reveal distinct parts of one continuous gallery",
   const left = yellowInteriorCrop(YELLOW_WINDOWS[0], interior);
   const right = yellowInteriorCrop(YELLOW_WINDOWS[1], interior);
   assert.ok(left[0] + left[2] < right[0]);
-  assert.ok(left[1] > right[1]);
+  assert.equal(left[1], 0);
+  assert.equal(right[1], 0);
+  assert.equal(left[3], interior.height);
+  assert.equal(right[3], interior.height);
+  assert.ok(left[2] > 500 && right[2] > 500);
   assert.ok(left[0] >= 0 && right[0] + right[2] <= interior.width);
   assert.ok(left[1] >= 0 && left[1] + left[3] <= interior.height);
   assert.ok(right[1] >= 0 && right[1] + right[3] <= interior.height);

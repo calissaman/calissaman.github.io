@@ -40,8 +40,6 @@ export const YELLOW_WINDOWS = [
   },
 ];
 
-const UPPER_ROOM = { x: 695, y: 247, width: 185, height: 164 };
-
 function quadBounds(quad) {
   const x = Math.min(...quad.map(([px]) => px));
   const y = Math.min(...quad.map(([, py]) => py));
@@ -77,17 +75,16 @@ export function yellowInteriorCrop(window, interior) {
     );
   }
 
+  const left = window.id === "upper-left";
+  const halfWidth = imageWidth / 2;
   const room = coverCrop(
-    imageWidth,
+    halfWidth,
     imageHeight,
-    UPPER_ROOM.width / UPPER_ROOM.height,
+    opening.width / opening.height,
+    left ? 0.42 : 0.58,
   );
-  return [
-    room[0] + ((opening.x - UPPER_ROOM.x) / UPPER_ROOM.width) * room[2],
-    room[1] + ((opening.y - UPPER_ROOM.y) / UPPER_ROOM.height) * room[3],
-    (opening.width / UPPER_ROOM.width) * room[2],
-    (opening.height / UPPER_ROOM.height) * room[3],
-  ];
+  room[0] += left ? 0 : halfWidth;
+  return room;
 }
 
 function trace(ctx, points) {
@@ -369,7 +366,7 @@ export function createYellowWindows({
         ctx.fillRect(x, y, w.texture.width, w.texture.height);
         if (interior) {
           ctx.save();
-          ctx.filter = `brightness(${0.54 + glow * 0.22 - nightAmount * (1 - light) * 0.3}) sepia(${glow * 0.14}) saturate(${0.94 + glow * 0.1})`;
+          ctx.filter = `brightness(${0.62 + glow * 0.24 - nightAmount * (1 - light) * 0.25}) contrast(1.05) sepia(${glow * 0.06}) saturate(${1.16 + glow * 0.08})`;
           const crop = yellowInteriorCrop(w, interior);
           if (crop) {
             ctx.drawImage(
