@@ -23,6 +23,28 @@ export const DEFAULT_PLAYLIST = Object.freeze([
   },
 ]);
 
+export function pickShuffledTrack(currentTrack, playlistLength, random = Math.random) {
+  if (playlistLength < 1) return -1;
+  if (playlistLength === 1) return 0;
+  const draw = Math.min(0.999999, Math.max(0, Number(random()) || 0));
+  const offset = 1 + Math.floor(draw * (playlistLength - 1));
+  return (currentTrack + offset) % playlistLength;
+}
+
+export function pickTrackAfterEnd({
+  currentTrack,
+  playlistLength,
+  replayEnabled,
+  shuffleEnabled,
+  random = Math.random,
+}) {
+  if (playlistLength < 1) return -1;
+  if (replayEnabled) return currentTrack;
+  if (shuffleEnabled && playlistLength > 1)
+    return pickShuffledTrack(currentTrack, playlistLength, random);
+  return currentTrack + 1 < playlistLength ? currentTrack + 1 : -1;
+}
+
 export function setupAudio() {
   const ambientButton = document.querySelector(".ambient-toggle");
   const fileInput = document.querySelector("#music-files");
@@ -33,6 +55,8 @@ export function setupAudio() {
   const previousButton = document.querySelector(".track-previous");
   const playButton = document.querySelector(".track-play");
   const nextButton = document.querySelector(".track-next");
+  const shuffleButton = document.querySelector(".track-shuffle");
+  const replayButton = document.querySelector(".track-replay");
   const volumeInput = document.querySelector("#music-volume");
   const waterVolumeInput = document.querySelector("#water-volume");
   let waterVolume = Number(waterVolumeInput?.value ?? 0.45);
@@ -195,6 +219,8 @@ export function setupAudio() {
   let currentTrack = 0;
   let playbackWanted = false;
   let playbackVersion = 0;
+  let shuffleEnabled = false;
+  let replayEnabled = false;
 
   function renderTrackMeta(track, message = "") {
     if (trackTitle) trackTitle.textContent = message || track?.title || "";
@@ -242,6 +268,16 @@ export function setupAudio() {
     }
     if (previousButton) previousButton.disabled = playlist.length < 2;
     if (nextButton) nextButton.disabled = playlist.length < 2;
+    if (shuffleButton) {
+      shuffleButton.disabled = playlist.length < 2;
+      shuffleButton.setAttribute("aria-pressed", String(shuffleEnabled));
+      shuffleButton.title = shuffleEnabled ? "Turn shuffle off" : "Shuffle tracks";
+    }
+    if (replayButton) {
+      replayButton.disabled = !hasTracks;
+      replayButton.setAttribute("aria-pressed", String(replayEnabled));
+      replayButton.title = replayEnabled ? "Turn replay off" : "Replay this track";
+    }
     playlistList
       ?.querySelectorAll(".playlist-track")
       .forEach((button, index) =>
@@ -359,16 +395,35 @@ export function setupAudio() {
       if (playlist.length) selectTrack(currentTrack - 1, playbackWanted);
     });
     nextButton?.addEventListener("click", () => {
-      if (playlist.length) selectTrack(currentTrack + 1, playbackWanted);
+      if (!playlist.length) return;
+      const nextTrack = shuffleEnabled
+        ? pickShuffledTrack(currentTrack, playlist.length)
+        : currentTrack + 1;
+      selectTrack(nextTrack, playbackWanted);
+    });
+    shuffleButton?.addEventListener("click", () => {
+      shuffleEnabled = !shuffleEnabled;
+      renderPlayer();
+    });
+    replayButton?.addEventListener("click", () => {
+      replayEnabled = !replayEnabled;
+      renderPlayer();
     });
     player.addEventListener("play", renderPlayer);
     player.addEventListener("pause", renderPlayer);
     player.addEventListener("ended", () => {
-      if (playbackWanted && currentTrack + 1 < playlist.length) {
-        selectTrack(currentTrack + 1, true);
-      } else {
-        pauseTrack();
-      }
+      if (!playbackWanted) return;
+      const nextTrack = pickTrackAfterEnd({
+        currentTrack,
+        playlistLength: playlist.length,
+        replayEnabled,
+        shuffleEnabled,
+      });
+      if (nextTrack === currentTrack) {
+        player.currentTime = 0;
+        playTrack();
+      } else if (nextTrack >= 0) selectTrack(nextTrack, true);
+      else pauseTrack();
     });
     player.addEventListener("error", () => {
       if (!player.error || !playlist.length) return;
