@@ -1,4 +1,7 @@
-import { drawFacadeClarity } from "./facade-clarity.js?v=20260915-94";
+import {
+  drawFacadeClarity,
+  drawGreenRoofClarity,
+} from "./facade-clarity.js?v=20260919-134";
 import { drawPinkWindowTrim } from "./pink-facade.js?v=20260914-77";
 import {
   drawFacadePanels,
@@ -260,6 +263,7 @@ export async function prepareFacadeScene(
     pinkTrim,
     whiteSill,
     clarity,
+    greenRoof,
     night = false,
   },
   createCanvas = () => document.createElement("canvas"),
@@ -278,6 +282,7 @@ export async function prepareFacadeScene(
   if (panels) drawFacadePanels(ctx, panels, { night, createCanvas });
   drawMatchingYellowShutters(ctx);
   drawMatchingBlueShutter(ctx, blueShutter);
+  drawGreenRoofClarity(ctx, greenRoof);
   drawFacadeClarity(ctx, clarity);
   if (planter) drawCleanPlanter(ctx, planter, createCanvas);
   const image = new Image();

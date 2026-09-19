@@ -1,5 +1,8 @@
 import { drawBlueBorder } from "./blue-border.js?v=20260915-101";
-import { drawFacadeClarity } from "./facade-clarity.js?v=20260915-94";
+import {
+  drawFacadeClarity,
+  drawGreenRoofClarity,
+} from "./facade-clarity.js?v=20260919-134";
 import { drawFacadePanels } from "./facade-panels.js?v=20260915-82";
 import {
   drawPinkWindowTrim,
@@ -44,6 +47,7 @@ export function createSceneDetails({
   panels = {},
   whiteFacades = [],
   clarity = [],
+  greenRoofs = [],
   blueBorder,
   whiteSill,
   pinkVineJoins = [],
@@ -145,6 +149,10 @@ export function createSceneDetails({
       for (const [i, image] of blueShutters.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;
         drawMatchingBlueShutter(ctx, image);
+      }
+      for (const [i, image] of greenRoofs.entries()) {
+        ctx.globalAlpha = i ? tone / 255 : 1;
+        drawGreenRoofClarity(ctx, image);
       }
       for (const [i, image] of clarity.entries()) {
         ctx.globalAlpha = i ? tone / 255 : 1;

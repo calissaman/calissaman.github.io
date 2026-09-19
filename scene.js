@@ -36,14 +36,14 @@ import {
 import {
   prepareFacadeScene,
   prepareWhiteWindowGlass,
-} from "./scene-facade.js?v=20260919-133";
+} from "./scene-facade.js?v=20260919-134";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {
   createDaylightEffects,
   daylightAt,
 } from "./daylight-effects.js?v=20260916-106";
-import { createSceneDetails } from "./scene-details.js?v=20260915-101";
+import { createSceneDetails } from "./scene-details.js?v=20260919-134";
 import { createWaterSurface } from "./water-surface.js?v=20260912-29";
 import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
@@ -165,9 +165,11 @@ export async function createScene({ onThemeChange } = {}) {
       "foliage-crisp-day.png",
       "foliage-crisp-night.png",
       "blue-border-cream-turquoise.png",
+      "green-roof-day-v3.png",
+      "green-roof-night-v3.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index === 21 ? "20260919-126" : index === 23 || index === 24 ? "20260916-104" : index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260916-108" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260918-123" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index >= 49 ? "20260919-134" : index === 21 ? "20260919-126" : index === 23 || index === 24 ? "20260916-104" : index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260916-108" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260918-123" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -226,6 +228,10 @@ export async function createScene({ onThemeChange } = {}) {
   ] = images.map((result) =>
     result.status === "fulfilled" ? result.value : null,
   );
+  const greenRoofDay =
+    images[49].status === "fulfilled" ? images[49].value : null;
+  const greenRoofNight =
+    images[50].status === "fulfilled" ? images[50].value : null;
   const facadeDayPatch = prepareWhiteWindowGlass(
     facadeDayOriginal,
     bookshopDay || bookshopNight,
@@ -249,6 +255,7 @@ export async function createScene({ onThemeChange } = {}) {
         prepareFacadeScene(day, {
           floral: facadeDayPatch,
           clarity: clarityDay,
+          greenRoof: greenRoofDay,
           wallLamp: wallLampDayPatch,
           panels,
           planter: planterDay,
@@ -259,6 +266,7 @@ export async function createScene({ onThemeChange } = {}) {
         prepareFacadeScene(night, {
           floral: facadeNightPatch,
           clarity: clarityNight,
+          greenRoof: greenRoofNight,
           wallLamp: wallLampNightPatch,
           panels,
           planter: planterNight,
@@ -434,6 +442,7 @@ export async function createScene({ onThemeChange } = {}) {
     panels: { green: panelGreen, cream: panelCream, blue: panelBlue },
     whiteFacades: [facadeDayPatch, facadeNightPatch],
     clarity: [clarityDay, clarityNight],
+    greenRoofs: [greenRoofDay, greenRoofNight],
     blueBorder: images[48].status === "fulfilled" ? images[48].value : null,
     whiteSill: whiteSillNight,
     pinkVineJoins: [pinkVineJoinDay, pinkVineJoinNight],
