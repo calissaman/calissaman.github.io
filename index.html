@@ -98,7 +98,7 @@
           <div class="scene-stage">
             <img
               class="scene-fallback"
-              src="assets/scene/scene-preview-day-2x.webp?v=20260919-129"
+              src="assets/scene/scene-preview-day-2x.webp?v=20260919-131"
               width="3072"
               height="2048"
               alt="Three ornate Peranakan shophouses beside reflective rainwater, with a skyscraper and two HDB blocks in the distance."
@@ -209,7 +209,7 @@
               document.querySelector(".clock-value").textContent = label;
               const night = minutes < 390 || minutes >= 1170;
               const fallback = document.querySelector(".scene-fallback");
-              fallback.src = `assets/scene/scene-preview-${night ? "night" : "day"}-2x.webp?v=20260919-129`;
+              fallback.src = `assets/scene/scene-preview-${night ? "night" : "day"}-2x.webp?v=20260919-131`;
               const range = document.querySelector("#environment-time");
               range.value = String(minutes);
               range.setAttribute("aria-valuetext", label);
