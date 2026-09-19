@@ -36,7 +36,7 @@ import {
 import {
   prepareFacadeScene,
   prepareWhiteWindowGlass,
-} from "./scene-facade.js?v=20260919-134";
+} from "./scene-facade.js?v=20260919-136";
 import { createGardenVisitor } from "./garden-visitor.js?v=20260913-57";
 import { prepareBistroScene } from "./bistro-scene.js?v=20260914-77";
 import {

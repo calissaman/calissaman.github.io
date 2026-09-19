@@ -29,7 +29,33 @@ export function drawGreenRoofClarity(ctx, image) {
   ctx.restore();
 }
 
-export function drawFacadeClarity(ctx, image) {
+const NIGHT_YELLOW_ROOF_OUTLINE = Object.freeze([
+  [665, 170],
+  [902, 80],
+  [925, 176],
+  [675, 220],
+]);
+
+function coolNightYellowRoof(ctx) {
+  ctx.save();
+  ctx.beginPath();
+  NIGHT_YELLOW_ROOF_OUTLINE.forEach(([x, y], index) =>
+    index ? ctx.lineTo(x, y) : ctx.moveTo(x, y),
+  );
+  ctx.closePath();
+  ctx.clip();
+  ctx.globalCompositeOperation = "color";
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = "#bfd5d8";
+  ctx.fillRect(640, 15, 310, 225);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 0.11;
+  ctx.fillStyle = "#75a2b3";
+  ctx.fillRect(640, 15, 310, 225);
+  ctx.restore();
+}
+
+export function drawFacadeClarity(ctx, image, { night = false } = {}) {
   if (!image) return;
   ctx.save();
   ctx.beginPath();
@@ -68,4 +94,5 @@ export function drawFacadeClarity(ctx, image) {
   }
   ctx.drawImage(image, 665, 25, 585, 785);
   ctx.restore();
+  if (night) coolNightYellowRoof(ctx);
 }
