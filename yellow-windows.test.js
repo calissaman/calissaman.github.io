@@ -4,6 +4,7 @@ import {
   YELLOW_WINDOWS,
   shutterLeaves,
   yellowInteriorCrop,
+  yellowInteriorQuad,
   yellowInteriorTarget,
   yellowWindowButtonRect,
   createYellowWindows,
@@ -86,6 +87,16 @@ test("the two upstairs windows clip one continuous gallery projection", () => {
   assert.ok(left[0] >= 0 && left[0] + left[2] <= interior.width);
   assert.ok(left[1] >= 0 && left[1] + left[3] <= interior.height);
   assert.deepEqual(leftTarget, [695, 247, 185, 164]);
+  assert.deepEqual(yellowInteriorQuad(YELLOW_WINDOWS[0]), [
+    [695, 276],
+    [879, 247],
+    [880, 388],
+    [695, 411],
+  ]);
+  assert.deepEqual(
+    yellowInteriorQuad(YELLOW_WINDOWS[0]),
+    yellowInteriorQuad(YELLOW_WINDOWS[1]),
+  );
 });
 
 test("shutter leaves keep their hinges fixed and reveal more of the opening", () => {

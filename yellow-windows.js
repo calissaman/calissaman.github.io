@@ -87,6 +87,13 @@ export function yellowInteriorTarget(window) {
   return [room.x, room.y, room.width, room.height];
 }
 
+export function yellowInteriorQuad(window) {
+  if (!window.id.startsWith("upper-")) return window.quad;
+
+  const [left, right] = YELLOW_WINDOWS;
+  return [left.quad[0], right.quad[1], right.quad[2], left.quad[3]];
+}
+
 function trace(ctx, points) {
   ctx.beginPath();
   points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
@@ -171,6 +178,17 @@ function paintLeaf(ctx, image, source, target) {
     triangle(ctx, image, [s[0], s[1], s[2]], [t[0], t[1], t[2]]);
     triangle(ctx, image, [s[0], s[2], s[3]], [t[0], t[2], t[3]]);
   }
+}
+
+function paintInterior(ctx, image, sourceRect, target) {
+  const [x, y, width, height] = sourceRect,
+    source = [
+      [x, y],
+      [x + width, y],
+      [x + width, y + height],
+      [x, y + height],
+    ];
+  paintLeaf(ctx, image, source, target);
 }
 
 export function drawMatchingYellowShutters(ctx) {
@@ -370,7 +388,7 @@ export function createYellowWindows({
           const crop = yellowInteriorCrop(w, interior);
           const target = yellowInteriorTarget(w);
           if (crop) {
-            ctx.drawImage(interior, ...crop, ...target);
+            paintInterior(ctx, interior, crop, yellowInteriorQuad(w));
           } else {
             ctx.drawImage(interior, ...target);
           }

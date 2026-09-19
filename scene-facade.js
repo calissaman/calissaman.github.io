@@ -4,7 +4,7 @@ import {
   drawFacadePanels,
   FACADE_PANELS,
 } from "./facade-panels.js?v=20260915-82";
-import { drawMatchingYellowShutters } from "./yellow-windows.js?v=20260919-130";
+import { drawMatchingYellowShutters } from "./yellow-windows.js?v=20260919-133";
 
 export function drawBlueWindowTrim(ctx, image) {
   if (!image) return;
