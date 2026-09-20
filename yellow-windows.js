@@ -384,7 +384,7 @@ export function createYellowWindows({
         ctx.fillRect(x, y, w.texture.width, w.texture.height);
         if (interior) {
           ctx.save();
-          ctx.filter = `brightness(${0.62 + glow * 0.24 - nightAmount * (1 - light) * 0.25}) contrast(1.05) sepia(${glow * 0.06}) saturate(${1.16 + glow * 0.08})`;
+          ctx.filter = `brightness(${0.8 + glow * 0.18 - nightAmount * (1 - light) * 0.22}) contrast(1.03) sepia(${0.18 + glow * 0.18}) saturate(${1.08 + glow * 0.12}) hue-rotate(${-3 - glow * 3}deg)`;
           const crop = yellowInteriorCrop(w, interior);
           const target = yellowInteriorTarget(w);
           if (crop) {
@@ -392,6 +392,20 @@ export function createYellowWindows({
           } else {
             ctx.drawImage(interior, ...target);
           }
+          ctx.restore();
+          const [roomX, roomY, roomWidth, roomHeight] = target;
+          const warmLight = ctx.createLinearGradient(
+            roomX,
+            roomY,
+            roomX,
+            roomY + roomHeight,
+          );
+          warmLight.addColorStop(0, `rgba(255,190,86,${0.15 + glow * 0.06})`);
+          warmLight.addColorStop(0.58, `rgba(255,182,72,${0.08 + glow * 0.04})`);
+          warmLight.addColorStop(1, "rgba(255,174,62,0.03)");
+          ctx.save();
+          ctx.fillStyle = warmLight;
+          ctx.fillRect(roomX, roomY, roomWidth, roomHeight);
           ctx.restore();
           const shade = ctx.createLinearGradient(x, y, x + w.texture.width, y);
           shade.addColorStop(0, "#050e14c0");
