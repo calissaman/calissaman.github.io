@@ -27,7 +27,7 @@ import {
 } from "./scene-lighting.js?v=20260915-98";
 import { createYellowWindows } from "./yellow-windows.js?v=20260920-137";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
-import { setupAudio } from "./audio.js?v=20260918-122";
+import { setupAudio } from "./audio.js?v=20260923-138";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
   createWindows,

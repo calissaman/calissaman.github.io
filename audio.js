@@ -99,7 +99,7 @@ export function setupAudio() {
   const replayButton = document.querySelector(".track-replay");
   const volumeInput = document.querySelector("#music-volume");
   const waterVolumeInput = document.querySelector("#water-volume");
-  let waterVolume = Number(waterVolumeInput?.value ?? 0.45);
+  let waterVolume = Number(waterVolumeInput?.value ?? 0.2);
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let ambientContext = null;
   let ambientGain = null;
