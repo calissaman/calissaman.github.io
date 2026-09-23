@@ -1,7 +1,7 @@
 import {
   drawFacadeClarity,
   drawGreenRoofClarity,
-} from "./facade-clarity.js?v=20260919-136";
+} from "./facade-clarity.js?v=20260923-140";
 import { drawPinkWindowTrim } from "./pink-facade.js?v=20260914-77";
 import {
   drawFacadePanels,
@@ -145,9 +145,9 @@ export const GREEN_WINDOW_OPENINGS = Object.freeze([
 
 export const FACADE_OUTLINE = Object.freeze([
   [433, 226],
-  [660, 185],
-  [668, 481],
-  [668, 780],
+  [700, 178],
+  [700, 481],
+  [700, 780],
   [422, 780],
   [421, 750],
   [429, 710],

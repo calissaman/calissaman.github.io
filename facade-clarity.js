@@ -7,6 +7,37 @@ export const GREEN_ROOF_RECT = Object.freeze({
   height: 310,
 });
 
+function paintWithLeftFeather(
+  ctx,
+  paint,
+  { start, end, alpha = 1, steps = 12 },
+) {
+  const bandWidth = (end - start) / steps;
+  for (let index = 0; index < steps; index += 1) {
+    const progress = (index + 0.5) / steps;
+    const opacity = progress * progress * (3 - 2 * progress);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(
+      start + index * bandWidth,
+      -2048,
+      bandWidth + 0.5,
+      4096,
+    );
+    ctx.clip();
+    ctx.globalAlpha = alpha * opacity;
+    paint();
+    ctx.restore();
+  }
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(end, -2048, 2048, 4096);
+  ctx.clip();
+  ctx.globalAlpha = alpha;
+  paint();
+  ctx.restore();
+}
+
 export function drawGreenRoofClarity(ctx, image) {
   if (!image) return;
   ctx.save();
@@ -44,14 +75,24 @@ function coolNightYellowRoof(ctx) {
   );
   ctx.closePath();
   ctx.clip();
-  ctx.globalCompositeOperation = "color";
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = "#bfd5d8";
-  ctx.fillRect(640, 15, 310, 225);
-  ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = 0.11;
-  ctx.fillStyle = "#75a2b3";
-  ctx.fillRect(640, 15, 310, 225);
+  paintWithLeftFeather(
+    ctx,
+    () => {
+      ctx.globalCompositeOperation = "color";
+      ctx.fillStyle = "#bfd5d8";
+      ctx.fillRect(640, 15, 310, 225);
+    },
+    { start: 710, end: 750, alpha: 0.5 },
+  );
+  paintWithLeftFeather(
+    ctx,
+    () => {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "#75a2b3";
+      ctx.fillRect(640, 15, 310, 225);
+    },
+    { start: 710, end: 750, alpha: 0.11 },
+  );
   ctx.restore();
 }
 
@@ -92,7 +133,11 @@ export function drawFacadeClarity(ctx, image, { night = false } = {}) {
     ctx.closePath();
     ctx.clip("evenodd");
   }
-  ctx.drawImage(image, 665, 25, 585, 785);
+  paintWithLeftFeather(
+    ctx,
+    () => ctx.drawImage(image, 665, 25, 585, 785),
+    { start: 710, end: 750 },
+  );
   ctx.restore();
   if (night) coolNightYellowRoof(ctx);
 }
