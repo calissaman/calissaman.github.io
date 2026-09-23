@@ -19,7 +19,7 @@ import {
 import {
   createRenderer,
   drawWaterFallback,
-} from "./scene-renderer.js?v=20260917-116";
+} from "./scene-renderer.js?v=20260923-139";
 import {
   createSceneLighting,
   prepareLightPatches,

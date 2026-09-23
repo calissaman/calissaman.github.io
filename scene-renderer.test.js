@@ -19,6 +19,10 @@ function canvasRecorder() {
     ellipses,
     clips,
     globalAlpha: 1,
+    createLinearGradient() {
+      return { addColorStop() {} };
+    },
+    fillRect() {},
     save() {
       stack.push({ ...transform, alpha: this.globalAlpha });
     },

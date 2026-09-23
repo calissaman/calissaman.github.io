@@ -97,7 +97,9 @@ void main(){
   vec2 reflection=reflectionPoint(p+rippleOffset);
   vec3 reflectionColor=mix(texture2D(dayImage,reflection).rgb,texture2D(nightImage,reflection).rgb,night);
   float settled=smoothstep(0.,${WATER_REFLECTION.edgeBlendDepth / SCENE.height},extensionDepth);
-  color=mix(edgeColor,reflectionColor,settled);
+  float reflectionPresence=mix(1.,.16,settled);
+  vec3 softenedReflection=mix(river,reflectionColor,reflectionPresence);
+  color=mix(edgeColor,softenedReflection,settled);
  }
  float glint=pow(max(0.,sin(p.y*275.+sin(p.x*18.+clock*.18)*1.4+clock*1.1)),14.);
  float shimmer=glint*(.4+.6*pow(.5+.5*sin(p.x*31.-clock*.7),2.))*motion;
@@ -455,6 +457,21 @@ export function drawWaterFallback(
       SCENE.height,
       SCENE.height + WATER_REFLECTION.edgeBlendDepth,
     );
+    const river = [
+      Math.round(19 - night * 15),
+      Math.round(87 - night * 67),
+      Math.round(92 - night * 64),
+    ];
+    const deepWater = ctx.createLinearGradient(
+      0,
+      SCENE.height,
+      0,
+      Math.min(bottom, SCENE.height + WATER_REFLECTION.edgeBlendDepth),
+    );
+    deepWater.addColorStop(0, `rgb(${river.join(" ")} / 0)`);
+    deepWater.addColorStop(1, `rgb(${river.join(" ")} / 0.84)`);
+    ctx.fillStyle = deepWater;
+    ctx.fillRect(left, SCENE.height, right - left, bottom - SCENE.height);
   }
   ctx.save();
   clipWater();

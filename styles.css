@@ -1143,6 +1143,9 @@ p {
   }
 }
 @media (max-width: 600px) {
+  body {
+    font-size: 17px;
+  }
   html {
     scroll-padding-top: 24px;
   }
@@ -1164,7 +1167,7 @@ p {
     flex: 1 1 auto;
     justify-content: space-between;
     gap: 2px;
-    font-size: 9px;
+    font-size: 11px;
   }
   .main-nav a {
     display: grid;
@@ -1189,10 +1192,10 @@ p {
     font-size: 32px;
   }
   .clock-city {
-    font-size: 10px;
+    font-size: 12px;
   }
   .clock-hint {
-    font-size: 10px;
+    font-size: 12px;
   }
   .time-panel {
     top: -15px;
@@ -1206,7 +1209,7 @@ p {
   .scene-sound {
     right: 22px;
     bottom: 100px;
-    font-size: 11px;
+    font-size: 13px;
   }
   .scene-bottom {
     bottom: 25px;
@@ -1215,11 +1218,11 @@ p {
     gap: 10px;
   }
   .scene-caption {
-    font-size: 16px;
+    font-size: 18px;
   }
   .scene-scroll {
     padding: 4px 0;
-    font-size: 11px;
+    font-size: 13px;
   }
   .hero,
   .flow-section,
@@ -1234,7 +1237,7 @@ p {
     max-width: 18ch;
   }
   .hero p {
-    font-size: 16px;
+    font-size: 18px;
   }
   .flow-section {
     padding: 55px 0;
@@ -1248,7 +1251,7 @@ p {
     margin-bottom: 25px;
   }
   .statement p {
-    font-size: 16px;
+    font-size: 18px;
   }
   .section-heading {
     margin-bottom: 30px;
@@ -1258,6 +1261,19 @@ p {
   }
   .section-heading .kicker {
     margin-bottom: 20px;
+  }
+  .kicker,
+  .note-index,
+  .sgsf-panel-meta {
+    font-size: 12px;
+  }
+  .section-heading p:not(.kicker),
+  .eval-summary p,
+  .book-review p:not(.kicker) {
+    font-size: 17px;
+  }
+  .text-link {
+    font-size: 16px;
   }
   .eval-body {
     display: block;
@@ -1288,7 +1304,6 @@ p {
   }
   .sgsf-panel-meta {
     margin-top: 8px;
-    font-size: 10px;
   }
   .shelf {
     grid-template-columns: repeat(2, 1fr);
@@ -1296,7 +1311,7 @@ p {
     padding: 8px 12px 24px;
   }
   .book-label {
-    font-size: 12px;
+    font-size: 14px;
     min-height: 0;
   }
   .book-review {
@@ -1317,9 +1332,22 @@ p {
     flex-wrap: wrap;
     gap: 15px;
     padding: 24px 0;
+    font-size: 13px;
   }
   .site-footer span:last-child {
     flex-basis: 100%;
+  }
+}
+@media (max-width: 359px) {
+  .wordmark-signature {
+    width: 64px;
+  }
+  .main-nav {
+    font-size: 10px;
+  }
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
   }
 }
 @media (max-height: 550px) and (min-width: 601px) {
