@@ -31,7 +31,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.7;
   transition:
     background-color 0.6s,
@@ -161,7 +161,7 @@ p {
   font-family: var(--sans);
   font-size: inherit;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 500;
   line-height: 1.7;
   padding: 10px 0;
   text-shadow: 0 1px 8px #001621;
@@ -296,6 +296,7 @@ p {
 }
 .clock-city {
   font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -305,6 +306,7 @@ p {
 }
 .clock-hint {
   font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.04em;
   opacity: 0.8;
 }
@@ -343,14 +345,14 @@ p {
   color: #193741;
   box-shadow: none;
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 500;
   line-height: 1.3;
   text-shadow: none;
   white-space: nowrap;
 }
 .time-close span {
   font-size: 18px;
-  font-weight: 300;
+  font-weight: 500;
   line-height: 1;
 }
 .time-close:hover {
@@ -466,11 +468,13 @@ p {
   align-items: center;
   gap: 8px;
   padding: 10px 0;
+  font-weight: 500;
 }
 .music-menu summary {
   cursor: pointer;
   list-style: none;
   padding: 10px 0;
+  font-weight: 500;
 }
 .music-menu summary::after {
   content: " +";
@@ -497,6 +501,7 @@ p {
   text-decoration: underline;
   text-underline-offset: 4px;
   display: block;
+  font-weight: 500;
 }
 .music-upload input {
   display: block;
@@ -521,7 +526,7 @@ p {
 .track-title {
   color: #fff5de;
   font-size: 13px;
-  font-weight: 300;
+  font-weight: 500;
 }
 .track-artist,
 .playlist-track-artist {
@@ -534,6 +539,7 @@ p {
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  font-weight: 500;
 }
 .playlist-list {
   display: grid;
@@ -578,6 +584,7 @@ p {
   padding: 8px;
   background: #ffffff12;
   min-width: 40px;
+  font-weight: 500;
   transition:
     background 180ms ease,
     color 180ms ease,
@@ -592,6 +599,7 @@ p {
 }
 .volume-label {
   font-size: 10px;
+  font-weight: 500;
   display: block;
 }
 #music-volume,
@@ -622,6 +630,7 @@ p {
   font-size: 12px;
   letter-spacing: 0.04em;
   padding: 12px;
+  font-weight: 500;
 }
 .scene-scroll span {
   display: block;
@@ -732,6 +741,7 @@ p {
   text-transform: uppercase;
   margin-top: 8px;
   color: var(--muted);
+  font-weight: 500;
 }
 .eval-body {
   display: grid;
@@ -811,6 +821,7 @@ p {
   color: var(--muted);
   font-size: 11px;
   letter-spacing: 0.02em;
+  font-weight: 500;
 }
 .eval-tiles-replay:hover {
   color: var(--text);
@@ -851,6 +862,7 @@ p {
   text-decoration: underline;
   text-underline-offset: 5px;
   color: var(--accent);
+  font-weight: 500;
 }
 .sgsf-triptych {
   display: grid;
@@ -902,6 +914,7 @@ p {
   margin-top: 10px;
   color: var(--muted);
   font-size: 11px;
+  font-weight: 500;
 }
 .sgsf-modal {
   border: 1px solid var(--line);
@@ -939,7 +952,7 @@ p {
 }
 .sgsf-modal-body pre,
 .sgsf-modal-poem {
-  font: 300 22px/1.65 var(--sans);
+  font: 400 22px/1.65 var(--sans);
   white-space: pre-wrap;
 }
 .sgsf-modal-close {
@@ -948,6 +961,7 @@ p {
   padding: 12px 0;
   text-decoration: underline;
   text-underline-offset: 4px;
+  font-weight: 500;
 }
 .shelf {
   display: grid;
@@ -1006,6 +1020,7 @@ p {
   line-height: 1.4;
   min-height: 34px;
   color: var(--muted);
+  font-weight: 500;
 }
 .book-choice.is-active .book-label {
   color: var(--text);
@@ -1079,6 +1094,9 @@ p {
 }
 .site-footer span:last-child {
   font: italic 14px var(--serif);
+}
+.site-footer a {
+  font-weight: 500;
 }
 .reveal-ready [data-reveal] {
   opacity: 0;
@@ -1423,7 +1441,7 @@ p {
 }
 .sgsf-poem-full {
   white-space: pre-line;
-  font: 300 22px/1.65 var(--sans);
+  font: 400 22px/1.65 var(--sans);
 }
 @media (max-width: 600px) {
   html {
