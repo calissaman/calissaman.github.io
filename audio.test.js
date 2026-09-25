@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_PLAYLIST,
+  PINK_DOOR_TRACK,
   pickShuffledTrack,
   pickTrackAfterEnd,
 } from "./audio.js";
@@ -25,6 +26,17 @@ test("the built-in playlist keeps the requested song and artist order", () => {
     ],
   );
   assert.equal(new Set(DEFAULT_PLAYLIST.map(({ src }) => src)).size, 12);
+});
+
+test("the pink-door song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [PINK_DOOR_TRACK.title, PINK_DOOR_TRACK.artist],
+    ["Ain't In LA", "ADÉLA"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === PINK_DOOR_TRACK.src),
+    false,
+  );
 });
 
 test("shuffle always selects another track when alternatives exist", () => {

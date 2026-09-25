@@ -63,6 +63,12 @@ export const DEFAULT_PLAYLIST = Object.freeze([
   },
 ]);
 
+export const PINK_DOOR_TRACK = Object.freeze({
+  title: "Ain't In LA",
+  artist: "ADÉLA",
+  src: "./assets/audio/interactions/adela-aint-in-la.mp3?v=20260925-144",
+});
+
 export function pickShuffledTrack(currentTrack, playlistLength, random = Math.random) {
   if (playlistLength < 1) return -1;
   if (playlistLength === 1) return 0;
@@ -257,6 +263,8 @@ export function setupAudio() {
     local: false,
   }));
   let currentTrack = 0;
+  let activeTrack = null;
+  let hiddenPlayback = false;
   let playbackWanted = false;
   let playbackVersion = 0;
   let shuffleEnabled = false;
@@ -295,7 +303,7 @@ export function setupAudio() {
   }
 
   function renderPlayer() {
-    const hasTracks = playlist.length > 0;
+    const hasTracks = Boolean(activeTrack || playlist.length);
     const playing = player && !player.paused && !player.ended && playbackWanted;
     if (playButton) {
       playButton.disabled = !hasTracks;
@@ -323,7 +331,7 @@ export function setupAudio() {
       .forEach((button, index) =>
         button.setAttribute(
           "aria-current",
-          index === currentTrack ? "true" : "false",
+          !hiddenPlayback && index === currentTrack ? "true" : "false",
         ),
       );
   }
@@ -336,11 +344,11 @@ export function setupAudio() {
   }
 
   async function playTrack() {
-    if (!player || !playlist.length) return;
+    if (!player || !activeTrack) return;
     if (!ambientWanted) enableWater();
     const version = ++playbackVersion;
     playbackWanted = true;
-    renderTrackMeta(playlist[currentTrack]);
+    renderTrackMeta(activeTrack);
     try {
       if (ambientContext && ambientContext.state !== "closed") {
         await ambientContext.resume();
@@ -355,8 +363,8 @@ export function setupAudio() {
       if (version !== playbackVersion) return;
       playbackWanted = false;
       renderTrackMeta(
-        playlist[currentTrack],
-        `Could not play ${playlist[currentTrack].name}.`,
+        activeTrack,
+        `Could not play ${activeTrack.name}.`,
       );
       renderPlayer();
     }
@@ -365,8 +373,10 @@ export function setupAudio() {
   function selectTrack(index, shouldPlay = false) {
     pauseTrack();
     currentTrack = (index + playlist.length) % playlist.length;
-    player.src = playlist[currentTrack].url;
-    renderTrackMeta(playlist[currentTrack]);
+    activeTrack = playlist[currentTrack];
+    hiddenPlayback = false;
+    player.src = activeTrack.url;
+    renderTrackMeta(activeTrack);
     renderPlayer();
     if (shouldPlay) playTrack();
   }
@@ -382,6 +392,8 @@ export function setupAudio() {
       .forEach((track) => URL.revokeObjectURL(track.url));
     playlist = [];
     currentTrack = 0;
+    activeTrack = null;
+    hiddenPlayback = false;
     renderTrackMeta(null, "Your playlist, on this device.");
     renderPlaylist();
     renderPlayer();
@@ -454,6 +466,13 @@ export function setupAudio() {
     player.addEventListener("pause", renderPlayer);
     player.addEventListener("ended", () => {
       if (!playbackWanted) return;
+      if (hiddenPlayback) {
+        if (replayEnabled) {
+          player.currentTime = 0;
+          playTrack();
+        } else pauseTrack();
+        return;
+      }
       const nextTrack = pickTrackAfterEnd({
         currentTrack,
         playlistLength: playlist.length,
@@ -467,11 +486,11 @@ export function setupAudio() {
       else pauseTrack();
     });
     player.addEventListener("error", () => {
-      if (!player.error || !playlist.length) return;
+      if (!player.error || !activeTrack) return;
       pauseTrack();
       renderTrackMeta(
-        playlist[currentTrack],
-        `Could not play ${playlist[currentTrack].name}.`,
+        activeTrack,
+        `Could not play ${activeTrack.name}.`,
       );
     });
   } else {
@@ -494,4 +513,22 @@ export function setupAudio() {
     ambientGain = null;
     renderAmbient();
   });
+
+  return {
+    playHiddenTrack(track = PINK_DOOR_TRACK) {
+      if (!player) return;
+      pauseTrack();
+      activeTrack = {
+        ...track,
+        name: `${track.title} — ${track.artist}`,
+        url: new URL(track.src, import.meta.url).href,
+        local: false,
+      };
+      hiddenPlayback = true;
+      player.src = activeTrack.url;
+      renderTrackMeta(activeTrack);
+      renderPlayer();
+      playTrack();
+    },
+  };
 }

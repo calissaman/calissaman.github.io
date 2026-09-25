@@ -22,12 +22,13 @@ import {
 } from "./scene-renderer.js?v=20260923-139";
 import {
   createSceneLighting,
+  lightButtonRect,
   prepareLightPatches,
   SCENE_LIGHTS,
 } from "./scene-lighting.js?v=20260915-98";
 import { createYellowWindows } from "./yellow-windows.js?v=20260920-137";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
-import { setupAudio } from "./audio.js?v=20260923-138";
+import { setupAudio } from "./audio.js?v=20260925-144";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
   createWindows,
@@ -78,7 +79,7 @@ function loadImage(src, retries = src.includes("green-bookshop-") ? 2 : 0) {
 export async function createScene({ onThemeChange } = {}) {
   const hero = document.querySelector(".shophouse-hero");
   if (!hero) return null;
-  setupAudio();
+  const audio = setupAudio();
   const stage = hero.querySelector(".scene-stage"),
     canvas = hero.querySelector(".scene-canvas"),
     objects = hero.querySelector(".scene-objects"),
@@ -460,6 +461,16 @@ export async function createScene({ onThemeChange } = {}) {
       status.textContent = message;
     },
   });
+  const pinkDoorButton = document.createElement("button");
+  pinkDoorButton.type = "button";
+  pinkDoorButton.className = "scene-hotspot scene-light-switch";
+  pinkDoorButton.setAttribute("aria-label", "Play Ain't In LA by ADÉLA");
+  pinkDoorButton.title = "Play Ain't In LA by ADÉLA";
+  pinkDoorButton.addEventListener("click", () => {
+    audio?.playHiddenTrack();
+    status.textContent = "Playing Ain't In LA by ADÉLA.";
+  });
+  stage.append(pinkDoorButton);
   lighting.update(environmentTime);
   lighting.step(1);
   const yellowWindows = createYellowWindows({
@@ -663,6 +674,10 @@ export async function createScene({ onThemeChange } = {}) {
     }
     windows.resize(layout);
     lighting.resize(layout);
+    Object.assign(
+      pinkDoorButton.style,
+      lightButtonRect({ rect: [792, 558, 90, 193] }, layout),
+    );
     yellowWindows.resize(layout);
     gardenVisitor.resize(layout);
     draw();
