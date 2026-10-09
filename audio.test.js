@@ -2,10 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_PLAYLIST,
+  DEFAULT_WATER_VOLUME,
   PINK_DOOR_TRACK,
   pickShuffledTrack,
   pickTrackAfterEnd,
 } from "./audio.js";
+
+test("water starts at a quiet default level", () => {
+  assert.equal(DEFAULT_WATER_VOLUME, 0.1);
+});
 
 test("the built-in playlist keeps the requested song and artist order", () => {
   assert.deepEqual(

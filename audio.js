@@ -1,5 +1,7 @@
 import { createWaterLoop } from "./water-audio.js?v=20260915-95";
 
+export const DEFAULT_WATER_VOLUME = 0.1;
+
 export const DEFAULT_PLAYLIST = Object.freeze([
   {
     title: "Natural",
@@ -105,7 +107,7 @@ export function setupAudio() {
   const replayButton = document.querySelector(".track-replay");
   const volumeInput = document.querySelector("#music-volume");
   const waterVolumeInput = document.querySelector("#water-volume");
-  let waterVolume = Number(waterVolumeInput?.value ?? 0.2);
+  let waterVolume = Number(waterVolumeInput?.value ?? DEFAULT_WATER_VOLUME);
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let ambientContext = null;
   let ambientGain = null;
