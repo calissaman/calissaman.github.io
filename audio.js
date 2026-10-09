@@ -109,8 +109,6 @@ export function setupAudio() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let ambientContext = null;
   let ambientGain = null;
-  let mixBus = null;
-  let musicSource = null;
   let waterReady = null;
   let ambientWanted = false;
   let ambientVersion = 0;
@@ -130,16 +128,16 @@ export function setupAudio() {
     ambientContext = context;
     ambientGain = context.createGain();
     ambientGain.gain.value = 0;
-    mixBus = context.createDynamicsCompressor();
-    mixBus.threshold.value = -6;
-    mixBus.knee.value = 6;
-    mixBus.ratio.value = 12;
-    mixBus.attack.value = 0.003;
-    mixBus.release.value = 0.25;
+    const waterLimiter = context.createDynamicsCompressor();
+    waterLimiter.threshold.value = -6;
+    waterLimiter.knee.value = 6;
+    waterLimiter.ratio.value = 12;
+    waterLimiter.attack.value = 0.003;
+    waterLimiter.release.value = 0.25;
     const output = context.createGain();
     output.gain.value = 0.85;
-    mixBus.connect(output).connect(context.destination);
-    ambientGain.connect(mixBus);
+    waterLimiter.connect(output).connect(context.destination);
+    ambientGain.connect(waterLimiter);
     return loadWaterRecording(context);
   }
 
@@ -345,18 +343,10 @@ export function setupAudio() {
 
   async function playTrack() {
     if (!player || !activeTrack) return;
-    if (!ambientWanted) enableWater();
     const version = ++playbackVersion;
     playbackWanted = true;
     renderTrackMeta(activeTrack);
     try {
-      if (ambientContext && ambientContext.state !== "closed") {
-        await ambientContext.resume();
-        if (!musicSource) {
-          musicSource = ambientContext.createMediaElementSource(player);
-          musicSource.connect(mixBus);
-        }
-      }
       await player.play();
       if (version === playbackVersion) renderPlayer();
     } catch {
