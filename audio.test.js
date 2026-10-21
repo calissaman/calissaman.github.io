@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_PLAYLIST,
   DEFAULT_WATER_VOLUME,
+  BLUE_MOON_TRACK,
   PINK_DOOR_TRACK,
   pickShuffledTrack,
   pickTrackAfterEnd,
@@ -40,6 +41,17 @@ test("the pink-door song stays outside the visible playlist", () => {
   );
   assert.equal(
     DEFAULT_PLAYLIST.some(({ src }) => src === PINK_DOOR_TRACK.src),
+    false,
+  );
+});
+
+test("the night-sky song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [BLUE_MOON_TRACK.title, BLUE_MOON_TRACK.artist],
+    ["Blue Moon", "Zara Larsson"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === BLUE_MOON_TRACK.src),
     false,
   );
 });

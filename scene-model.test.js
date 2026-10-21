@@ -15,10 +15,20 @@ import {
   waterCoverage,
   inWater,
   inWaterSurface,
+  inOpenSky,
   constrainToWater,
   windowVisitorAt,
   pairedClockMinutes,
 } from "./scene-model.js";
+
+test("the sky easter egg stays above the roofs and away from the canopy", () => {
+  assert.equal(inOpenSky(350, 120), true);
+  assert.equal(inOpenSky(700, 90), true);
+  assert.equal(inOpenSky(200, 300), true);
+  assert.equal(inOpenSky(850, 160), false);
+  assert.equal(inOpenSky(20, 120), false);
+  assert.equal(inOpenSky(600, 300), false);
+});
 
 test("the blue window visitor follows the evening and overnight schedules", () => {
   for (const [minute, visitor] of [

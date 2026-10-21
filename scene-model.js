@@ -114,6 +114,14 @@ export function inWaterSurface(x, y) {
   const extension = smooth(WATER.surfaceFadeStart, WATER.surfaceFadeEnd, y);
   return y >= 0 && coverage + (1 - coverage) * extension > 0.99;
 }
+export function inOpenSky(x, y) {
+  if (y < 20) return false;
+  // The left skyline remains tappable in portrait crops; the upper wedge follows the roofs.
+  if (x >= 40 && x < 400 && y >= 120 && y < 390) return true;
+  if (x < 250 || x > 940) return false;
+  const roofLine = 260 - x * 0.18;
+  return y < Math.min(220, roofLine);
+}
 export function constrainToWater({ x, y }, padding = 8) {
   const front = WATER.shoreY + WATER.shoreFadeEnd + padding;
   // The uppermost valid point is where the inner left bank meets the shore.

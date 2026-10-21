@@ -71,6 +71,12 @@ export const PINK_DOOR_TRACK = Object.freeze({
   src: "./assets/audio/interactions/adela-aint-in-la.mp3?v=20260925-144",
 });
 
+export const BLUE_MOON_TRACK = Object.freeze({
+  title: "Blue Moon",
+  artist: "Zara Larsson",
+  src: "./assets/audio/interactions/zara-larsson-blue-moon.mp3?v=20261021-147",
+});
+
 export function pickShuffledTrack(currentTrack, playlistLength, random = Math.random) {
   if (playlistLength < 1) return -1;
   if (playlistLength === 1) return 0;

@@ -12,10 +12,11 @@ import {
   pairedClockMinutes,
   sceneLayout,
   inWaterSurface,
+  inOpenSky,
   createSimulation,
   addRipple,
   stepSimulation,
-} from "./scene-model.js?v=20260919-128";
+} from "./scene-model.js?v=20261021-147";
 import {
   createRenderer,
   drawWaterFallback,
@@ -28,7 +29,10 @@ import {
 } from "./scene-lighting.js?v=20260915-98";
 import { createYellowWindows } from "./yellow-windows.js?v=20260920-137";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
-import { setupAudio } from "./audio.js?v=20261009-146";
+import {
+  BLUE_MOON_TRACK,
+  setupAudio,
+} from "./audio.js?v=20261021-147";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
   createWindows,
@@ -701,6 +705,11 @@ export async function createScene({ onThemeChange } = {}) {
     const tap = Math.hypot(e.clientX - down.x, e.clientY - down.y) < 8;
     down = null;
     const p = sourcePoint(e);
+    if (tap && displayNight > 0.55 && inOpenSky(p.x, p.y)) {
+      audio?.playHiddenTrack(BLUE_MOON_TRACK);
+      status.textContent = "Playing Blue Moon by Zara Larsson.";
+      return;
+    }
     if (tap && inWaterSurface(p.x, p.y)) {
       addRipple(sim, p.x, p.y);
       status.textContent = "Ripples spread across the water.";
