@@ -4,6 +4,7 @@ import {
   DEFAULT_PLAYLIST,
   DEFAULT_WATER_VOLUME,
   BLUE_MOON_TRACK,
+  MERLION_TRACK,
   PINK_DOOR_TRACK,
   pickShuffledTrack,
   pickTrackAfterEnd,
@@ -52,6 +53,17 @@ test("the night-sky song stays outside the visible playlist", () => {
   );
   assert.equal(
     DEFAULT_PLAYLIST.some(({ src }) => src === BLUE_MOON_TRACK.src),
+    false,
+  );
+});
+
+test("the Merlion song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [MERLION_TRACK.title, MERLION_TRACK.artist],
+    ["Blue Night", "Michael Learns To Rock"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === MERLION_TRACK.src),
     false,
   );
 });

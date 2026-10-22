@@ -22,21 +22,23 @@ function fixture(t, overrides = {}) {
     if (originalDocument === undefined) delete globalThis.document;
     else globalThis.document = originalDocument;
   });
-  const children = [], announcements = [];
+  const children = [], announcements = [], interactions = [];
   const images = {
     closedShutters: { id: "shutters" }, otter: { id: "otter" }, merlion: { id: "merlion" },
     ...overrides,
   };
   const windows = createWindows({
     stage: { append(...elements) { children.push(...elements); } },
-    ...images, announce(message) { announcements.push(message); },
+    ...images,
+    announce(message) { announcements.push(message); },
+    onMerlionClick() { interactions.push("merlion"); },
   });
   const button = (name) => {
     const found = children.find(element => element.className.split(/\s+/).includes(name));
     assert.ok(found, `missing independent ${name} target`);
     return found;
   };
-  return { windows, button, children, announcements };
+  return { windows, button, children, announcements, interactions };
 }
 
 function canvasRecorder() {
@@ -238,6 +240,16 @@ test("inactive-window clicks leave the active reveal alone and schedule changes 
   assert.equal(merlion.getAttribute("aria-pressed"), "false");
   f.windows.update(23 * 60);
   assert.equal(merlion.getAttribute("aria-pressed"), "false");
+});
+
+test("only an available Merlion interaction triggers its hidden song", (t) => {
+  const f = fixture(t);
+  const merlion = f.button("merlion-window-hotspot");
+  merlion.click();
+  assert.deepEqual(f.interactions, []);
+  f.windows.update(23 * 60);
+  merlion.click();
+  assert.deepEqual(f.interactions, ["merlion"]);
 });
 
 test("green shutters still toggle independently of both visitor windows", (t) => {

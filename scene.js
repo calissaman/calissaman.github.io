@@ -31,13 +31,14 @@ import { createYellowWindows } from "./yellow-windows.js?v=20260920-137";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import {
   BLUE_MOON_TRACK,
+  MERLION_TRACK,
   setupAudio,
-} from "./audio.js?v=20261021-147";
+} from "./audio.js?v=20261021-148";
 import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
 import {
   createWindows,
   prepareMerlionImage,
-} from "./scene-windows.js?v=20260913-60";
+} from "./scene-windows.js?v=20261021-148";
 import {
   prepareFacadeScene,
   prepareWhiteWindowGlass,
@@ -496,6 +497,10 @@ export async function createScene({ onThemeChange } = {}) {
     merlion: merlion ? prepareMerlionImage(merlion) : null,
     announce(message) {
       status.textContent = message;
+    },
+    onMerlionClick() {
+      audio?.playHiddenTrack(MERLION_TRACK);
+      status.textContent = "Playing Blue Night by Michael Learns To Rock.";
     },
   });
   const gardenVisitor = createGardenVisitor({

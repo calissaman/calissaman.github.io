@@ -24,6 +24,7 @@ export function createWindows({
   otter,
   merlion,
   announce,
+  onMerlionClick = () => {},
 }) {
   const green = document.createElement("button");
   green.type = "button";
@@ -124,6 +125,7 @@ export function createWindows({
       announce(
         `${window.name} ${window.revealed ? "peeks out from" : "settles back inside"} the ${window.side} blue upstairs window.`,
       );
+      if (window.visitor === "merlion") onMerlionClick();
     });
   }
 

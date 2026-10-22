@@ -77,6 +77,12 @@ export const BLUE_MOON_TRACK = Object.freeze({
   src: "./assets/audio/interactions/zara-larsson-blue-moon.mp3?v=20261021-147",
 });
 
+export const MERLION_TRACK = Object.freeze({
+  title: "Blue Night",
+  artist: "Michael Learns To Rock",
+  src: "./assets/audio/interactions/michael-learns-to-rock-blue-night.mp3?v=20261021-148",
+});
+
 export function pickShuffledTrack(currentTrack, playlistLength, random = Math.random) {
   if (playlistLength < 1) return -1;
   if (playlistLength === 1) return 0;
