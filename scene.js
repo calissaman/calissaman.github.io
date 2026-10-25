@@ -27,7 +27,7 @@ import {
   prepareLightPatches,
   SCENE_LIGHTS,
 } from "./scene-lighting.js?v=20260915-98";
-import { createYellowWindows } from "./yellow-windows.js?v=20260920-137";
+import { createYellowWindows } from "./yellow-windows.js?v=20261024-150";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import {
   BLUE_MOON_TRACK,
@@ -173,9 +173,10 @@ export async function createScene({ onThemeChange } = {}) {
       "blue-border-cream-turquoise.png",
       "green-roof-day-v3.png",
       "green-roof-night-v3.png",
+      "floral-salon-interior.png",
     ].map((name, index) =>
       loadImage(
-        `assets/scene/${name}?v=${index >= 49 ? "20260919-134" : index === 21 ? "20260919-126" : index === 23 || index === 24 ? "20260916-104" : index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260916-108" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260918-123" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
+        `assets/scene/${name}?v=${index === 51 ? "20261024-150" : index >= 49 ? "20260919-134" : index === 21 ? "20260919-126" : index === 23 || index === 24 ? "20260916-104" : index === 48 ? "20260915-101" : index >= 46 ? "20260915-100" : index >= 44 ? "20260915-94" : index >= 42 ? "20260915-93" : index >= 40 ? "20260916-108" : index === 22 ? "20260915-84" : index === 17 ? "20260915-82" : index === 11 || index === 12 || index === 15 || index === 39 ? "20260914-78" : index >= 35 || index === 16 ? "20260914-77" : index >= 31 || index === 17 ? "20260914-76" : index >= 29 ? "20260914-75" : index >= 27 ? "20260914-74" : index >= 25 ? "20260914-73" : index >= 23 ? "20260913-71" : index === 3 || index === 18 || index === 19 ? "20260913-67" : index >= 22 ? "20260913-66" : index >= 21 ? "20260913-64" : index >= 18 ? "20260913-63" : index >= 15 ? "20260913-62" : index < 2 ? "20260918-123" : index >= 13 ? "20260913-59" : index >= 11 ? "20260913-58" : index >= 9 ? "20260913-55" : "20260912-27"}`,
       ),
     ),
   );
@@ -238,6 +239,8 @@ export async function createScene({ onThemeChange } = {}) {
     images[49].status === "fulfilled" ? images[49].value : null;
   const greenRoofNight =
     images[50].status === "fulfilled" ? images[50].value : null;
+  const floralSalon =
+    images[51].status === "fulfilled" ? images[51].value : null;
   const facadeDayPatch = prepareWhiteWindowGlass(
     facadeDayOriginal,
     bookshopDay || bookshopNight,
@@ -483,6 +486,7 @@ export async function createScene({ onThemeChange } = {}) {
     day: dayOn,
     night: nightOn,
     interior: yellowInterior,
+    groundInterior: floralSalon,
     lightPatches,
     lights: SCENE_LIGHTS,
     getLightAmount: (id) => lighting.amountFor(id),

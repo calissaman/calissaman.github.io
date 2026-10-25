@@ -67,7 +67,16 @@ export function yellowInteriorCrop(window, interior) {
 
   const target = yellowInteriorTarget(window);
   if (!window.id.startsWith("upper-")) {
-    return coverCrop(imageWidth, imageHeight, target[2] / target[3], 0.08);
+    const aspect = target[2] / target[3],
+      cropHeight = imageHeight * 0.7,
+      cropWidth = Math.min(imageWidth, cropHeight * aspect),
+      fittedHeight = cropWidth / aspect;
+    return [
+      (imageWidth - cropWidth) / 2,
+      imageHeight - fittedHeight,
+      cropWidth,
+      fittedHeight,
+    ];
   }
 
   return coverCrop(imageWidth, imageHeight, target[2] / target[3]);
@@ -255,6 +264,7 @@ export function createYellowWindows({
   day,
   night,
   interior,
+  groundInterior = interior,
   lightPatches,
   lights,
   getLightAmount,
@@ -382,15 +392,16 @@ export function createYellowWindows({
         ctx.globalAlpha = 1;
         ctx.fillStyle = recess;
         ctx.fillRect(x, y, w.texture.width, w.texture.height);
-        if (interior) {
+        const room = w.id === "ground" ? groundInterior : interior;
+        if (room) {
           ctx.save();
           ctx.filter = `brightness(${0.8 + glow * 0.18 - nightAmount * (1 - light) * 0.22}) contrast(1.03) sepia(${0.18 + glow * 0.18}) saturate(${1.08 + glow * 0.12}) hue-rotate(${-3 - glow * 3}deg)`;
-          const crop = yellowInteriorCrop(w, interior);
+          const crop = yellowInteriorCrop(w, room);
           const target = yellowInteriorTarget(w);
           if (crop) {
-            paintInterior(ctx, interior, crop, yellowInteriorQuad(w));
+            paintInterior(ctx, room, crop, yellowInteriorQuad(w));
           } else {
-            ctx.drawImage(interior, ...target);
+            ctx.drawImage(room, ...target);
           }
           ctx.restore();
           const [roomX, roomY, roomWidth, roomHeight] = target;

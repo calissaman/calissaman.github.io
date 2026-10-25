@@ -99,6 +99,14 @@ test("the two upstairs windows clip one continuous gallery projection", () => {
   );
 });
 
+test("the ground-floor floral salon stays centered in its narrow opening", () => {
+  const interior = { width: 512, height: 768 };
+  const crop = yellowInteriorCrop(YELLOW_WINDOWS[2], interior);
+  assert.ok(crop[1] > 0);
+  assert.equal(crop[1] + crop[3], interior.height);
+  assert.equal(crop[0], (interior.width - crop[2]) / 2);
+});
+
 test("shutter leaves keep their hinges fixed and reveal more of the opening", () => {
   for (const w of YELLOW_WINDOWS) {
     const closed = shutterLeaves(w.quad, 0),
