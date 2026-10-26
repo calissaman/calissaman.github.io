@@ -5,11 +5,12 @@ import {
   SCENE_LIGHTS,
   lightButtonRect,
   unlitPixel,
+  unlitLampPixel,
   flickerIntensity,
 } from "./scene-lighting.js";
 import { sceneLayout } from "./scene-model.js";
 
-function fixture(t, minutes = 1320) {
+function fixture(t, minutes = 1320, pendantGlow = false) {
   const original = globalThis.document;
   globalThis.document = {
     createElement() {
@@ -39,10 +40,12 @@ function fixture(t, minutes = 1320) {
   const buttons = [],
     notices = [],
     patches = new Map(
-      SCENE_LIGHTS.map((light) => [
-        light.id,
-        [light.id + "-day", light.id + "-night"],
-      ]),
+      SCENE_LIGHTS.map((light) => {
+        const frames = [light.id + "-day", light.id + "-night"];
+        if (pendantGlow && light.id === "bistro-pendant")
+          frames.push("pendant-glow-day", "pendant-glow-night");
+        return [light.id, frames];
+      }),
     );
   const lighting = createSceneLighting({
     stage: {
@@ -183,6 +186,25 @@ test("warm light pixels dim while blue shutters and dark outlines stay untouched
   assert.ok(lit[0] < 40 && lit[1] < 50 && lit[2] < 65);
   assert.equal(unlitPixel(32, 120, 191, true)[3], 0);
   assert.equal(unlitPixel(24, 22, 17, true)[3], 0);
+});
+
+test("the bistro pendant dims only its bulb instead of painting a grey halo", () => {
+  const center = unlitLampPixel(255, 244, 220, false, 0, true);
+  const outerGlass = unlitLampPixel(198, 177, 142, false, 0.72, true);
+  assert.ok(center[3] > 180);
+  assert.deepEqual(outerGlass, [198, 177, 142, 0]);
+});
+
+test("the bistro pendant adds its wall wash only while switched on", (t) => {
+  const f = fixture(t, 1320, true);
+  const on = lightFrame(f.lighting, 0, 1, true);
+  assert.equal(on.get("pendant-glow-night"), 1);
+  assert.equal(on.get("bistro-pendant-night"), 0);
+  f.button("bistro-pendant").click();
+  f.lighting.step(1);
+  const off = lightFrame(f.lighting, 0, 1, true);
+  assert.equal(off.get("pendant-glow-night"), undefined);
+  assert.equal(off.get("bistro-pendant-night"), 1);
 });
 
 test("targets follow the artwork at desktop and mobile sizes", () => {

@@ -95,6 +95,7 @@ export const SCENE_LIGHTS = [
     name: "bistro pendant lamp",
     flicker: "lamp",
     rect: [1066, 574, 57, 53],
+    glowRect: [1028, 532, 136, 132],
     ellipse: true,
     bistro: true,
   },
@@ -240,21 +241,60 @@ export function unlitPixel(r, g, b, night) {
 
 export function unlitLampPixel(r, g, b, night, distance, glass = false) {
   const brightness = (r + g + b) / 3;
+  if (glass) {
+    // Keep the pendant's clear globe visible without painting an opaque halo
+    // across its entire hit area. Only the luminous bulb is toned down.
+    const bulb =
+      clamp((0.43 - distance) * 11, 0, 1) *
+      clamp((brightness - 108) / 105, 0, 1);
+    const glassTone = night ? [174, 156, 124] : [218, 207, 188];
+    return [
+      r * (1 - bulb) + glassTone[0] * bulb,
+      g * (1 - bulb) + glassTone[1] * bulb,
+      b * (1 - bulb) + glassTone[2] * bulb,
+      bulb * 220,
+    ];
+  }
   const core =
     clamp((0.36 - distance) * 12, 0, 1) * clamp((brightness - 90) / 90, 0, 1);
   const halo = clamp(1 - distance, 0, 1) * 0.32;
   const shade = night ? 0.64 : 0.82;
-  const neutral = glass
-    ? [r * shade, g * shade * 0.88, b * shade * 0.69]
-    : night
-      ? [99, 92, 78]
-      : [171, 161, 143];
+  const neutral = night ? [99, 92, 78] : [171, 161, 143];
   return [
     r * 0.88 * (1 - core) + neutral[0] * core,
     g * 0.86 * (1 - core) + neutral[1] * core,
     b * 0.84 * (1 - core) + neutral[2] * core,
     Math.max(core, halo) * 255,
   ];
+}
+
+function preparePendantGlow(light, night, createCanvas) {
+  const [x, y, width, height] = light.glowRect;
+  const [lampX, lampY, lampWidth, lampHeight] = light.rect;
+  const cx = lampX + lampWidth / 2 - x;
+  const cy = lampY + lampHeight / 2 - y;
+  const canvas = createCanvas();
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+
+  // A broad, fully feathered wall wash reads as illumination rather than a
+  // translucent shape. The tighter core gives the frosted bulb some life.
+  const wash = ctx.createRadialGradient(cx, cy, 3, cx, cy, width * 0.5);
+  wash.addColorStop(0, `rgba(255,244,202,${night ? 0.46 : 0.34})`);
+  wash.addColorStop(0.22, `rgba(255,216,126,${night ? 0.36 : 0.28})`);
+  wash.addColorStop(0.62, `rgba(255,177,67,${night ? 0.17 : 0.13})`);
+  wash.addColorStop(1, "rgba(255,166,55,0)");
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, width, height);
+
+  const bulb = ctx.createRadialGradient(cx, cy, 1, cx, cy, 16);
+  bulb.addColorStop(0, `rgba(255,255,232,${night ? 0.72 : 0.6})`);
+  bulb.addColorStop(0.38, `rgba(255,236,174,${night ? 0.46 : 0.4})`);
+  bulb.addColorStop(1, "rgba(255,205,112,0)");
+  ctx.fillStyle = bulb;
+  ctx.fillRect(cx - 16, cy - 16, 32, 32);
+  return canvas;
 }
 
 export function prepareLightPatches(
@@ -349,6 +389,11 @@ export function prepareLightPatches(
         ctx.putImageData(pixels, 0, 0);
         return canvas;
       });
+      if (light.glowRect)
+        patches.push(
+          preparePendantGlow(light, false, createCanvas),
+          preparePendantGlow(light, true, createCanvas),
+        );
       return [light.id, patches];
     }),
   );
@@ -419,11 +464,32 @@ export function createSceneLighting({ stage, patches, announce }) {
         const amount =
           state.amount * flickerIntensity(state.light, time, night, reduced);
         const strength = state.light.dome ? amount : 1 - amount;
-        if (strength < 0.001) continue;
-        const [dayPatch, nightPatch] = patches.get(state.light.id);
+        const [dayPatch, nightPatch, dayGlow, nightGlow] = patches.get(
+          state.light.id,
+        );
+        if (
+          strength < 0.001 &&
+          (!(dayGlow && nightGlow) || amount < 0.001)
+        )
+          continue;
         const [x, y] = state.light.rect;
         ctx.save();
         ctx.globalCompositeOperation = "source-over";
+        if (dayGlow && nightGlow && amount > 0.001) {
+          const [glowX, glowY] = state.light.glowRect;
+          if (night <= 0.001) {
+            ctx.globalAlpha = amount;
+            ctx.drawImage(dayGlow, glowX, glowY);
+          } else if (night >= 0.999) {
+            ctx.globalAlpha = amount;
+            ctx.drawImage(nightGlow, glowX, glowY);
+          } else {
+            ctx.globalAlpha = amount * (1 - night);
+            ctx.drawImage(dayGlow, glowX, glowY);
+            ctx.globalAlpha = amount * night;
+            ctx.drawImage(nightGlow, glowX, glowY);
+          }
+        }
         ctx.globalAlpha = strength;
         // The day and night patches share a mask; paint one weighted frame.
         if (night <= 0.001) ctx.drawImage(dayPatch, x, y);

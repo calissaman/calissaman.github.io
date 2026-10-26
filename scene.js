@@ -26,7 +26,7 @@ import {
   lightButtonRect,
   prepareLightPatches,
   SCENE_LIGHTS,
-} from "./scene-lighting.js?v=20260915-98";
+} from "./scene-lighting.js?v=20261026-151";
 import { createYellowWindows } from "./yellow-windows.js?v=20261024-150";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import {
