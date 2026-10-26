@@ -1,5 +1,5 @@
-import { minutesInZone, nightAt } from "./scene-model.js?v=20261021-147";
-import { createScene } from "./scene.js?v=20261026-151";
+import { minutesInZone, nightAt } from "./scene-model.js?v=20261026-153";
+import { createScene } from "./scene.js?v=20261026-153";
 import { setupEvalTiles } from "./eval-tiles.js?v=20260912-24";
 
 const root = document.documentElement;
@@ -31,6 +31,7 @@ const setTheme = (theme) => {
 setTheme(nightAt(minutesInZone(new Date(), "singapore")) > 0.45 ? "dark" : "light");
 const header = document.querySelector(".site-header");
 const opening = document.querySelector(".shophouse-hero");
+const mobileNav = document.querySelector(".mobile-nav");
 if (header && opening) {
   new IntersectionObserver(
     ([entry]) => {
@@ -39,6 +40,18 @@ if (header && opening) {
     { rootMargin: "-100px 0px 0px 0px" },
   ).observe(opening);
 }
+mobileNav?.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => mobileNav.removeAttribute("open"));
+});
+mobileNav?.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  mobileNav.removeAttribute("open");
+  mobileNav.querySelector("summary")?.focus();
+});
+document.addEventListener("pointerdown", (event) => {
+  if (mobileNav?.open && !event.target.closest(".mobile-nav"))
+    mobileNav.removeAttribute("open");
+});
 themeToggle?.addEventListener("click", () => {
   const theme = root.dataset.theme === "dark" ? "light" : "dark";
   setTheme(theme);

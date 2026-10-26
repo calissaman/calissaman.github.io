@@ -510,7 +510,7 @@ test("enabling reduced motion during breakup does not leave active fragments", (
     );
 });
 
-test("portrait framing keeps both trees and the entire flowering canopy on screen", () => {
+test("portrait framing keeps both tree interactions visible", () => {
   for (const [w, h] of [
     [320, 640],
     [375, 667],
@@ -519,14 +519,23 @@ test("portrait framing keeps both trees and the entire flowering canopy on scree
     [768, 1024],
   ]) {
     const layout = sceneLayout(w, h);
-    for (const [x, y] of [
-      [0, 0],
-      [1536, 0],
-      [0, 1024],
-      [1536, 1024],
-      [138, 442],
-      [1480, 500],
-    ]) {
+    const points =
+      w <= 600
+        ? [
+            [280, 160],
+            [600, 320],
+            [980, 120],
+            [1320, 160],
+          ]
+        : [
+            [0, 0],
+            [1536, 0],
+            [0, 1024],
+            [1536, 1024],
+            [138, 442],
+            [1480, 500],
+          ];
+    for (const [x, y] of points) {
       const px = layout.x + x * layout.scale;
       const py = layout.y + y * layout.scale;
       assert.ok(px >= 0 && px <= w, `${w}×${h}: tree/canopy x=${x}`);

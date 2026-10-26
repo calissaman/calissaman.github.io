@@ -432,3 +432,140 @@
     padding-block: 3px;
   }
 }
+
+@media (max-width: 600px) {
+  .shophouse-hero:has(.time-panel:not([hidden])) .scene-sound,
+  .shophouse-hero:has(.time-panel:not([hidden])) .scene-bottom {
+    visibility: hidden;
+  }
+
+  .time-panel[data-view="slider"] {
+    position: fixed;
+    inset: auto 12px max(12px, env(safe-area-inset-bottom));
+    width: auto;
+    max-height: calc(100svh - 88px);
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border: 1px solid #fff9ed38;
+    border-radius: 22px;
+    background: #082332f7;
+    box-shadow: 0 24px 70px #00131e99;
+    backdrop-filter: blur(20px);
+  }
+
+  .time-panel[data-view="slider"] .time-panel-heading {
+    position: static;
+    min-height: 0;
+    background: none;
+    font-size: 11px;
+  }
+
+  .time-panel[data-view="slider"] .time-toolbar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: block;
+    margin: 0;
+  }
+
+  .time-panel[data-view="slider"] .time-view-options {
+    display: none;
+  }
+
+  .time-panel[data-view="slider"] .time-close {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: #ffffff12;
+    color: #fff9ed;
+    font-size: 0;
+  }
+
+  .time-panel[data-view="slider"] .time-close span {
+    font-size: 23px;
+  }
+
+  .time-panel[data-view="slider"] .city-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 20px 0 12px;
+    padding-right: 48px;
+  }
+
+  .time-panel[data-view="slider"] .city-options button {
+    min-height: 44px;
+    padding: 8px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+
+  .time-panel[data-view="slider"] .time-scrubber {
+    position: relative;
+    height: auto;
+    margin: 14px 0 10px;
+  }
+
+  .time-panel[data-view="slider"] .time-markers {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 9px;
+  }
+
+  .time-panel[data-view="slider"] .time-scrubber input {
+    position: static;
+    display: block;
+    width: 100%;
+    height: 46px;
+    writing-mode: horizontal-tb;
+    direction: ltr;
+    touch-action: pan-x;
+    cursor: ew-resize;
+  }
+
+  .time-panel[data-view="slider"]
+    .time-scrubber
+    input::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 5px;
+  }
+
+  .time-panel[data-view="slider"]
+    .time-scrubber
+    input::-webkit-slider-thumb {
+    margin-top: -16px;
+    margin-left: 0;
+    width: 38px;
+    height: 38px;
+  }
+
+  .time-panel[data-view="slider"] .time-scrubber input::-moz-range-track {
+    width: 100%;
+    height: 5px;
+  }
+
+  .time-panel[data-view="slider"] .city-clocks {
+    gap: 12px;
+    padding-top: 12px;
+    font-size: 11px;
+  }
+
+  .time-panel[data-view="slider"] .return-local {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid #fff9ed35;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .time-panel[data-view="slider"] .time-mode {
+    margin-top: 8px;
+    text-align: center;
+  }
+}

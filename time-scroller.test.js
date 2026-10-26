@@ -105,7 +105,7 @@ class Element {
   }
 }
 
-function fixture(t, reduced = false) {
+function fixture(t, reduced = false, width = 1024) {
   const names = [
     "window",
     "document",
@@ -121,6 +121,7 @@ function fixture(t, reduced = false) {
   t.after(() => Object.assign(globalThis, originals));
   const document = new Element();
   const window = new Element();
+  window.innerWidth = width;
   const media = new Element();
   media.matches = reduced;
   window.matchMedia = () => media;
@@ -199,6 +200,13 @@ function fixture(t, reduced = false) {
     },
   };
 }
+
+test("compact screens open the touch-friendly slider view", (t) => {
+  const f = fixture(t, false, 390);
+  assert.equal(f.panel.dataset.view, "slider");
+  assert.equal(f.buttons[0].attributes["aria-pressed"], "false");
+  assert.equal(f.buttons[1].attributes["aria-pressed"], "true");
+});
 
 const offset = (tile) => Number(tile.properties.get("--tile-offset"));
 

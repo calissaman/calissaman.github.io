@@ -16,7 +16,7 @@ import {
   createSimulation,
   addRipple,
   stepSimulation,
-} from "./scene-model.js?v=20261021-147";
+} from "./scene-model.js?v=20261026-153";
 import {
   createRenderer,
   drawWaterFallback,
@@ -34,7 +34,7 @@ import {
   MERLION_TRACK,
   setupAudio,
 } from "./audio.js?v=20261021-148";
-import { setupTimeScroller } from "./time-scroller.js?v=20260913-61";
+import { setupTimeScroller } from "./time-scroller.js?v=20261026-152";
 import {
   createWindows,
   prepareMerlionImage,
@@ -534,11 +534,16 @@ export async function createScene({ onThemeChange } = {}) {
     local: "Local time",
   };
   const musicMenu = hero.querySelector(".music-menu");
+  const musicSummary = musicMenu.querySelector("summary");
   musicMenu.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       musicMenu.open = false;
-      musicMenu.querySelector("summary").focus();
+      musicSummary.focus();
     }
+  });
+  musicMenu.querySelector(".music-close")?.addEventListener("click", () => {
+    musicMenu.open = false;
+    musicSummary.focus();
   });
   function syncTime() {
     if (live) environmentTime = minutesInZone(new Date(), city);

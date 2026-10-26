@@ -327,7 +327,15 @@ export function setupTimeScroller({ panel, onTimeChange }) {
     if (document.hidden) cancel();
   });
 
-  panel.dataset.view = "breeze";
+  const initialView = window.innerWidth <= 600 ? "slider" : "breeze";
+  panel.dataset.view = initialView;
+  view.hidden = initialView !== "breeze";
+  viewButtons.forEach((button) => {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.timeView === initialView),
+    );
+  });
   update({});
   return { update, focus, cancel };
 }

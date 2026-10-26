@@ -67,13 +67,15 @@ export function pairedClockMinutes(minutes, city, date = new Date()) {
   };
 }
 export function sceneLayout(w, h) {
-  // Portrait fits the full canopy and both banks without stretching the artwork.
   const portrait = w / h < 1.3;
-  const scale = portrait
-    ? w / SCENE.width
+  const mobilePortrait = portrait && w <= 600;
+  const scale = mobilePortrait
+    ? w / 1160
+    : portrait
+      ? w / SCENE.width
     : Math.max(w / SCENE.width, Math.min(h / 1024, w / 920));
   let x = (w - 1536 * scale) * 0.53;
-  if (portrait) x = 0;
+  if (portrait && !mobilePortrait) x = 0;
   return {
     scale,
     x: Math.min(0, Math.max(w - SCENE.width * scale, x)),
