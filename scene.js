@@ -26,14 +26,16 @@ import {
   lightButtonRect,
   prepareLightPatches,
   SCENE_LIGHTS,
-} from "./scene-lighting.js?v=20261026-151";
+} from "./scene-lighting.js?v=20261116-154";
 import { createYellowWindows } from "./yellow-windows.js?v=20261024-150";
 import { createFlowers } from "./scene-flowers.js?v=20260913-67";
 import {
+  BISTRO_TRACK,
   BLUE_MOON_TRACK,
   MERLION_TRACK,
+  MONOGRAM_TRACK,
   setupAudio,
-} from "./audio.js?v=20261021-148";
+} from "./audio.js?v=20261116-155";
 import { setupTimeScroller } from "./time-scroller.js?v=20261026-152";
 import {
   createWindows,
@@ -58,8 +60,10 @@ import {
 } from "./morning-glory.js?v=20260914-75";
 import {
   drawTableSetting,
+  NIGHT_TABLE_RECT,
   prepareTableImage,
   prepareDinnerSprite,
+  tableSettingAt,
 } from "./scene-table.js?v=20260915-84";
 
 import {
@@ -479,6 +483,24 @@ export async function createScene({ onThemeChange } = {}) {
     status.textContent = "Playing Ain't In LA by ADÉLA.";
   });
   stage.append(pinkDoorButton);
+  const bistroTableButton = document.createElement("button");
+  bistroTableButton.type = "button";
+  bistroTableButton.className = "scene-hotspot bistro-table-hotspot";
+  bistroTableButton.setAttribute(
+    "aria-label",
+    "Play MICHELIN CYPHER by Epik High from the bistro table",
+  );
+  bistroTableButton.title = "Play MICHELIN CYPHER by Epik High";
+  bistroTableButton.addEventListener("click", () => {
+    audio?.playHiddenTrack(BISTRO_TRACK);
+    status.textContent = "Playing MICHELIN CYPHER by Epik High.";
+  });
+  stage.append(bistroTableButton);
+  const monogramButton = document.querySelector(".footer-monogram");
+  monogramButton?.addEventListener("click", () => {
+    audio?.playHiddenTrack(MONOGRAM_TRACK);
+    status.textContent = "Playing Finest Thing by RESCENE.";
+  });
   lighting.update(environmentTime);
   lighting.step(1);
   const yellowWindows = createYellowWindows({
@@ -558,6 +580,13 @@ export async function createScene({ onThemeChange } = {}) {
     mode.textContent = live
       ? `Live ${names[city].toLowerCase()}`
       : `Exploring ${formatMinutes(environmentTime)}`;
+    const tableSetting = tableSettingAt(environmentTime);
+    bistroTableButton.setAttribute(
+      "aria-label",
+      `Play MICHELIN CYPHER by Epik High from the bistro ${
+        tableSetting === "coffee" ? "coffee" : "cocktails and food"
+      }`,
+    );
     const paired = pairedClockMinutes(environmentTime, city);
     hero.querySelector("#sg-clock").textContent = formatMinutes(
       paired.singapore,
@@ -695,6 +724,21 @@ export async function createScene({ onThemeChange } = {}) {
     Object.assign(
       pinkDoorButton.style,
       lightButtonRect({ rect: [792, 558, 90, 193] }, layout),
+    );
+    Object.assign(
+      bistroTableButton.style,
+      lightButtonRect(
+        {
+          rect: [
+            NIGHT_TABLE_RECT.x,
+            NIGHT_TABLE_RECT.y,
+            NIGHT_TABLE_RECT.width,
+            NIGHT_TABLE_RECT.height,
+          ],
+        },
+        layout,
+        44,
+      ),
     );
     yellowWindows.resize(layout);
     gardenVisitor.resize(layout);

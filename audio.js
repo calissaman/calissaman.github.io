@@ -83,6 +83,18 @@ export const MERLION_TRACK = Object.freeze({
   src: "./assets/audio/interactions/michael-learns-to-rock-blue-night.mp3?v=20261021-148",
 });
 
+export const BISTRO_TRACK = Object.freeze({
+  title: "MICHELIN CYPHER",
+  artist: "Epik High",
+  src: "./assets/audio/interactions/epik-high-michelin-cypher.mp3?v=20261116-154",
+});
+
+export const MONOGRAM_TRACK = Object.freeze({
+  title: "Finest Thing",
+  artist: "RESCENE",
+  src: "./assets/audio/interactions/rescene-finest-thing.mp3?v=20261116-155",
+});
+
 export function pickShuffledTrack(currentTrack, playlistLength, random = Math.random) {
   if (playlistLength < 1) return -1;
   if (playlistLength === 1) return 0;

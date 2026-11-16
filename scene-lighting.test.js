@@ -235,6 +235,16 @@ test("targets follow the artwork at desktop and mobile sizes", () => {
   }
 });
 
+test("touch targets can request a larger minimum size", () => {
+  const rect = lightButtonRect(
+    { rect: [1018, 665, 122, 52] },
+    sceneLayout(390, 600),
+    44,
+  );
+  assert.ok(parseFloat(rect.width) >= 44);
+  assert.ok(parseFloat(rect.height) >= 44);
+});
+
 function lightFrame(lighting, time, night = 1, reduced = false) {
   const values = new Map();
   const ctx = {

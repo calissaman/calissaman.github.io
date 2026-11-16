@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_PLAYLIST,
   DEFAULT_WATER_VOLUME,
+  BISTRO_TRACK,
   BLUE_MOON_TRACK,
   MERLION_TRACK,
+  MONOGRAM_TRACK,
   PINK_DOOR_TRACK,
   pickShuffledTrack,
   pickTrackAfterEnd,
@@ -64,6 +66,28 @@ test("the Merlion song stays outside the visible playlist", () => {
   );
   assert.equal(
     DEFAULT_PLAYLIST.some(({ src }) => src === MERLION_TRACK.src),
+    false,
+  );
+});
+
+test("the bistro song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [BISTRO_TRACK.title, BISTRO_TRACK.artist],
+    ["MICHELIN CYPHER", "Epik High"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === BISTRO_TRACK.src),
+    false,
+  );
+});
+
+test("the monogram song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [MONOGRAM_TRACK.title, MONOGRAM_TRACK.artist],
+    ["Finest Thing", "RESCENE"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === MONOGRAM_TRACK.src),
     false,
   );
 });

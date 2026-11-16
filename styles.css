@@ -274,6 +274,10 @@ p {
   z-index: 3;
   cursor: pointer;
 }
+.bistro-table-hotspot {
+  z-index: 3;
+  cursor: pointer;
+}
 .branch-hotspot,
 .angsana-hotspot {
   z-index: 4;
@@ -1093,6 +1097,7 @@ p {
   width: 38px;
   height: 38px;
   flex: 0 0 auto;
+  padding: 0;
   background: var(--text);
   transition: background-color 0.6s;
   -webkit-mask: url("assets/monogram-watermark.png") center / contain no-repeat;

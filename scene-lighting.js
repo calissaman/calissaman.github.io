@@ -155,10 +155,10 @@ export function flickerIntensity(light, time, night, reduced) {
   return 1 - clamp(night, 0, 1) * (candle ? 0.28 : 0.14) * variation;
 }
 
-export function lightButtonRect(light, layout) {
+export function lightButtonRect(light, layout, minimumSize = 24) {
   const [x, y, width, height] = light.target || light.rect;
-  const w = Math.max(24, width * layout.scale);
-  const h = Math.max(24, height * layout.scale);
+  const w = Math.max(minimumSize, width * layout.scale);
+  const h = Math.max(minimumSize, height * layout.scale);
   const left = layout.x + (x + width / 2) * layout.scale - w / 2;
   return {
     left: `${left}px`,
