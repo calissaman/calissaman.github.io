@@ -95,6 +95,18 @@ export const MONOGRAM_TRACK = Object.freeze({
   src: "./assets/audio/interactions/rescene-finest-thing.mp3?v=20261116-155",
 });
 
+export const TAN_HUA_TRACK = Object.freeze({
+  title: "A Rainy Morning Extended",
+  artist: "Kashiwa Daisuke",
+  src: "./assets/audio/interactions/kashiwa-daisuke-a-rainy-morning-extended.mp3?v=20261117-157",
+});
+
+export const MORNING_GLORY_TRACK = Object.freeze({
+  title: "Greenery Rain",
+  artist: "Kashiwa Daisuke",
+  src: "./assets/audio/interactions/kashiwa-daisuke-greenery-rain.mp3?v=20261117-157",
+});
+
 export function pickShuffledTrack(currentTrack, playlistLength, random = Math.random) {
   if (playlistLength < 1) return -1;
   if (playlistLength === 1) return 0;

@@ -7,7 +7,9 @@ import {
   BLUE_MOON_TRACK,
   MERLION_TRACK,
   MONOGRAM_TRACK,
+  MORNING_GLORY_TRACK,
   PINK_DOOR_TRACK,
+  TAN_HUA_TRACK,
   pickShuffledTrack,
   pickTrackAfterEnd,
 } from "./audio.js";
@@ -88,6 +90,28 @@ test("the monogram song stays outside the visible playlist", () => {
   );
   assert.equal(
     DEFAULT_PLAYLIST.some(({ src }) => src === MONOGRAM_TRACK.src),
+    false,
+  );
+});
+
+test("the tan hua song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [TAN_HUA_TRACK.title, TAN_HUA_TRACK.artist],
+    ["A Rainy Morning Extended", "Kashiwa Daisuke"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === TAN_HUA_TRACK.src),
+    false,
+  );
+});
+
+test("the morning-glory song stays outside the visible playlist", () => {
+  assert.deepEqual(
+    [MORNING_GLORY_TRACK.title, MORNING_GLORY_TRACK.artist],
+    ["Greenery Rain", "Kashiwa Daisuke"],
+  );
+  assert.equal(
+    DEFAULT_PLAYLIST.some(({ src }) => src === MORNING_GLORY_TRACK.src),
     false,
   );
 });

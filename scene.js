@@ -34,8 +34,10 @@ import {
   BLUE_MOON_TRACK,
   MERLION_TRACK,
   MONOGRAM_TRACK,
+  MORNING_GLORY_TRACK,
   setupAudio,
-} from "./audio.js?v=20261116-155";
+  TAN_HUA_TRACK,
+} from "./audio.js?v=20261117-157";
 import { setupTimeScroller } from "./time-scroller.js?v=20261026-152";
 import {
   createWindows,
@@ -57,6 +59,7 @@ import { createSceneResolution } from "./scene-resolution.js?v=20260913-40";
 import {
   morningGloryAt,
   drawMorningGlory,
+  MORNING_GLORY_BLOOMS,
 } from "./morning-glory.js?v=20260914-75";
 import {
   drawTableSetting,
@@ -71,6 +74,11 @@ import {
   TREE_HOTSPOTS,
 } from "./tree-blooms.js?v=20260919-128";
 import { prepareTreeScene } from "./tree-art.js?v=20260913-71";
+
+const TAN_HUA_BLOOMS = Object.freeze([
+  { x: 701, y: 690, angle: -0.24 },
+  { x: 744, y: 681, angle: 0.18 },
+]);
 
 function loadImage(src, retries = src.includes("green-bookshop-") ? 2 : 0) {
   return new Promise((resolve, reject) => {
@@ -501,6 +509,33 @@ export async function createScene({ onThemeChange } = {}) {
     audio?.playHiddenTrack(MONOGRAM_TRACK);
     status.textContent = "Playing Finest Thing by RESCENE.";
   });
+  function createFlowerTrackButton({ className, label, track }) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `scene-hotspot flower-song-hotspot ${className}`;
+    button.setAttribute("aria-label", label);
+    button.title = label;
+    button.addEventListener("click", () => {
+      audio?.playHiddenTrack(track);
+      status.textContent = `Playing ${track.title} by ${track.artist}.`;
+    });
+    stage.append(button);
+    return button;
+  }
+  const tanHuaButtons = TAN_HUA_BLOOMS.map((_, index) =>
+    createFlowerTrackButton({
+      className: "tan-hua-song-hotspot",
+      label: `Play A Rainy Morning Extended by Kashiwa Daisuke from tan hua ${index + 1}`,
+      track: TAN_HUA_TRACK,
+    }),
+  );
+  const morningGloryButtons = MORNING_GLORY_BLOOMS.map((_, index) =>
+    createFlowerTrackButton({
+      className: "morning-glory-song-hotspot",
+      label: `Play Greenery Rain by Kashiwa Daisuke from morning glory ${index + 1}`,
+      track: MORNING_GLORY_TRACK,
+    }),
+  );
   lighting.update(environmentTime);
   lighting.step(1);
   const yellowWindows = createYellowWindows({
@@ -573,6 +608,16 @@ export async function createScene({ onThemeChange } = {}) {
     targetDaylight = daylightAt(environmentTime);
     targetBloom = bloomAt(environmentTime);
     targetMorningGlory = morningGloryAt(environmentTime);
+    const tanHuaVisible = Boolean(bloom && targetBloom > 0.1);
+    const morningGloryVisible = Boolean(
+      morningGlory && targetMorningGlory > 0.1,
+    );
+    tanHuaButtons.forEach((button) => {
+      button.hidden = !tanHuaVisible;
+    });
+    morningGloryButtons.forEach((button) => {
+      button.hidden = !morningGloryVisible;
+    });
     clockValue.textContent = formatMinutes(environmentTime);
     clockCity.textContent = names[city];
     range.value = String(environmentTime);
@@ -740,6 +785,22 @@ export async function createScene({ onThemeChange } = {}) {
         44,
       ),
     );
+    TAN_HUA_BLOOMS.forEach(({ x, y }, index) => {
+      Object.assign(
+        tanHuaButtons[index].style,
+        lightButtonRect({ rect: [x - 18, y - 18, 36, 36] }, layout, 44),
+      );
+    });
+    MORNING_GLORY_BLOOMS.forEach(({ x, y, size }, index) => {
+      Object.assign(
+        morningGloryButtons[index].style,
+        lightButtonRect(
+          { rect: [x - size / 2, y - size / 2, size, size] },
+          layout,
+          44,
+        ),
+      );
+    });
     yellowWindows.resize(layout);
     gardenVisitor.resize(layout);
     draw();
@@ -887,10 +948,7 @@ export async function createScene({ onThemeChange } = {}) {
     drawMorningGlory(ctx, morningGlory, displayMorningGlory, displayNight);
     flowers.draw(ctx, displayNight);
     treeBlooms.draw(ctx, angsanaFlower, displayNight);
-    for (const [x, y, angle] of [
-      [701, 690, -0.24],
-      [744, 681, 0.18],
-    ]) {
+    for (const { x, y, angle } of TAN_HUA_BLOOMS) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle);
